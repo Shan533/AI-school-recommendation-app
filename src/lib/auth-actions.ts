@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 
@@ -141,12 +141,38 @@ export async function registerAction(formData: FormData): Promise<AuthResult> {
 export async function signInWithGoogleAction(): Promise<AuthResult & { url?: string }> {
   try {
     const cookieStore = await cookies()
+    const headersList = await headers()
     const supabase = createClient(cookieStore)
+
+    // Get the site URL from multiple sources
+    let siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+    
+    if (!siteUrl) {
+      // Try to get from headers
+      const host = headersList.get('host')
+      const protocol = headersList.get('x-forwarded-proto') || 'http'
+      
+      if (host) {
+        siteUrl = `${protocol}://${host}`
+      } else if (process.env.VERCEL_URL) {
+        siteUrl = `https://${process.env.VERCEL_URL}`
+      } else {
+        siteUrl = 'http://localhost:3000'
+      }
+    }
+
+    console.log('OAuth redirect URL:', `${siteUrl}/auth/callback`)
+    console.log('Environment vars:', {
+      NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+      VERCEL_URL: process.env.VERCEL_URL,
+      host: headersList.get('host'),
+      protocol: headersList.get('x-forwarded-proto')
+    })
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`
+        redirectTo: `${siteUrl}/auth/callback`
       }
     })
 
