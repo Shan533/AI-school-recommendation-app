@@ -1,8 +1,45 @@
 import { notFound } from 'next/navigation'
-import { getSupabaseClient } from '@/lib/supabase/helpers'
+import { getSupabaseClient, getCurrentUser } from '@/lib/supabase/helpers'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { StarRating } from '@/components/ui/star-rating'
+import { ReviewForm } from '@/components/review-form'
+import { ReviewsList } from '@/components/reviews-list'
 import Link from 'next/link'
+
+// Define the exact type returned by Supabase
+type SupabaseReview = {
+  id: string
+  rating: number
+  comment: string
+  created_at: string
+  profiles: {
+    name: string
+  }
+}
+
+// Define the expected Review type
+interface Review {
+  id: string
+  rating: number
+  comment: string
+  created_at: string
+  profiles: {
+    name: string
+  } | null
+}
+
+// Transform function to ensure type safety
+function transformReviews(supabaseReviews: SupabaseReview[]): Review[] {
+  return supabaseReviews.map(review => ({
+    id: review.id,
+    rating: review.rating,
+    comment: review.comment,
+    created_at: review.created_at,
+    profiles: review.profiles || null
+  }))
+}
 
 async function getSchool(id: string) {
   const supabase = await getSupabaseClient()
@@ -36,6 +73,65 @@ async function getSchoolPrograms(schoolId: string) {
   return programs || []
 }
 
+async function getSchoolReviews(schoolId: string) {
+  const supabase = await getSupabaseClient()
+  const { data: reviews, error } = await supabase
+    .from('school_reviews')
+    .select(`
+      id,
+      rating,
+      comment,
+      created_at,
+      profiles!inner (
+        name
+      )
+    `)
+    .eq('school_id', schoolId)
+    .order('created_at', { ascending: false })
+  
+  if (error) {
+    console.error('Error fetching school reviews:', error)
+    return []
+  }
+  
+  return transformReviews((reviews || []) as unknown as SupabaseReview[])
+}
+
+async function getUserReview(schoolId: string, userId?: string) {
+  if (!userId) return null
+  
+  const supabase = await getSupabaseClient()
+  const { data: review, error } = await supabase
+    .from('school_reviews')
+    .select('id, rating, comment')
+    .eq('school_id', schoolId)
+    .eq('user_id', userId)
+    .single()
+  
+  if (error) {
+    return null
+  }
+  
+  return review
+}
+
+async function getSchoolRatingStats(schoolId: string) {
+  const supabase = await getSupabaseClient()
+  const { data, error } = await supabase
+    .from('school_reviews')
+    .select('rating')
+    .eq('school_id', schoolId)
+  
+  if (error || !data || data.length === 0) {
+    return { averageRating: 0, totalReviews: 0 }
+  }
+  
+  const totalReviews = data.length
+  const averageRating = data.reduce((sum, review) => sum + review.rating, 0) / totalReviews
+  
+  return { averageRating, totalReviews }
+}
+
 export default async function SchoolDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const school = await getSchool(id)
@@ -44,7 +140,13 @@ export default async function SchoolDetailPage({ params }: { params: Promise<{ i
     notFound()
   }
   
-  const programs = await getSchoolPrograms(school.id)
+  const user = await getCurrentUser()
+  const [programs, reviews, userReview, ratingStats] = await Promise.all([
+    getSchoolPrograms(school.id),
+    getSchoolReviews(school.id),
+    getUserReview(school.id, user?.id),
+    getSchoolRatingStats(school.id)
+  ])
 
   return (
     <div className="container mx-auto p-6">
@@ -66,13 +168,31 @@ export default async function SchoolDetailPage({ params }: { params: Promise<{ i
               {school.type && (
                 <p className="text-lg text-gray-600">{school.type}</p>
               )}
+              
+              {/* Rating Display */}
+              {ratingStats.totalReviews > 0 && (
+                <div className="flex items-center gap-4 mt-3">
+                  <StarRating rating={ratingStats.averageRating} readonly />
+                  <Badge variant="secondary">
+                    {ratingStats.totalReviews} {ratingStats.totalReviews === 1 ? 'Review' : 'Reviews'}
+                  </Badge>
+                </div>
+              )}
             </div>
-            {school.qs_ranking && (
-              <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg">
-                <p className="text-sm font-medium">QS World Ranking</p>
-                <p className="text-2xl font-bold">#{school.qs_ranking}</p>
-              </div>
-            )}
+            <div className="flex flex-col gap-2">
+              {school.qs_ranking && (
+                <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg text-center">
+                  <p className="text-sm font-medium">QS World Ranking</p>
+                  <p className="text-2xl font-bold">#{school.qs_ranking}</p>
+                </div>
+              )}
+              {ratingStats.totalReviews > 0 && (
+                <div className="bg-green-100 text-green-800 px-4 py-2 rounded-lg text-center">
+                  <p className="text-sm font-medium">User Rating</p>
+                  <p className="text-2xl font-bold">{ratingStats.averageRating.toFixed(1)}</p>
+                </div>
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -108,7 +228,7 @@ export default async function SchoolDetailPage({ params }: { params: Promise<{ i
       </Card>
 
       {/* Programs Section */}
-      <Card>
+      <Card className="mb-8">
         <CardHeader>
           <CardTitle>Programs Offered ({programs.length})</CardTitle>
         </CardHeader>
@@ -161,6 +281,41 @@ export default async function SchoolDetailPage({ params }: { params: Promise<{ i
           )}
         </CardContent>
       </Card>
+
+      {/* Reviews Section */}
+      <div className="space-y-8">
+        {/* Review Form */}
+        {user && (
+          <ReviewForm
+            type="school"
+            itemId={school.id}
+            itemName={school.name}
+            existingReview={userReview}
+          />
+        )}
+
+        {!user && (
+          <Card>
+            <CardContent className="p-6 text-center">
+              <p className="text-gray-600 mb-4">Please log in to write a review</p>
+              <Button asChild>
+                <Link href="/login">Login to Review</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Reviews List */}
+        <div>
+          <h2 className="text-2xl font-bold mb-6">Reviews</h2>
+          <ReviewsList
+            reviews={reviews}
+            type="school"
+            averageRating={ratingStats.averageRating}
+            totalReviews={ratingStats.totalReviews}
+          />
+        </div>
+      </div>
     </div>
   )
 }

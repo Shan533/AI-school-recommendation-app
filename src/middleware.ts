@@ -54,7 +54,42 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  await supabase.auth.getSession()
+  // Get the current session
+  const { data: { session } } = await supabase.auth.getSession()
+
+  // Protected routes that require authentication
+  const protectedRoutes = ['/admin', '/profile']
+  const publicAuthRoutes = ['/login', '/register']
+  const authCallbackRoutes = ['/auth/callback']
+  const authSetupRoutes = ['/auth/setup-username']
+  
+  const isProtectedRoute = protectedRoutes.some(route => 
+    request.nextUrl.pathname.startsWith(route)
+  )
+  const isPublicAuthRoute = publicAuthRoutes.some(route => 
+    request.nextUrl.pathname.startsWith(route)
+  )
+  const isAuthCallbackRoute = authCallbackRoutes.some(route => 
+    request.nextUrl.pathname.startsWith(route)
+  )
+  const isAuthSetupRoute = authSetupRoutes.some(route => 
+    request.nextUrl.pathname.startsWith(route)
+  )
+
+  // Allow auth callback and setup routes to proceed without checks
+  if (isAuthCallbackRoute || isAuthSetupRoute) {
+    return response
+  }
+
+  // Redirect authenticated users away from login/register pages
+  if (session && isPublicAuthRoute) {
+    return NextResponse.redirect(new URL('/', request.url))
+  }
+
+  // Redirect unauthenticated users from protected routes to login
+  if (!session && isProtectedRoute) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
 
   return response
 }

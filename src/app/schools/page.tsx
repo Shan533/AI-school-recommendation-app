@@ -1,25 +1,63 @@
 import { getSupabaseClient } from '@/lib/supabase/helpers'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+
 import Link from 'next/link'
 
-async function getSchools() {
+async function getSchoolsWithRatings() {
   const supabase = await getSupabaseClient()
-  const { data: schools, error } = await supabase
+  
+  // Get schools
+  const { data: schools, error: schoolsError } = await supabase
     .from('schools')
     .select('*')
     .order('name')
   
-  if (error) {
-    console.error('Error fetching schools:', error)
+  if (schoolsError) {
+    console.error('Error fetching schools:', schoolsError)
     return []
   }
   
-  return schools || []
+  if (!schools) return []
+  
+  // Get ratings for all schools
+  const { data: reviews, error: reviewsError } = await supabase
+    .from('school_reviews')
+    .select('school_id, rating')
+  
+  if (reviewsError) {
+    console.error('Error fetching reviews:', reviewsError)
+    return schools.map(school => ({ ...school, averageRating: 0, totalReviews: 0 }))
+  }
+  
+  // Calculate average ratings
+  const schoolRatings = reviews?.reduce((acc: Record<string, { ratings: number[]; count: number }>, review) => {
+    if (!acc[review.school_id]) {
+      acc[review.school_id] = { ratings: [], count: 0 }
+    }
+    acc[review.school_id].ratings.push(review.rating)
+    acc[review.school_id].count++
+    return acc
+  }, {}) || {}
+  
+  return schools.map(school => {
+    const schoolRating = schoolRatings[school.id]
+    const averageRating = schoolRating 
+      ? schoolRating.ratings.reduce((sum: number, rating: number) => sum + rating, 0) / schoolRating.count
+      : 0
+    const totalReviews = schoolRating ? schoolRating.count : 0
+    
+    return {
+      ...school,
+      averageRating,
+      totalReviews
+    }
+  })
 }
 
 export default async function SchoolsPage() {
-  const schools = await getSchools()
+  const schools = await getSchoolsWithRatings()
 
   return (
     <div className="container mx-auto p-6">
@@ -42,11 +80,18 @@ export default async function SchoolsPage() {
                       <span className="text-sm text-gray-600">({school.initial})</span>
                     )}
                   </div>
-                  {school.qs_ranking && (
-                    <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                      QS #{school.qs_ranking}
-                    </span>
-                  )}
+                  <div className="flex gap-1">
+                    {school.qs_ranking && (
+                      <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                        QS #{school.qs_ranking}
+                      </span>
+                    )}
+                    {school.totalReviews > 0 && (
+                      <Badge variant="secondary" className="text-xs">
+                        ★ {school.averageRating.toFixed(1)} ({school.totalReviews})
+                      </Badge>
+                    )}
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>

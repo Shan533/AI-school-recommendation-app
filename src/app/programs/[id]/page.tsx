@@ -1,8 +1,45 @@
 import { notFound } from 'next/navigation'
-import { getSupabaseClient } from '@/lib/supabase/helpers'
+import { getSupabaseClient, getCurrentUser } from '@/lib/supabase/helpers'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { StarRating } from '@/components/ui/star-rating'
+import { ReviewForm } from '@/components/review-form'
+import { ReviewsList } from '@/components/reviews-list'
 import Link from 'next/link'
+
+// Define the exact type returned by Supabase
+type SupabaseReview = {
+  id: string
+  rating: number
+  comment: string
+  created_at: string
+  profiles: {
+    name: string
+  }
+}
+
+// Define the expected Review type
+interface Review {
+  id: string
+  rating: number
+  comment: string
+  created_at: string
+  profiles: {
+    name: string
+  } | null
+}
+
+// Transform function to ensure type safety
+function transformReviews(supabaseReviews: SupabaseReview[]): Review[] {
+  return supabaseReviews.map(review => ({
+    id: review.id,
+    rating: review.rating,
+    comment: review.comment,
+    created_at: review.created_at,
+    profiles: review.profiles || null
+  }))
+}
 
 async function getProgram(id: string) {
   const supabase = await getSupabaseClient()
@@ -32,6 +69,65 @@ async function getProgram(id: string) {
   return program
 }
 
+async function getProgramReviews(programId: string) {
+  const supabase = await getSupabaseClient()
+  const { data: reviews, error } = await supabase
+    .from('program_reviews')
+    .select(`
+      id,
+      rating,
+      comment,
+      created_at,
+      profiles!inner (
+        name
+      )
+    `)
+    .eq('program_id', programId)
+    .order('created_at', { ascending: false })
+  
+  if (error) {
+    console.error('Error fetching program reviews:', error)
+    return []
+  }
+  
+  return transformReviews((reviews || []) as unknown as SupabaseReview[])
+}
+
+async function getUserReview(programId: string, userId?: string) {
+  if (!userId) return null
+  
+  const supabase = await getSupabaseClient()
+  const { data: review, error } = await supabase
+    .from('program_reviews')
+    .select('id, rating, comment')
+    .eq('program_id', programId)
+    .eq('user_id', userId)
+    .single()
+  
+  if (error) {
+    return null
+  }
+  
+  return review
+}
+
+async function getProgramRatingStats(programId: string) {
+  const supabase = await getSupabaseClient()
+  const { data, error } = await supabase
+    .from('program_reviews')
+    .select('rating')
+    .eq('program_id', programId)
+  
+  if (error || !data || data.length === 0) {
+    return { averageRating: 0, totalReviews: 0 }
+  }
+  
+  const totalReviews = data.length
+  const averageRating = data.reduce((sum, review) => sum + review.rating, 0) / totalReviews
+  
+  return { averageRating, totalReviews }
+}
+
 export default async function ProgramDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const program = await getProgram(id)
@@ -39,6 +135,13 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
   if (!program) {
     notFound()
   }
+
+  const user = await getCurrentUser()
+  const [reviews, userReview, ratingStats] = await Promise.all([
+    getProgramReviews(program.id),
+    getUserReview(program.id, user?.id),
+    getProgramRatingStats(program.id)
+  ])
 
   return (
     <div className="container mx-auto p-6">
@@ -58,6 +161,16 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
                 {program.initial && <span className="text-gray-600 ml-2">({program.initial})</span>}
               </CardTitle>
               <p className="text-lg text-gray-600">{program.degree} Program</p>
+              
+              {/* Rating Display */}
+              {ratingStats.totalReviews > 0 && (
+                <div className="flex items-center gap-4 mt-3">
+                  <StarRating rating={ratingStats.averageRating} readonly />
+                  <Badge variant="secondary">
+                    {ratingStats.totalReviews} {ratingStats.totalReviews === 1 ? 'Review' : 'Reviews'}
+                  </Badge>
+                </div>
+              )}
             </div>
             <div className="flex gap-2">
               {program.is_stem && (
@@ -68,6 +181,11 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
               <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg font-medium">
                 {program.degree}
               </span>
+              {ratingStats.totalReviews > 0 && (
+                <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-lg text-center">
+                  <span className="text-sm font-medium">★ {ratingStats.averageRating.toFixed(1)}</span>
+                </div>
+              )}
             </div>
           </div>
         </CardHeader>
@@ -117,7 +235,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
 
       {/* School Information */}
       {program.schools && (
-        <Card>
+        <Card className="mb-8">
           <CardHeader>
             <CardTitle>School Information</CardTitle>
           </CardHeader>
@@ -172,6 +290,41 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
           </CardContent>
         </Card>
       )}
+
+      {/* Reviews Section */}
+      <div className="space-y-8">
+        {/* Review Form */}
+        {user && (
+          <ReviewForm
+            type="program"
+            itemId={program.id}
+            itemName={program.name}
+            existingReview={userReview}
+          />
+        )}
+
+        {!user && (
+          <Card>
+            <CardContent className="p-6 text-center">
+              <p className="text-gray-600 mb-4">Please log in to write a review</p>
+              <Button asChild>
+                <Link href="/login">Login to Review</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Reviews List */}
+        <div>
+          <h2 className="text-2xl font-bold mb-6">Reviews</h2>
+          <ReviewsList
+            reviews={reviews}
+            type="program"
+            averageRating={ratingStats.averageRating}
+            totalReviews={ratingStats.totalReviews}
+          />
+        </div>
+      </div>
     </div>
   )
 }

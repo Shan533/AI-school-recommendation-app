@@ -63,6 +63,20 @@ export default async function AdminDashboard() {
             </Link>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>User Management</CardTitle>
+            <CardDescription>
+              Manage user accounts and admin permissions
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/admin/users">
+              <Button className="w-full">Manage Users</Button>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
