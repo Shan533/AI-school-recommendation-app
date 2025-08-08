@@ -161,14 +161,6 @@ export async function signInWithGoogleAction(): Promise<AuthResult & { url?: str
       }
     }
 
-    console.log('OAuth redirect URL:', `${siteUrl}/auth/callback`)
-    console.log('Environment vars:', {
-      NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
-      VERCEL_URL: process.env.VERCEL_URL,
-      host: headersList.get('host'),
-      protocol: headersList.get('x-forwarded-proto')
-    })
-
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
