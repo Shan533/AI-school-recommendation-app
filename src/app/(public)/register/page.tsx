@@ -141,7 +141,7 @@ export default function RegisterPage() {
                 id="password"
                 name="password"
                 type="password"
-                placeholder="Create a password (min. 6 characters)"
+                placeholder="Create a password (min. 8 characters)"
                 required
                 disabled={isLoading}
               />

@@ -40,12 +40,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# docs
-/docs
-
-# cursor
-.cursorrules
-.cursor
-
 # vscode
 .vscode
