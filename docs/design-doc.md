@@ -23,71 +23,9 @@ The application will provide the following core features, designed with simplici
 
 ### 3. Data Schema (Supabase - PostgreSQL)
 
-#### `users` (Managed by Supabase Auth)
-Supabase's `auth.users` table will handle user data. A `profiles` table will store public user information.
+The database schema has been moved to a dedicated document for clarity and easier maintenance.
 
-#### `profiles`
-*   `id` (uuid, primary key, foreign key to `auth.users.id`)
-*   `name` (text, not null)
-*   `profile_pic_url` (text)
-*   `is_admin` (boolean, default: `false`)
-*   `created_at` (timestamp with time zone)
-
-#### `schools`
-*   `id` (uuid, primary key)
-*   `name` (text, not null)
-*   `initial` (text)
-*   `type` (text)
-*   `country` (text)
-*   `location` (text)
-*   `year_founded` (integer)
-*   `qs_ranking` (integer)
-*   `website_url` (text)
-*   `created_by` (uuid, foreign key to `auth.users.id`)
-*   `created_at` (timestamp with time zone)
-
-#### `programs`
-*   `id` (uuid, primary key)
-*   `name` (text, not null)
-*   `initial` (text)
-*   `school_id` (uuid, foreign key to `schools.id`, not null)
-*   `degree` (text, not null)
-*   `website_url` (text)
-*   `duration_months` (integer)
-*   `currency` (text)
-*   `total_tuition` (integer)
-*   `is_stem` (boolean)
-*   `description` (text)
-*   `created_by` (uuid, foreign key to `auth.users.id`)
-*   `created_at` (timestamp with time zone)
-
-#### `program_reviews`
-*   `id` (uuid, primary key)
-*   `rating` (integer, not null, check 1-5)
-*   `comment` (text, not null)
-*   `user_id` (uuid, foreign key to `auth.users.id`, not null)
-*   `program_id` (uuid, foreign key to `programs.id`, not null)
-*   `created_at` (timestamp with time zone)
-
-#### `school_reviews`
-*   `id` (uuid, primary key)
-*   `rating` (integer, not null, check 1-5)
-*   `comment` (text)
-*   `user_id` (uuid, foreign key to `auth.users.id`, not null)
-*   `school_id` (uuid, foreign key to `schools.id`, not null)
-*   `created_at` (timestamp with time zone)
-
-#### `collections`
-*   `id` (uuid, primary key)
-*   `user_id` (uuid, foreign key to `auth.users.id`, not null)
-*   `name` (text, not null)
-*   `created_at` (timestamp with time zone)
-
-#### `collection_items`
-*   `id` (uuid, primary key)
-*   `collection_id` (uuid, foreign key to `collections.id`, not null)
-*   `school_id` (uuid, foreign key to `schools.id`, not null)
-*   `created_at` (timestamp with time zone)
+**[➡️ View the detailed Database Schema Design](./schema-design.md)**
 
 ### 4. Application Structure (Next.js App Router)
 The project structure will remain as originally planned, with new routes added for collections and user review pages.

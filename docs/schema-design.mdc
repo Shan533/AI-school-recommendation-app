@@ -1,0 +1,168 @@
+
+# Database Schema Design
+
+This document provides a detailed overview of the database schema for the AI School Recommend App, managed in Supabase with PostgreSQL.
+
+The schema is version-controlled through migration files located in `supabase/migrations/`. This document reflects the current state of the `main` branch.
+
+---
+
+### ERD (Entity Relationship Diagram)
+```mermaid
+erDiagram
+    profiles {
+        uuid id PK "FK to auth.users"
+        text name
+        text profile_pic_url
+        boolean is_admin
+        timestamptz created_at
+    }
+
+    schools {
+        uuid id PK
+        text name
+        text initial
+        text type
+        text country
+        text location
+        integer year_founded
+        integer qs_ranking
+        text website_url
+        uuid created_by "FK to auth.users"
+        timestamptz created_at
+    }
+
+    programs {
+        uuid id PK
+        text name
+        text initial
+        uuid school_id "FK to schools"
+        text degree
+        text website_url
+        real duration_years
+        text currency
+        integer total_tuition
+        boolean is_stem
+        text description
+        jsonb requirements
+        uuid created_by "FK to auth.users"
+        timestamptz created_at
+    }
+
+    program_reviews {
+        uuid id PK
+        integer rating "Check 1-5"
+        text comment
+        uuid user_id "FK to auth.users"
+        uuid program_id "FK to programs"
+        timestamptz created_at
+    }
+
+    school_reviews {
+        uuid id PK
+        integer rating "Check 1-5"
+        text comment
+        uuid user_id "FK to auth.users"
+        uuid school_id "FK to schools"
+        timestamptz created_at
+    }
+    
+    collections {
+        uuid id PK
+        uuid user_id "FK to auth.users"
+        text name
+        timestamptz created_at
+    }
+    
+    collection_items {
+        uuid id PK
+        uuid collection_id "FK to collections"
+        uuid school_id "FK to schools"
+        timestamptz created_at
+    }
+
+    profiles ||--o{ schools : "created by"
+    profiles ||--o{ programs : "created by"
+    profiles ||--o{ program_reviews : "written by"
+    profiles ||--o{ school_reviews : "written by"
+    profiles ||--o{ collections : "owns"
+    
+    schools ||--o{ programs : "has"
+    schools ||--o{ school_reviews : "has"
+    schools ||--o{ collection_items : "is in"
+    
+    programs ||--o{ program_reviews : "has"
+    
+    collections ||--o{ collection_items : "contains"
+```
+
+---
+
+### Table Definitions
+
+#### `users` (Managed by Supabase Auth)
+Supabase's `auth.users` table will handle user data. A `profiles` table will store public user information.
+
+#### `profiles`
+*   `id` (uuid, primary key, foreign key to `auth.users.id`)
+*   `name` (text, not null)
+*   `profile_pic_url` (text)
+*   `is_admin` (boolean, default: `false`)
+*   `created_at` (timestamp with time zone)
+
+#### `schools`
+*   `id` (uuid, primary key)
+*   `name` (text, not null)
+*   `initial` (text)
+*   `type` (text)
+*   `country` (text)
+*   `location` (text)
+*   `year_founded` (integer)
+*   `qs_ranking` (integer)
+*   `website_url` (text)
+*   `created_by` (uuid, foreign key to `auth.users.id`)
+*   `created_at` (timestamp with time zone)
+
+#### `programs`
+*   `id` (uuid, primary key)
+*   `name` (text, not null)
+*   `initial` (text)
+*   `school_id` (uuid, foreign key to `schools.id`, not null)
+*   `degree` (text, not null)
+*   `website_url` (text)
+*   `duration_years` (real) - *Updated from `duration_months`*
+*   `currency` (text)
+*   `total_tuition` (integer)
+*   `is_stem` (boolean)
+*   `description` (text)
+*   `requirements` (jsonb) - *New column for flexible requirement data*
+*   `created_by` (uuid, foreign key to `auth.users.id`)
+*   `created_at` (timestamp with time zone)
+
+#### `program_reviews`
+*   `id` (uuid, primary key)
+*   `rating` (integer, not null, check 1-5)
+*   `comment` (text, not null)
+*   `user_id` (uuid, foreign key to `auth.users.id`, not null)
+*   `program_id` (uuid, foreign key to `programs.id`, not null)
+*   `created_at` (timestamp with time zone)
+
+#### `school_reviews`
+*   `id` (uuid, primary key)
+*   `rating` (integer, not null, check 1-5)
+*   `comment` (text)
+*   `user_id` (uuid, foreign key to `auth.users.id`, not null)
+*   `school_id` (uuid, foreign key to `schools.id`, not null)
+*   `created_at` (timestamp with time zone)
+
+#### `collections`
+*   `id` (uuid, primary key)
+*   `user_id` (uuid, foreign key to `auth.users.id`, not null)
+*   `name` (text, not null)
+*   `created_at` (timestamp with time zone)
+
+#### `collection_items`
+*   `id` (uuid, primary key)
+*   `collection_id` (uuid, foreign key to `collections.id`, not null)
+*   `school_id` (uuid, foreign key to `schools.id`, not null)
+*   `created_at` (timestamp with time zone)
