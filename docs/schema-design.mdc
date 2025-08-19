@@ -45,7 +45,7 @@ erDiagram
         integer total_tuition
         boolean is_stem
         text description
-        jsonb requirements (related table, convience for us to filter data) (Delete) 
+        jsonb requirements (related table, convenience for us to filter data) (Delete) 
         uuid requirements_id "FK to requirements" (ADD)
         uuid created_by "FK to auth.users"
         timestamptz created_at
