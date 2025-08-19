@@ -65,7 +65,7 @@ erDiagram
         integer min_GPA
         text other_tests
         text personal_statement
-        text profolio
+        text portfolio
         text CV
         integer letters_recommendation
         integer application_fee
