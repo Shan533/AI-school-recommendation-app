@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # Next.js Web Application
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    container_name: ai-school-app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ..:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # Python Web Crawler
+  crawler:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.crawler
+    container_name: web-crawler
+    volumes:
+      - ../crawler:/app/crawler
+      - ../requirements.txt:/app/requirements.txt
+      - ../.env:/app/.env
+      - ../logs:/app/logs
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    profiles:
+      - crawler
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+    name: ai-school-network
