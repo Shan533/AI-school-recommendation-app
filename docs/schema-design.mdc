@@ -40,13 +40,36 @@ erDiagram
         text degree
         text website_url
         real duration_years
+        integer credits (ADD)
         text currency
         integer total_tuition
         boolean is_stem
         text description
-        jsonb requirements
+        jsonb requirements (related table, convenience for us to filter data) (Delete) 
+        uuid requirements_id "FK to requirements" (ADD)
         uuid created_by "FK to auth.users"
         timestamptz created_at
+        text onsite/online (default onsite) (ADD)
+        text Format (Full-time/Part-time)(ADD)
+        text location (default school location)(ADD)
+        text adds_on (eg. discount on tuition) (ADD)
+        date start_date (ADD)
+    }
+
+    (ADD)
+    requirements {
+        uuid id PK
+        integer IELTS (allowed empty)
+        integer TOEFL (allowed empty)
+        integer GRE_score
+        integer min_GPA
+        text other_tests
+        text personal_statement
+        text portfolio
+        text CV
+        integer letters_recommendation
+        integer application_fee
+        date DDL
     }
 
     program_reviews {
