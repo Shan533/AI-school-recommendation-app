@@ -40,36 +40,33 @@ erDiagram
         text degree
         text website_url
         real duration_years
-        integer credits (ADD)
+        integer credits "ADD: Program credits"
         text currency
         integer total_tuition
         boolean is_stem
         text description
-        jsonb requirements (related table, convenience for us to filter data) (Delete) 
-        uuid requirements_id "FK to requirements" (ADD)
         uuid created_by "FK to auth.users"
         timestamptz created_at
-        text onsite/online (default onsite) (ADD)
-        text Format (Full-time/Part-time)(ADD)
-        text location (default school location)(ADD)
-        text adds_on (eg. discount on tuition) (ADD)
-        date start_date (ADD)
+        text delivery_method "ADD: e.g., Onsite, Online, Hybrid"
+        text schedule_type "ADD: e.g., Full-time, Part-time"
+        text location "ADD: Defaults to school location if not specified"
+        jsonb add_ons "ADD: e.g., {\\"scholarship_available\\": true}"
+        date start_date "ADD: Program start date"
     }
 
-    (ADD)
-    requirements {
-        uuid id PK
-        integer IELTS (allowed empty)
-        integer TOEFL (allowed empty)
-        integer GRE_score
-        integer min_GPA
-        text other_tests
-        text personal_statement
-        text portfolio
-        text CV
-        integer letters_recommendation
+    requirements { "ADD: New table for program requirements"
+        uuid program_id PK "FK to programs, one-to-one"
+        real ielts_score "Allowed to be null"
+        real toefl_score "Allowed to be null"
+        integer gre_score "Allowed to be null"
+        real min_gpa "e.g., 3.0"
+        text other_tests "Details about other required tests"
+        boolean requires_personal_statement
+        boolean requires_portfolio
+        boolean requires_cv
+        integer letters_of_recommendation
         integer application_fee
-        date DDL
+        date application_deadline
     }
 
     program_reviews {
@@ -115,6 +112,7 @@ erDiagram
     schools ||--o{ collection_items : "is in"
     
     programs ||--o{ program_reviews : "has"
+    programs ||--|| requirements : "has"
     
     collections ||--o{ collection_items : "contains"
 ```
@@ -154,13 +152,33 @@ Supabase's `auth.users` table will handle user data. A `profiles` table will sto
 *   `degree` (text, not null)
 *   `website_url` (text)
 *   `duration_years` (real) - *Updated from `duration_months`*
+*   `credits` (integer) - *ADD: Total credits for the program*
 *   `currency` (text)
 *   `total_tuition` (integer)
 *   `is_stem` (boolean)
 *   `description` (text)
-*   `requirements` (jsonb) - *New column for flexible requirement data*
+*   `delivery_method` (text) - *ADD: e.g., 'Onsite', 'Online', 'Hybrid'*
+*   `schedule_type` (text) - *ADD: e.g., 'Full-time', 'Part-time'*
+*   `location` (text) - *ADD: Program-specific location, defaults to school location*
+*   `add_ons` (jsonb) - *ADD: For storing additional structured info like scholarships*
+*   `start_date` (date) - *ADD: Program start date*
 *   `created_by` (uuid, foreign key to `auth.users.id`)
 *   `created_at` (timestamp with time zone)
+
+#### `requirements` (ADD)
+*This table stores academic and application requirements for a program, forming a one-to-one relationship with the `programs` table.*
+*   `program_id` (uuid, primary key, foreign key to `programs.id`, not null)
+*   `ielts_score` (real)
+*   `toefl_score` (real)
+*   `gre_score` (integer)
+*   `min_gpa` (real)
+*   `other_tests` (text)
+*   `requires_personal_statement` (boolean, default: `false`)
+*   `requires_portfolio` (boolean, default: `false`)
+*   `requires_cv` (boolean, default: `false`)
+*   `letters_of_recommendation` (integer)
+*   `application_fee` (integer)
+*   `application_deadline` (date)
 
 #### `program_reviews`
 *   `id` (uuid, primary key)

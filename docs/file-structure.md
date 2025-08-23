@@ -15,6 +15,13 @@ AI_school_recommend_app/
 │   ├── rotten-tomatoes.programs.csv
 │   ├── rotten-tomatoes.programs.updated.csv
 │   └── programs-for-import.csv
+├── __tests__/
+│   └── schema/
+│       ├── schema-testing-guide.md
+│       ├── schema-test-results.md
+│       ├── test-schema.sql
+│       ├── test-schema-types.ts
+│       └── validate-migration.js
 ├── scripts/
 │   └── prepare-programs-csv.mjs
 ├── public/
@@ -89,7 +96,8 @@ AI_school_recommend_app/
 ├── supabase/
 │   └── migrations/
 │       ├── 0000_init.sql
-│       └── 0001_update_programs_table.sql
+│       ├── 0001_update_programs_table.sql
+│       └── 0002_add_requirements_and_program_enhancements.sql
 ├── .env
 ├── .gitignore
 ├── components.json
@@ -107,6 +115,8 @@ AI_school_recommend_app/
 
 -   **`docs/`**: Contains all project documentation, including design documents, implementation plans, and setup instructions.
 -   **`csv/`**: Holds raw CSV data for schools and programs, as well as processed files for database import.
+-   **`__tests__/`**: Contains all test files organized by feature.
+    -   **`schema/`**: Database schema validation and migration tests.
 -   **`scripts/`**: Contains utility and migration scripts for data processing and other operational tasks.
 -   **`public/`**: Stores static assets like images, fonts, and icons that are publicly accessible.
 -   **`src/`**: The main application source code directory.
