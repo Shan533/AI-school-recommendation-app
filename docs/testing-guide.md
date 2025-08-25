@@ -42,21 +42,21 @@ This guide walks you through testing all the implemented features in Phase 1.
    - Find your user record
    - Set `is_admin` to `true`
 3. **Test Admin Access**: 
-   - [ ] Visit `/admin/dashboard` - should now work
-   - [ ] Verify all admin navigation works
+   - [✅] Visit `/admin/dashboard` - should now work
+   - [✅] Verify all admin navigation works
 
 #### User Management (`/admin/users`):
-- [ ] **Navigate to Users Page**: Go to `/admin/users`
-- [ ] **View Users**: Verify that the list of registered users is displayed.
-- [ ] **Make a User Admin**: Find a non-admin user and click "Make Admin".
-- [ ] **Verify Admin Status**: The user's badge should change to "Admin".
-- [ ] **Login as New Admin**: (Optional) Log out and log in as the new admin user to confirm they have access to admin pages.
-- [ ] **Remove Admin**: Click "Remove Admin" on the new admin user. The badge should revert to "User".
+- [✅] **Navigate to Users Page**: Go to `/admin/users`
+- [✅] **View Users**: Verify that the list of registered users is displayed.
+- [✅] **Make a User Admin**: Find a non-admin user and click "Make Admin".
+- [✅] **Verify Admin Status**: The user's badge should change to "Admin".
+- [✅] **Login as New Admin**: (Optional) Log out and log in as the new admin user to confirm they have access to admin pages.
+- [✅] **Remove Admin**: Click "Remove Admin" on the new admin user. The badge should revert to "User".
    
 ### 4. Admin CRUD Testing
 
 #### Schools Management (`/admin/schools`):
-- [ ] **Add School**: Fill out the form with test data:
+- [✅] **Add School**: Fill out the form with test data:
   ```
   Name: Stanford University
   Initial: SU
@@ -67,8 +67,10 @@ This guide walks you through testing all the implemented features in Phase 1.
   QS Ranking: 5
   Website: https://stanford.edu
   ```
-- [ ] **View School**: Verify school appears in the table
-- [ ] **Add Multiple Schools**: Create 2-3 more schools for testing
+- [✅] **View School**: Verify the new school appears in the table.
+- [✅] **Add Multiple Schools**: Create 2-3 more schools for testing.
+- [❌] **Edit School**: Click "Edit" on a school, update some fields (e.g., change the name or location), and save. Confirm the changes are reflected in the table.
+- [❌] **Delete School**: Click "Delete" on a school, confirm the deletion, and verify the school is removed from the table.
 
 #### Programs Management (`/admin/programs`):
 - [ ] **Add Program**: Create a test program:
@@ -83,8 +85,10 @@ This guide walks you through testing all the implemented features in Phase 1.
   STEM: Yes
   Description: Advanced computer science program...
   ```
-- [ ] **View Program**: Verify program appears in table with school info
-- [ ] **Add Multiple Programs**: Create programs for different schools
+- [✅] **View Program**: Verify program appears in table with school info
+- [✅] **Add Multiple Programs**: Create programs for different schools
+- [❌] **Edit Program**: Click "Edit" on a program, update some fields (e.g., change the name or duration), and save. Confirm the changes are reflected in the table.
+- [❌] **Delete Program**: Click "Delete" on a program, confirm the deletion, and verify the program is removed from the table.
 
 ### 5. CSV Upload Testing (`/admin/csv-upload`)
 
@@ -95,9 +99,9 @@ name,initial,type,country,location,year_founded,qs_ranking,website_url
 MIT,MIT,University,United States,"Cambridge, MA",1861,1,https://mit.edu
 Harvard University,HU,University,United States,"Cambridge, MA",1636,3,https://harvard.edu
 ```
-- [ ] **Upload Schools**: Test the schools CSV upload
-- [ ] **Verify Results**: Check success/error messages
-- [ ] **Check Database**: Verify schools were added
+- [✅] **Upload Schools**: Test the schools CSV upload
+- [✅] **Verify Results**: Check success/error messages
+- [✅] **Check Database**: Verify schools were added
 
 #### Test Programs CSV:
 1. **Get School IDs**: From Supabase dashboard, copy school IDs
@@ -107,22 +111,22 @@ name,initial,school_id,degree,duration_months,currency,total_tuition,is_stem,des
 Computer Science,CS,school-id-here,MS,24,USD,60000,true,Advanced CS program
 Business Administration,MBA,school-id-here,MBA,24,USD,70000,false,Business leadership program
 ```
-- [ ] **Upload Programs**: Test the programs CSV upload
-- [ ] **Verify Results**: Check success/error messages
+- [✅] **Upload Programs**: Test the programs CSV upload
+- [✅] **Verify Results**: Check success/error messages
 
 ### 6. Public Pages Testing
 
 #### Schools Public View:
-- [ ] **Schools List** (`/schools`): Should show all schools with cards
-- [ ] **School Details** (`/schools/[id]`): Click on a school, verify:
+- [✅] **Schools List** (`/schools`): Should show all schools with cards
+- [✅] **School Details** (`/schools/[id]`): Click on a school, verify:
   - School information displays correctly
   - Associated programs are listed
   - External links work
   - Navigation works
 
 #### Programs Public View:
-- [ ] **Programs List** (`/programs`): Should show all programs with school info
-- [ ] **Program Details** (`/programs/[id]`): Click on a program, verify:
+- [✅] **Programs List** (`/programs`): Should show all programs with school info
+- [✅] **Program Details** (`/programs/[id]`): Click on a program, verify:
   - Program information displays correctly
   - School information is shown
   - Links to school page work
@@ -131,17 +135,17 @@ Business Administration,MBA,school-id-here,MBA,24,USD,70000,false,Business leade
 ### 7. Error Handling Testing
 
 #### Test Error Scenarios:
-- [ ] **Invalid URLs**: Try `/schools/invalid-id`, `/programs/invalid-id`
-- [ ] **Unauthorized Access**: Try admin pages without login
-- [ ] **Non-Admin Access**: Try admin pages with regular user
-- [ ] **Invalid CSV**: Upload malformed CSV files
+- [✅] **Invalid URLs**: Try `/schools/invalid-id`, `/programs/invalid-id`
+- [✅] **Unauthorized Access**: Try admin pages without login
+- [✅] **Non-Admin Access**: Try admin pages with regular user
+- [✅] **Invalid CSV**: Upload malformed CSV files
 
 ### 8. Mobile Responsiveness Testing
 
 Test on different screen sizes:
-- [ ] **Mobile** (320px-768px): All pages should be mobile-friendly
-- [ ] **Tablet** (768px-1024px): Layout should adapt properly
-- [ ] **Desktop** (1024px+): Full desktop experience
+- [✅] **Mobile** (320px-768px): All pages should be mobile-friendly
+- [✅] **Tablet** (768px-1024px): Layout should adapt properly
+- [✅] **Desktop** (1024px+): Full desktop experience
 
 ## 🐛 Common Issues & Solutions
 
@@ -180,11 +184,11 @@ Use this sample data to populate your database for testing:
 Your implementation is working correctly if:
 - [ ] All pages load without errors
 - [ ] Admin can add/view schools and programs
-- [ ] CSV upload works for both schools and programs
-- [ ] Public pages display data correctly
-- [ ] Authentication and authorization work
-- [ ] Mobile responsiveness works
-- [ ] Error handling works appropriately
+- [✅] CSV upload works for both schools and programs
+- [✅] Public pages display data correctly
+- [✅] Authentication and authorization work
+- [✅] Mobile responsiveness works
+- [✅] Error handling works appropriately
 
 ## 🚀 Next Steps After Testing
 

@@ -1,13 +1,14 @@
 import { redirect } from 'next/navigation'
-import { getCurrentUser, isAdmin, getSupabaseClient } from '@/lib/supabase/helpers'
+import { getCurrentUser, isAdmin } from '@/lib/supabase/helpers'
+import { createAdminClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 
 async function getUsers() {
-  const supabase = await getSupabaseClient()
+  const supabaseAdmin = createAdminClient()
   
-  const { data: profiles, error: profilesError } = await supabase
+  const { data: profiles, error: profilesError } = await supabaseAdmin
     .from('profiles')
     .select('id, name, is_admin, created_at')
     .order('created_at', { ascending: false })
@@ -17,7 +18,7 @@ async function getUsers() {
     return []
   }
 
-  const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers()
+  const { data: { users: authUsers }, error: authError } = await supabaseAdmin.auth.admin.listUsers()
   
   if (authError) {
     console.error('Error fetching auth users:', authError)
@@ -26,7 +27,7 @@ async function getUsers() {
 
   // Combine profile data with email from auth users
   const users = profiles?.map(profile => {
-    const authUser = authUsers.users.find(user => user.id === profile.id)
+    const authUser = authUsers.find(user => user.id === profile.id)
     return {
       ...profile,
       email: authUser?.email || null
@@ -42,9 +43,9 @@ async function toggleAdmin(formData: FormData) {
   const userId = formData.get('userId') as string
   const isAdmin = formData.get('isAdmin') === 'true'
   
-  const supabase = await getSupabaseClient()
+  const supabaseAdmin = createAdminClient()
   
-  const { error } = await supabase
+  const { error } = await supabaseAdmin
     .from('profiles')
     .update({ is_admin: !isAdmin })
     .eq('id', userId)
