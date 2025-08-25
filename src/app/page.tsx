@@ -1,8 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { getCurrentUser } from '@/lib/supabase/helpers'
 
-export default function Home() {
+export default async function Home() {
+  const user = await getCurrentUser()
+  const isAdmin = user ? await import('@/lib/supabase/helpers').then(m => m.isAdmin(user.id)) : false
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
 
@@ -113,9 +116,11 @@ export default function Home() {
               © 2024 AI School Recommend App. Built with Next.js and Supabase.
             </p>
             <div className="mt-4">
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/admin/dashboard">Admin</Link>
-              </Button>
+              {isAdmin && (
+                <Button asChild variant="ghost" size="sm">
+                  <Link href="/admin/dashboard">Admin</Link>
+                </Button>
+              )}
             </div>
           </div>
         </div>
