@@ -109,11 +109,36 @@ export default function CSVUpload() {
                   school_id: program.school_id,
                   degree: program.degree,
                   website_url: program.website_url,
-                  duration_months: program.duration_months ? parseInt(program.duration_months) : null,
+                  duration_years: program.duration_years ? parseFloat(program.duration_years) : null,
                   currency: program.currency,
                   total_tuition: program.total_tuition ? parseInt(program.total_tuition) : null,
                   is_stem: program.is_stem === 'true' || program.is_stem === '1',
                   description: program.description,
+                  credits: program.credits ? parseInt(program.credits) : null,
+                  delivery_method: program.delivery_method,
+                  schedule_type: program.schedule_type,
+                  location: program.location,
+                  add_ons: program.add_ons ? (() => {
+                    try {
+                      return JSON.parse(program.add_ons)
+                    } catch (e) {
+                      console.error('Invalid JSON in add_ons:', e)
+                      return null
+                    }
+                  })() : null,
+                  start_date: program.start_date,
+                  // Requirements fields
+                  ielts_score: program.ielts_score ? parseFloat(program.ielts_score) : null,
+                  toefl_score: program.toefl_score ? parseFloat(program.toefl_score) : null,
+                  gre_score: program.gre_score ? parseInt(program.gre_score) : null,
+                  min_gpa: program.min_gpa ? parseFloat(program.min_gpa) : null,
+                  other_tests: program.other_tests,
+                  requires_personal_statement: program.requires_personal_statement === 'true' || program.requires_personal_statement === '1',
+                  requires_portfolio: program.requires_portfolio === 'true' || program.requires_portfolio === '1',
+                  requires_cv: program.requires_cv === 'true' || program.requires_cv === '1',
+                  letters_of_recommendation: program.letters_of_recommendation ? parseInt(program.letters_of_recommendation) : null,
+                  application_fee: program.application_fee ? parseInt(program.application_fee) : null,
+                  application_deadline: program.application_deadline,
                 }),
               })
 
@@ -207,18 +232,54 @@ export default function CSVUpload() {
             
             <div className="text-sm text-gray-600">
               <p><strong>Expected CSV format for programs:</strong></p>
-              <ul className="list-disc list-inside mt-2">
-                <li>name (required)</li>
-                <li>initial</li>
-                <li>school_id (required - UUID of existing school)</li>
-                <li>degree (required)</li>
-                <li>website_url</li>
-                <li>duration_months (number)</li>
-                <li>currency</li>
-                <li>total_tuition (number)</li>
-                <li>is_stem (true/false or 1/0)</li>
-                <li>description</li>
-              </ul>
+              <div className="mt-2 space-y-2">
+                <div>
+                  <p className="font-medium">Basic Fields:</p>
+                  <ul className="list-disc list-inside ml-2">
+                    <li>name (required)</li>
+                    <li>initial</li>
+                    <li>school_id (required - UUID of existing school)</li>
+                    <li>degree (required)</li>
+                    <li>description</li>
+                    <li>website_url</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <p className="font-medium">Program Details:</p>
+                  <ul className="list-disc list-inside ml-2">
+                    <li>duration_years (number, e.g., 1.5)</li>
+                    <li>credits (number)</li>
+                    <li>delivery_method (Onsite/Online/Hybrid)</li>
+                    <li>schedule_type (Full-time/Part-time)</li>
+                    <li>location</li>
+                    <li>start_date (YYYY-MM-DD)</li>
+                    <li>is_stem (true/false or 1/0)</li>
+                    <li>add_ons (JSON string)</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <p className="font-medium">Financial:</p>
+                  <ul className="list-disc list-inside ml-2">
+                    <li>currency</li>
+                    <li>total_tuition (number)</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <p className="font-medium">Requirements:</p>
+                  <ul className="list-disc list-inside ml-2">
+                    <li>ielts_score, toefl_score, gre_score (numbers)</li>
+                    <li>min_gpa (number)</li>
+                    <li>other_tests</li>
+                    <li>requires_personal_statement, requires_portfolio, requires_cv (true/false)</li>
+                    <li>letters_of_recommendation (number)</li>
+                    <li>application_fee (number)</li>
+                    <li>application_deadline (YYYY-MM-DD)</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
