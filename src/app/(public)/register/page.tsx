@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,10 +8,17 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { registerAction, signInWithGoogleAction } from '@/lib/auth-actions'
 
+import { PasswordRequirements } from '@/components/ui/password-requirements'
+import { UsernameRequirements } from '@/components/ui/username-requirements'
+
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [isError, setIsError] = useState(false)
+  const [password, setPassword] = useState('')
+  const [username, setUsername] = useState('')
+  const [showPasswordRequirements, setShowPasswordRequirements] = useState(false)
+  const [showUsernameRequirements, setShowUsernameRequirements] = useState(false)
 
   async function handleSubmit(formData: FormData) {
     setIsLoading(true)
@@ -122,7 +129,22 @@ export default function RegisterPage() {
                 placeholder="Enter your username"
                 required
                 disabled={isLoading}
+                onChange={(e) => setUsername(e.target.value)}
+                onFocus={() => setShowUsernameRequirements(true)}
+                onBlur={() => {
+                  // Only hide requirements if username is valid or empty
+                  if (username === '') {
+                    setShowUsernameRequirements(false)
+                  }
+                }}
               />
+              {showUsernameRequirements && (
+                <div className="mt-2 overflow-hidden">
+                  <div className="animate-in fade-in-0 slide-in-from-top-2 duration-300 ease-out">
+                    <UsernameRequirements username={username} />
+                  </div>
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -141,10 +163,25 @@ export default function RegisterPage() {
                 id="password"
                 name="password"
                 type="password"
-                placeholder="Create a password (min. 8 characters)"
+                placeholder="Create a password"
                 required
                 disabled={isLoading}
+                onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => setShowPasswordRequirements(true)}
+                onBlur={() => {
+                  // Only hide requirements if password is valid or empty
+                  if (password === '') {
+                    setShowPasswordRequirements(false)
+                  }
+                }}
               />
+              {showPasswordRequirements && (
+                <div className="mt-2 overflow-hidden">
+                  <div className="animate-in fade-in-0 slide-in-from-top-2 duration-300 ease-out">
+                    <PasswordRequirements password={password} />
+                  </div>
+                </div>
+              )}
             </div>
             {message && (
               <div className={`text-sm p-3 rounded-md ${
