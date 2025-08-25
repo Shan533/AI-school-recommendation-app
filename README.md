@@ -12,9 +12,38 @@ yarn dev
 pnpm dev
 # or
 bun dev
+# or using docker
+docker compose -f docker-compose.dev.yml up --build
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Quick Start with Docker
+### One-Click Startup
+
+#### Windows Users
+```bash
+# Double-click to run
+docker/start-docker.bat
+
+# Or run from command line
+.\docker\start-docker.bat
+```
+
+#### Linux/Mac Users
+```bash
+# Add execution permissions
+chmod +x docker/start-docker.sh
+
+# Run script
+./docker/start-docker.sh
+```
+
+### What Gets Started
+- **🌐 Web Application**: http://localhost:3000
+- **🔴 Redis**: localhost:6379
+- **🕷️ Web Crawler**: Optional Python service
+- **📊 Redis Monitoring**: Optional web-based management
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
