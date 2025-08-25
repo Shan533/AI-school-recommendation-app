@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import ProgramsManagementClient from '@/components/admin/programs-management'
 
 async function getPrograms() {
   const supabase = await getSupabaseClient()
@@ -134,7 +134,7 @@ async function createProgram(formData: FormData) {
   redirect('/admin/programs')
 }
 
-export default async function ProgramsManagement() {
+export default async function ProgramsManagementPage() {
   const user = await getCurrentUser()
   
   if (!user) {
@@ -209,12 +209,30 @@ export default async function ProgramsManagement() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="duration_years">Duration (years)</Label>
-                  <Input id="duration_years" name="duration_years" type="number" step="0.1" placeholder="e.g., 1.5" />
+                  <Input 
+                    id="duration_years" 
+                    name="duration_years" 
+                    type="number" 
+                    step="0.5" 
+                    min="0.5" 
+                    max="8.0" 
+                    placeholder="e.g., 1.5" 
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Range: 0.5 - 8.0 years, step: 0.5</p>
                 </div>
                 
                 <div>
                   <Label htmlFor="credits">Total Credits</Label>
-                  <Input id="credits" name="credits" type="number" />
+                  <Input 
+                    id="credits" 
+                    name="credits" 
+                    type="number" 
+                    min="1" 
+                    max="200" 
+                    step="1" 
+                    placeholder="e.g., 36" 
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Range: 1 - 200 credits</p>
                 </div>
                 
                 <div>
@@ -269,7 +287,15 @@ export default async function ProgramsManagement() {
                 
                 <div>
                   <Label htmlFor="total_tuition">Total Tuition</Label>
-                  <Input id="total_tuition" name="total_tuition" type="number" />
+                  <Input 
+                    id="total_tuition" 
+                    name="total_tuition" 
+                    type="number" 
+                    min="0" 
+                    step="100" 
+                    placeholder="e.g., 50000" 
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Minimum: 0, step: 100</p>
                 </div>
                 
                 <div className="md:col-span-2">
@@ -291,32 +317,85 @@ export default async function ProgramsManagement() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="ielts_score">IELTS Score</Label>
-                  <Input id="ielts_score" name="ielts_score" type="number" step="0.1" placeholder="e.g., 6.5" />
+                  <Input 
+                    id="ielts_score" 
+                    name="ielts_score" 
+                    type="number" 
+                    step="0.5" 
+                    min="0" 
+                    max="9" 
+                    placeholder="e.g., 6.5" 
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Range: 0.0 - 9.0, step: 0.5</p>
                 </div>
                 
                 <div>
                   <Label htmlFor="toefl_score">TOEFL Score</Label>
-                  <Input id="toefl_score" name="toefl_score" type="number" step="0.1" placeholder="e.g., 80" />
+                  <Input 
+                    id="toefl_score" 
+                    name="toefl_score" 
+                    type="number" 
+                    step="1" 
+                    min="0" 
+                    max="120" 
+                    placeholder="e.g., 80" 
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Range: 0 - 120</p>
                 </div>
                 
                 <div>
                   <Label htmlFor="gre_score">GRE Score</Label>
-                  <Input id="gre_score" name="gre_score" type="number" placeholder="e.g., 320" />
+                  <Input 
+                    id="gre_score" 
+                    name="gre_score" 
+                    type="number" 
+                    step="1" 
+                    min="260" 
+                    max="340" 
+                    placeholder="e.g., 320" 
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Range: 260 - 340</p>
                 </div>
                 
                 <div>
                   <Label htmlFor="min_gpa">Minimum GPA</Label>
-                  <Input id="min_gpa" name="min_gpa" type="number" step="0.01" placeholder="e.g., 3.5" />
+                  <Input 
+                    id="min_gpa" 
+                    name="min_gpa" 
+                    type="number" 
+                    step="0.01" 
+                    min="0" 
+                    max="4.00" 
+                    placeholder="e.g., 3.5" 
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Range: 0.00 - 4.00</p>
                 </div>
                 
                 <div>
                   <Label htmlFor="letters_of_recommendation">Letters of Recommendation</Label>
-                  <Input id="letters_of_recommendation" name="letters_of_recommendation" type="number" placeholder="e.g., 2" />
+                  <Input 
+                    id="letters_of_recommendation" 
+                    name="letters_of_recommendation" 
+                    type="number" 
+                    step="1" 
+                    min="0" 
+                    max="10" 
+                    placeholder="e.g., 2" 
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Range: 0 - 10</p>
                 </div>
                 
                 <div>
                   <Label htmlFor="application_fee">Application Fee</Label>
-                  <Input id="application_fee" name="application_fee" type="number" placeholder="e.g., 100" />
+                  <Input 
+                    id="application_fee" 
+                    name="application_fee" 
+                    type="number" 
+                    step="1" 
+                    min="0" 
+                    placeholder="e.g., 100" 
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Minimum: 0</p>
                 </div>
                 
                 <div>
@@ -361,55 +440,7 @@ export default async function ProgramsManagement() {
           <CardTitle>Existing Programs ({programs.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          {programs.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Program Name</TableHead>
-                  <TableHead>School</TableHead>
-                  <TableHead>Degree</TableHead>
-                  <TableHead>Duration</TableHead>
-                  <TableHead>Delivery</TableHead>
-                  <TableHead>STEM</TableHead>
-                  <TableHead>Requirements</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {programs.map((program) => (
-                  <TableRow key={program.id}>
-                    <TableCell className="font-medium">
-                      {program.name} {program.initial && `(${program.initial})`}
-                    </TableCell>
-                    <TableCell>
-                      {program.schools?.name} {program.schools?.initial && `(${program.schools.initial})`}
-                    </TableCell>
-                    <TableCell>{program.degree}</TableCell>
-                    <TableCell>
-                      {program.duration_years ? `${program.duration_years} years` : 
-                       program.duration_months ? `${program.duration_months} months` : '-'}
-                    </TableCell>
-                    <TableCell>{program.delivery_method || '-'}</TableCell>
-                    <TableCell>{program.is_stem ? 'Yes' : 'No'}</TableCell>
-                    <TableCell>
-                      {program.requirements ? (
-                        <div className="text-sm">
-                          {program.requirements.ielts_score && `IELTS: ${program.requirements.ielts_score}`}
-                          {program.requirements.toefl_score && (program.requirements.ielts_score ? ', ' : '') + `TOEFL: ${program.requirements.toefl_score}`}
-                          {program.requirements.min_gpa && (program.requirements.ielts_score || program.requirements.toefl_score ? ', ' : '') + `GPA: ${program.requirements.min_gpa}`}
-                        </div>
-                      ) : '-'}
-                    </TableCell>
-                    <TableCell>
-                      <Button variant="outline" size="sm">Edit</Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          ) : (
-            <p className="text-center text-gray-500 py-8">No programs found. Add your first program above.</p>
-          )}
+          <ProgramsManagementClient initialPrograms={programs} schools={schools} />
         </CardContent>
       </Card>
     </div>
