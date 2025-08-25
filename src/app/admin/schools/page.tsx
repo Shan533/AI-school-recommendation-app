@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import SchoolsManagementClient from '@/components/admin/schools-management'
 
 async function getSchools() {
   const supabase = await getSupabaseClient()
@@ -54,7 +54,7 @@ async function createSchool(formData: FormData) {
   redirect('/admin/schools')
 }
 
-export default async function SchoolsManagement() {
+export default async function SchoolsManagementPage() {
   const user = await getCurrentUser()
   
   if (!user) {
@@ -112,12 +112,30 @@ export default async function SchoolsManagement() {
             
             <div>
               <Label htmlFor="year_founded">Year Founded</Label>
-              <Input id="year_founded" name="year_founded" type="number" />
+              <Input 
+                id="year_founded" 
+                name="year_founded" 
+                type="number" 
+                step="1" 
+                min="1000" 
+                max="2025" 
+                placeholder="e.g., 1865" 
+              />
+              <p className="text-xs text-gray-500 mt-1">Range: 1000 - 2025</p>
             </div>
             
             <div>
               <Label htmlFor="qs_ranking">QS Ranking</Label>
-              <Input id="qs_ranking" name="qs_ranking" type="number" />
+              <Input 
+                id="qs_ranking" 
+                name="qs_ranking" 
+                type="number" 
+                step="1" 
+                min="1" 
+                max="2000" 
+                placeholder="e.g., 50" 
+              />
+              <p className="text-xs text-gray-500 mt-1">Range: 1 - 2000</p>
             </div>
             
             <div>
@@ -138,36 +156,7 @@ export default async function SchoolsManagement() {
           <CardTitle>Existing Schools ({schools.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          {schools.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>QS Ranking</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {schools.map((school) => (
-                  <TableRow key={school.id}>
-                    <TableCell className="font-medium">
-                      {school.name} {school.initial && `(${school.initial})`}
-                    </TableCell>
-                    <TableCell>{school.type || '-'}</TableCell>
-                    <TableCell>{school.location || '-'}</TableCell>
-                    <TableCell>{school.qs_ranking || '-'}</TableCell>
-                    <TableCell>
-                      <Button variant="outline" size="sm">Edit</Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          ) : (
-            <p className="text-center text-gray-500 py-8">No schools found. Add your first school above.</p>
-          )}
+          <SchoolsManagementClient initialSchools={schools} />
         </CardContent>
       </Card>
     </div>
