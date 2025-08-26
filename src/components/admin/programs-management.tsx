@@ -45,7 +45,7 @@ interface Program {
   delivery_method?: string
   schedule_type?: string
   location?: string
-  add_ons?: any
+  add_ons?: Record<string, unknown>
   start_date?: string
   schools?: School
   requirements?: Requirements
@@ -122,7 +122,7 @@ export default function ProgramsManagement({ initialPrograms, schools }: Program
         throw new Error(error.error || 'Failed to update program')
       }
 
-      const updatedProgram = await response.json()
+      await response.json()
       
       // Fetch the updated program with relations
       const programResponse = await fetch(`/api/admin/programs/${editingProgram.id}`)
@@ -184,34 +184,48 @@ export default function ProgramsManagement({ initialPrograms, schools }: Program
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Program Name</TableHead>
-              <TableHead>School</TableHead>
-              <TableHead>Degree</TableHead>
-              <TableHead>Duration</TableHead>
-              <TableHead>Delivery</TableHead>
-              <TableHead>STEM</TableHead>
-              <TableHead>Requirements</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead className="w-[25%]">Program Name</TableHead>
+              <TableHead className="w-[20%]">School</TableHead>
+              <TableHead className="w-[12%]">Degree</TableHead>
+              <TableHead className="w-[10%]">Duration</TableHead>
+              <TableHead className="w-[12%]">Delivery</TableHead>
+              <TableHead className="w-[8%]">STEM</TableHead>
+              <TableHead className="w-[13%]">Requirements</TableHead>
+              <TableHead className="w-[20%]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {programs.map((program) => (
               <TableRow key={program.id}>
-                <TableCell className="font-medium">
-                  {program.name} {program.initial && `(${program.initial})`}
+                <TableCell className="font-medium max-w-0">
+                  <div className="truncate" title={`${program.name} ${program.initial ? `(${program.initial})` : ''}`}>
+                    {program.name} {program.initial && `(${program.initial})`}
+                  </div>
                 </TableCell>
-                <TableCell>
-                  {program.schools?.name} {program.schools?.initial && `(${program.schools.initial})`}
+                <TableCell className="max-w-0">
+                  <div className="truncate" title={`${program.schools?.name || ''} ${program.schools?.initial ? `(${program.schools.initial})` : ''}`}>
+                    {program.schools?.name} {program.schools?.initial && `(${program.schools.initial})`}
+                  </div>
                 </TableCell>
-                <TableCell>{program.degree}</TableCell>
+                <TableCell className="max-w-0">
+                  <div className="truncate" title={program.degree}>
+                    {program.degree}
+                  </div>
+                </TableCell>
                 <TableCell>
                   {program.duration_years ? `${program.duration_years} years` : '-'}
                 </TableCell>
-                <TableCell>{program.delivery_method || '-'}</TableCell>
+                <TableCell className="max-w-0">
+                  <div className="truncate" title={program.delivery_method || '-'}>
+                    {program.delivery_method || '-'}
+                  </div>
+                </TableCell>
                 <TableCell>{program.is_stem ? 'Yes' : 'No'}</TableCell>
-                <TableCell>
+                <TableCell className="max-w-0">
                   {program.requirements ? (
-                    <div className="text-sm">
+                    <div className="text-sm truncate" title={
+                      `${program.requirements.ielts_score ? `IELTS: ${program.requirements.ielts_score}` : ''}${program.requirements.toefl_score ? `, TOEFL: ${program.requirements.toefl_score}` : ''}${program.requirements.min_gpa ? `, GPA: ${program.requirements.min_gpa}` : ''}`
+                    }>
                       {program.requirements.ielts_score && `IELTS: ${program.requirements.ielts_score}`}
                       {program.requirements.toefl_score && (program.requirements.ielts_score ? ', ' : '') + `TOEFL: ${program.requirements.toefl_score}`}
                       {program.requirements.min_gpa && (program.requirements.ielts_score || program.requirements.toefl_score ? ', ' : '') + `GPA: ${program.requirements.min_gpa}`}

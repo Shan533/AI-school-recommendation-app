@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 interface School {
   id: string
@@ -115,21 +115,31 @@ export default function SchoolsManagement({ initialSchools }: SchoolsManagementP
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead>QS Ranking</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead className="w-[35%]">Name</TableHead>
+              <TableHead className="w-[15%]">Type</TableHead>
+              <TableHead className="w-[25%]">Location</TableHead>
+              <TableHead className="w-[10%]">QS Ranking</TableHead>
+              <TableHead className="w-[15%]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {schools.map((school) => (
               <TableRow key={school.id}>
-                <TableCell className="font-medium">
-                  {school.name} {school.initial && `(${school.initial})`}
+                <TableCell className="font-medium max-w-0">
+                  <div className="truncate" title={`${school.name} ${school.initial ? `(${school.initial})` : ''}`}>
+                    {school.name} {school.initial && `(${school.initial})`}
+                  </div>
                 </TableCell>
-                <TableCell>{school.type || '-'}</TableCell>
-                <TableCell>{school.location || '-'}</TableCell>
+                <TableCell className="max-w-0">
+                  <div className="truncate" title={school.type || '-'}>
+                    {school.type || '-'}
+                  </div>
+                </TableCell>
+                <TableCell className="max-w-0">
+                  <div className="truncate" title={school.location || '-'}>
+                    {school.location || '-'}
+                  </div>
+                </TableCell>
                 <TableCell>{school.qs_ranking || '-'}</TableCell>
                 <TableCell>
                   <div className="flex gap-2">

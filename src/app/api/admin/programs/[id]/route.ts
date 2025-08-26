@@ -5,7 +5,7 @@ import { validateProgramData, validateRequirementsData } from '@/lib/validation'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getCurrentUser()
@@ -58,7 +58,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params
@@ -107,16 +107,16 @@ export async function PUT(
     }
 
     // Helper function to clean string values
-    const cleanString = (value: any): string | null => {
-      if (typeof value !== 'string') return value
+    const cleanString = (value: unknown): string | null => {
+      if (typeof value !== 'string') return value as string | null
       const trimmed = value.trim()
       return trimmed === '' ? null : trimmed
     }
 
     // Helper function to clean numeric values with validation
-    const cleanNumber = (value: any): number | null => {
+    const cleanNumber = (value: unknown): number | null => {
       if (value === null || value === undefined || value === '') return null
-      const num = typeof value === 'string' ? parseFloat(value) : value
+      const num = typeof value === 'string' ? parseFloat(value) : value as number
       return isNaN(num) ? null : num
     }
 
@@ -209,13 +209,13 @@ export async function PUT(
     }
 
     // Check if requirements exist for this program
-    const { data: existingReq, error: reqCheckError } = await adminClient
+    const { data: existingReq } = await adminClient
       .from('requirements')
       .select('id')
       .eq('program_id', id)
 
     // Only update/insert requirements if at least one field is provided
-    const hasRequirements = Object.entries(requirementsData).some(([key, value]) => 
+    const hasRequirements = Object.entries(requirementsData).some(([, value]) => 
       value !== null && value !== '' && value !== false
     )
 
@@ -267,7 +267,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getCurrentUser()
