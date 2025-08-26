@@ -1,6 +1,6 @@
-# CRUD Operations Testing Guide
+# Admin CRUD Testing Guide
 
-This guide helps you test the newly implemented UPDATE and DELETE functionality for schools and programs management.
+This guide helps you test the complete CRUD (Create, Read, Update, Delete) functionality for schools and programs management in the admin interface.
 
 ## Prerequisites
 
@@ -16,7 +16,7 @@ This guide helps you test the newly implemented UPDATE and DELETE functionality 
   - Add New School form at the top
   - Existing Schools table at the bottom
 
-### Test CREATE (Already implemented)
+### Test CREATE (Add New School)
 1. Fill out the "Add New School" form with test data:
    - School Name: "Test University" (required)
    - Abbreviation: "TU"
@@ -29,7 +29,13 @@ This guide helps you test the newly implemented UPDATE and DELETE functionality 
 2. Click "Add School"
 3. ✅ Verify the school appears in the table below
 
-### Test UPDATE (Newly implemented)
+### Test READ (View Schools)
+- [ ] **View All Schools**: Verify the table displays all schools
+- [ ] **School Details**: Check that all school information is displayed correctly
+- [ ] **Table Sorting**: Test sorting by different columns
+- [ ] **Responsive Table**: Verify table works on mobile devices
+
+### Test UPDATE (Edit School)
 1. Find the test school in the table
 2. Click the "Edit" button in the Actions column
 3. A dialog should open with the school's current information pre-filled
@@ -38,7 +44,7 @@ This guide helps you test the newly implemented UPDATE and DELETE functionality 
 6. ✅ Verify the changes appear in the table immediately
 7. ✅ Check that the dialog closes automatically
 
-### Test DELETE (Newly implemented)
+### Test DELETE (Delete School)
 1. Find the test school in the table
 2. Click the "Delete" button in the Actions column
 3. A confirmation dialog should appear
@@ -54,7 +60,7 @@ This guide helps you test the newly implemented UPDATE and DELETE functionality 
   - Add New Program form at the top (with multiple sections)
   - Existing Programs table at the bottom
 
-### Test CREATE (Already implemented)
+### Test CREATE (Add New Program)
 1. First ensure you have at least one school created
 2. Fill out the "Add New Program" form:
    - **Basic Information:**
@@ -80,7 +86,14 @@ This guide helps you test the newly implemented UPDATE and DELETE functionality 
 3. Click "Add Program"
 4. ✅ Verify the program appears in the table below
 
-### Test UPDATE (Newly implemented)
+### Test READ (View Programs)
+- [ ] **View All Programs**: Verify the table displays all programs
+- [ ] **Program Details**: Check that all program information is displayed correctly
+- [ ] **School Association**: Verify programs show correct school information
+- [ ] **Requirements Display**: Check that admission requirements are shown
+- [ ] **Table Sorting**: Test sorting by different columns
+
+### Test UPDATE (Edit Program)
 1. Find the test program in the table
 2. Click the "Edit" button in the Actions column
 3. A large dialog should open with all program information pre-filled across multiple sections
@@ -95,7 +108,7 @@ This guide helps you test the newly implemented UPDATE and DELETE functionality 
 7. ✅ Check that requirements are updated correctly
 8. ✅ Verify the dialog closes automatically
 
-### Test DELETE (Newly implemented)
+### Test DELETE (Delete Program)
 1. Find the test program in the table
 2. Click the "Delete" button in the Actions column
 3. A confirmation dialog should appear
@@ -103,6 +116,62 @@ This guide helps you test the newly implemented UPDATE and DELETE functionality 
 5. ✅ Verify the program disappears from the table immediately
 6. ✅ Check that the dialog closes automatically
 7. ✅ Verify associated requirements are also deleted (no orphaned data)
+
+## Advanced CRUD Testing
+
+### Numerical Range Validation Testing
+
+#### Frontend Input Controls Testing
+
+**Test IELTS Score Field:**
+1. Try entering 10.0 (should be capped at 9.0)
+2. Try entering -1 (should be capped at 0)
+3. Try entering 6.3 (should snap to 6.5 due to 0.5 step)
+
+**Test Duration Field:**
+1. Try entering 0.3 (should be capped at 0.5)
+2. Try entering 10 (should be capped at 8.0)
+
+**Test Credits Field:**
+1. Try entering 0 (should be capped at 1)
+2. Try entering 300 (should be capped at 200)
+
+#### Backend API Validation Testing
+
+**Send invalid data via browser dev tools:**
+```javascript
+// Test in browser console on admin/programs page
+fetch('/api/admin/programs/1', {
+  method: 'PUT',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    name: 'Test Program',
+    degree: 'Master',
+    school_id: 1,
+    ielts_score: 15, // Invalid: over 9.0
+    duration_years: 0.1, // Invalid: under 0.5
+    credits: 300 // Invalid: over 200
+  })
+})
+```
+
+**Expected Results:**
+- Should return 400 error with specific validation messages
+- Example: "IELTS Score must be between 0 and 9, Duration must be between 0.5 and 8, Credits must be between 1 and 200"
+
+### Validated Numerical Ranges
+
+- **IELTS Score**: 0.0 - 9.0 (step: 0.5)
+- **TOEFL Score**: 0 - 120 (step: 1)
+- **GRE Score**: 260 - 340 (step: 1)
+- **GPA**: 0.00 - 4.00 (step: 0.01)
+- **Duration**: 0.5 - 8.0 years (step: 0.5)
+- **Credits**: 1 - 200 (step: 1)
+- **Total Tuition**: ≥ 0 (step: 100, no upper limit)
+- **Application Fee**: ≥ 0 (step: 1, no upper limit)
+- **Letters of Recommendation**: 0 - 10 (step: 1)
+- **Year Founded**: 1000 - 2025 (step: 1)
+- **QS Ranking**: 1 - 2000 (step: 1)
 
 ## Error Scenarios to Test
 
@@ -161,6 +230,8 @@ All tests should pass with:
 - ✅ Data persistence across page refreshes
 - ✅ Proper error handling and user feedback
 - ✅ Responsive design works on mobile/desktop
+- ✅ All numerical validations work correctly
+- ✅ Foreign key constraints are enforced
 
 ## Troubleshooting
 
@@ -187,6 +258,7 @@ If you encounter issues:
 - Confirmation dialogs for deletion
 - Proper error handling and loading states
 - Real-time UI updates after operations
+- Comprehensive numerical validation
 
 ### 🔧 Technical Details:
 - Server-side validation and authorization
@@ -197,60 +269,15 @@ If you encounter issues:
 - TypeScript interfaces for type safety
 - Responsive design with Tailwind CSS
 
-### 📊 Numerical Input Validation:
-- **IELTS Score**: 0.0 - 9.0 (step: 0.5)
-- **TOEFL Score**: 0 - 120 (step: 1)
-- **GRE Score**: 260 - 340 (step: 1)
-- **GPA**: 0.00 - 4.00 (step: 0.01)
-- **Duration**: 0.5 - 8.0 years (step: 0.5)
-- **Credits**: 1 - 200 (step: 1)
-- **Total Tuition**: ≥ 0 (step: 100, no upper limit)
-- **Application Fee**: ≥ 0 (step: 1, no upper limit)
-- **Letters of Recommendation**: 0 - 10 (step: 1)
-- **Year Founded**: 1000 - 2025 (step: 1)
-- **QS Ranking**: 1 - 2000 (step: 1)
+## 🔄 Next Steps
 
-## 🧪 Additional Testing: Numerical Range Validation
+After completing CRUD testing:
+1. Test **[CSV Upload Functionality](./csv-upload-testing.md)**
+2. Verify **[Public Pages](./public-pages-testing.md)**
+3. Check **[Error Handling Scenarios](./error-handling-testing.md)**
 
-### Frontend Input Controls Testing
+## 📚 Related Documentation
 
-**Test IELTS Score Field:**
-1. Try entering 10.0 (should be capped at 9.0)
-2. Try entering -1 (should be capped at 0)
-3. Try entering 6.3 (should snap to 6.5 due to 0.5 step)
-
-**Test Duration Field:**
-1. Try entering 0.3 (should be capped at 0.5)
-2. Try entering 10 (should be capped at 8.0)
-
-**Test Credits Field:**
-1. Try entering 0 (should be capped at 1)
-2. Try entering 300 (should be capped at 200)
-
-### Backend API Validation Testing
-
-**Send invalid data via browser dev tools:**
-```javascript
-// Test in browser console on admin/programs page
-fetch('/api/admin/programs/1', {
-  method: 'PUT',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    name: 'Test Program',
-    degree: 'Master',
-    school_id: 1,
-    ielts_score: 15, // Invalid: over 9.0
-    duration_years: 0.1, // Invalid: under 0.5
-    credits: 300 // Invalid: over 200
-  })
-})
-```
-
-**Expected Results:**
-- Should return 400 error with specific validation messages
-- Example: "IELTS Score must be between 0 and 9, Duration must be between 0.5 and 8, Credits must be between 1 and 200"
-
-**Test Edge Cases:**
-1. Exactly at min/max values (should pass)
-2. Just outside min/max values (should fail)
-3. Null values (should pass for optional fields)
+- **[Testing Plan](./testing-plan.md)** - Main testing overview
+- **[Core Setup Testing](./core-setup-testing.md)** - Environment setup
+- **[Design Document](../design-doc.md)** - Application architecture
