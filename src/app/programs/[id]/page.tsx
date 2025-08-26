@@ -56,6 +56,9 @@ async function getProgram(id: string) {
         country,
         qs_ranking,
         website_url
+      ),
+      requirements (
+        *
       )
     `)
     .eq('id', id)
@@ -198,10 +201,43 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
           )}
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-            {program.duration_months && (
+            {(program.duration_years || program.duration_months) && (
               <div>
                 <h4 className="font-semibold text-gray-700">Duration</h4>
-                <p>{program.duration_months} months</p>
+                <p>
+                  {program.duration_years ? `${program.duration_years} years` : 
+                   program.duration_months ? `${program.duration_months} months` : ''}
+                </p>
+              </div>
+            )}
+            {program.credits && (
+              <div>
+                <h4 className="font-semibold text-gray-700">Credits</h4>
+                <p>{program.credits} credits</p>
+              </div>
+            )}
+            {program.delivery_method && (
+              <div>
+                <h4 className="font-semibold text-gray-700">Delivery Method</h4>
+                <p>{program.delivery_method}</p>
+              </div>
+            )}
+            {program.schedule_type && (
+              <div>
+                <h4 className="font-semibold text-gray-700">Schedule</h4>
+                <p>{program.schedule_type}</p>
+              </div>
+            )}
+            {program.location && (
+              <div>
+                <h4 className="font-semibold text-gray-700">Program Location</h4>
+                <p>{program.location}</p>
+              </div>
+            )}
+            {program.start_date && (
+              <div>
+                <h4 className="font-semibold text-gray-700">Start Date</h4>
+                <p>{new Date(program.start_date).toLocaleDateString()}</p>
               </div>
             )}
             {program.total_tuition && program.currency && (
@@ -285,6 +321,144 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
                     School Website
                   </a>
                 </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Requirements Section */}
+      {program.requirements && (
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Admission Requirements</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Test Scores */}
+              {(program.requirements.ielts_score || program.requirements.toefl_score || program.requirements.gre_score) && (
+                <div className="md:col-span-1">
+                  <h4 className="font-semibold text-gray-700 mb-3">Test Scores</h4>
+                  <div className="space-y-2">
+                    {program.requirements.ielts_score && (
+                      <div className="flex justify-between">
+                        <span>IELTS:</span>
+                        <span className="font-medium">{program.requirements.ielts_score}</span>
+                      </div>
+                    )}
+                    {program.requirements.toefl_score && (
+                      <div className="flex justify-between">
+                        <span>TOEFL:</span>
+                        <span className="font-medium">{program.requirements.toefl_score}</span>
+                      </div>
+                    )}
+                    {program.requirements.gre_score && (
+                      <div className="flex justify-between">
+                        <span>GRE:</span>
+                        <span className="font-medium">{program.requirements.gre_score}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              {/* Academic Requirements */}
+              <div className="md:col-span-1">
+                <h4 className="font-semibold text-gray-700 mb-3">Academic</h4>
+                <div className="space-y-2">
+                  {program.requirements.min_gpa && (
+                    <div className="flex justify-between">
+                      <span>Minimum GPA:</span>
+                      <span className="font-medium">{program.requirements.min_gpa}</span>
+                    </div>
+                  )}
+                  {program.requirements.other_tests && (
+                    <div className="flex justify-between">
+                      <span>Other Tests:</span>
+                      <span className="font-medium">{program.requirements.other_tests}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Application Requirements */}
+              <div className="md:col-span-1">
+                <h4 className="font-semibold text-gray-700 mb-3">Application</h4>
+                <div className="space-y-2">
+                  {program.requirements.letters_of_recommendation && (
+                    <div className="flex justify-between">
+                      <span>Letters of Recommendation:</span>
+                      <span className="font-medium">{program.requirements.letters_of_recommendation}</span>
+                    </div>
+                  )}
+                  {program.requirements.application_fee && (
+                    <div className="flex justify-between">
+                      <span>Application Fee:</span>
+                      <span className="font-medium">${program.requirements.application_fee}</span>
+                    </div>
+                  )}
+                  {program.requirements.application_deadline && (
+                    <div className="flex justify-between">
+                      <span>Deadline:</span>
+                      <span className="font-medium">
+                        {new Date(program.requirements.application_deadline).toLocaleDateString()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            {/* Required Documents */}
+            {(program.requirements.requires_personal_statement || 
+              program.requirements.requires_portfolio || 
+              program.requirements.requires_cv) && (
+              <div className="mt-6 pt-4 border-t">
+                <h4 className="font-semibold text-gray-700 mb-3">Required Documents</h4>
+                <div className="flex flex-wrap gap-2">
+                  {program.requirements.requires_personal_statement && (
+                    <Badge variant="outline">Personal Statement</Badge>
+                  )}
+                  {program.requirements.requires_portfolio && (
+                    <Badge variant="outline">Portfolio</Badge>
+                  )}
+                  {program.requirements.requires_cv && (
+                    <Badge variant="outline">CV/Resume</Badge>
+                  )}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Add-ons Section */}
+      {program.add_ons && (
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Program Features</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {program.add_ons.scholarships && (
+                <div>
+                  <h4 className="font-semibold text-gray-700 mb-2">Available Scholarships</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {program.add_ons.scholarships.map((scholarship: string, index: number) => (
+                      <Badge key={index} variant="secondary">{scholarship}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {program.add_ons.features && (
+                <div>
+                  <h4 className="font-semibold text-gray-700 mb-2">Special Features</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {program.add_ons.features.map((feature: string, index: number) => (
+                      <Badge key={index} variant="outline">{feature}</Badge>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
           </CardContent>

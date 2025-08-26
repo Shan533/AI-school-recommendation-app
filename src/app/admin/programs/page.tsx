@@ -16,6 +16,9 @@ async function getPrograms() {
       schools (
         name,
         initial
+      ),
+      requirements (
+        *
       )
     `)
     .order('created_at', { ascending: false })
@@ -53,26 +56,79 @@ async function createProgram(formData: FormData) {
 
   const supabase = await getSupabaseClient()
   
+  // Parse add-ons JSON if provided
+  let addOns = null
+  const addOnsStr = formData.get('add_ons') as string
+  if (addOnsStr?.trim()) {
+    try {
+      addOns = JSON.parse(addOnsStr)
+    } catch (e) {
+      console.error('Invalid JSON in add_ons:', e)
+    }
+  }
+  
   const programData = {
     name: formData.get('name') as string,
     initial: formData.get('initial') as string,
     school_id: formData.get('school_id') as string,
     degree: formData.get('degree') as string,
     website_url: formData.get('website_url') as string,
-    duration_months: formData.get('duration_months') ? parseInt(formData.get('duration_months') as string) : null,
+    duration_years: formData.get('duration_years') ? parseFloat(formData.get('duration_years') as string) : null,
     currency: formData.get('currency') as string,
     total_tuition: formData.get('total_tuition') ? parseInt(formData.get('total_tuition') as string) : null,
     is_stem: formData.get('is_stem') === 'on',
     description: formData.get('description') as string,
+    credits: formData.get('credits') ? parseInt(formData.get('credits') as string) : null,
+    delivery_method: formData.get('delivery_method') as string,
+    schedule_type: formData.get('schedule_type') as string,
+    location: formData.get('location') as string,
+    add_ons: addOns,
+    start_date: formData.get('start_date') as string || null,
     created_by: user.id,
   }
 
-  const { error } = await supabase
+  // Insert program first
+  const { data: program, error: programError } = await supabase
     .from('programs')
     .insert([programData])
+    .select()
+    .single()
 
-  if (error) {
-    console.error('Error creating program:', error)
+  if (programError) {
+    console.error('Error creating program:', programError)
+    redirect('/admin/programs')
+    return
+  }
+
+  // Insert requirements if any are provided
+  const requirementsData = {
+    program_id: program.id,
+    ielts_score: formData.get('ielts_score') ? parseFloat(formData.get('ielts_score') as string) : null,
+    toefl_score: formData.get('toefl_score') ? parseFloat(formData.get('toefl_score') as string) : null,
+    gre_score: formData.get('gre_score') ? parseInt(formData.get('gre_score') as string) : null,
+    min_gpa: formData.get('min_gpa') ? parseFloat(formData.get('min_gpa') as string) : null,
+    other_tests: formData.get('other_tests') as string,
+    requires_personal_statement: formData.get('requires_personal_statement') === 'on',
+    requires_portfolio: formData.get('requires_portfolio') === 'on',
+    requires_cv: formData.get('requires_cv') === 'on',
+    letters_of_recommendation: formData.get('letters_of_recommendation') ? parseInt(formData.get('letters_of_recommendation') as string) : null,
+    application_fee: formData.get('application_fee') ? parseInt(formData.get('application_fee') as string) : null,
+    application_deadline: formData.get('application_deadline') as string || null,
+  }
+
+  // Only insert requirements if at least one field is provided
+  const hasRequirements = Object.entries(requirementsData).some(([key, value]) => 
+    key !== 'program_id' && value !== null && value !== '' && value !== false
+  )
+
+  if (hasRequirements) {
+    const { error: reqError } = await supabase
+      .from('requirements')
+      .insert([requirementsData])
+
+    if (reqError) {
+      console.error('Error creating requirements:', reqError)
+    }
   }
   
   redirect('/admin/programs')
@@ -108,65 +164,191 @@ export default async function ProgramsManagement() {
           <CardTitle>Add New Program</CardTitle>
         </CardHeader>
         <CardContent>
-          <form action={createProgram} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="name">Program Name *</Label>
-              <Input id="name" name="name" required />
+          <form action={createProgram} className="space-y-6">
+            {/* Basic Program Information */}
+            <div className="border rounded-lg p-4">
+              <h3 className="text-lg font-semibold mb-4">Basic Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="name">Program Name *</Label>
+                  <Input id="name" name="name" required />
+                </div>
+                
+                <div>
+                  <Label htmlFor="initial">Abbreviation</Label>
+                  <Input id="initial" name="initial" />
+                </div>
+                
+                <div>
+                  <Label htmlFor="school_id">School *</Label>
+                  <select id="school_id" name="school_id" required className="w-full p-2 border border-gray-300 rounded-md">
+                    <option value="">Select a school</option>
+                    {schools.map((school) => (
+                      <option key={school.id} value={school.id}>
+                        {school.name} {school.initial && `(${school.initial})`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <Label htmlFor="degree">Degree *</Label>
+                  <Input id="degree" name="degree" placeholder="e.g., MS, PhD, BS" required />
+                </div>
+                
+                <div className="md:col-span-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea id="description" name="description" rows={3} />
+                </div>
+              </div>
+            </div>
+
+            {/* Program Details */}
+            <div className="border rounded-lg p-4">
+              <h3 className="text-lg font-semibold mb-4">Program Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="duration_years">Duration (years)</Label>
+                  <Input id="duration_years" name="duration_years" type="number" step="0.1" placeholder="e.g., 1.5" />
+                </div>
+                
+                <div>
+                  <Label htmlFor="credits">Total Credits</Label>
+                  <Input id="credits" name="credits" type="number" />
+                </div>
+                
+                <div>
+                  <Label htmlFor="delivery_method">Delivery Method</Label>
+                  <select id="delivery_method" name="delivery_method" className="w-full p-2 border border-gray-300 rounded-md">
+                    <option value="">Select delivery method</option>
+                    <option value="Onsite">Onsite</option>
+                    <option value="Online">Online</option>
+                    <option value="Hybrid">Hybrid</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <Label htmlFor="schedule_type">Schedule Type</Label>
+                  <select id="schedule_type" name="schedule_type" className="w-full p-2 border border-gray-300 rounded-md">
+                    <option value="">Select schedule type</option>
+                    <option value="Full-time">Full-time</option>
+                    <option value="Part-time">Part-time</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <Label htmlFor="location">Program Location</Label>
+                  <Input id="location" name="location" placeholder="If different from school location" />
+                </div>
+                
+                <div>
+                  <Label htmlFor="start_date">Start Date</Label>
+                  <Input id="start_date" name="start_date" type="date" />
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" id="is_stem" name="is_stem" />
+                  <Label htmlFor="is_stem">STEM Designated</Label>
+                </div>
+                
+                <div>
+                  <Label htmlFor="website_url">Website URL</Label>
+                  <Input id="website_url" name="website_url" type="url" />
+                </div>
+              </div>
+            </div>
+
+            {/* Financial Information */}
+            <div className="border rounded-lg p-4">
+              <h3 className="text-lg font-semibold mb-4">Financial Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="currency">Currency</Label>
+                  <Input id="currency" name="currency" placeholder="e.g., USD, EUR" />
+                </div>
+                
+                <div>
+                  <Label htmlFor="total_tuition">Total Tuition</Label>
+                  <Input id="total_tuition" name="total_tuition" type="number" />
+                </div>
+                
+                <div className="md:col-span-2">
+                  <Label htmlFor="add_ons">Add-ons (JSON format)</Label>
+                  <Textarea 
+                    id="add_ons" 
+                    name="add_ons" 
+                    rows={2} 
+                    placeholder='{"scholarships": ["Merit-based", "Need-based"], "features": ["Career services"]}'
+                  />
+                  <p className="text-sm text-gray-500 mt-1">Optional: JSON object for scholarships, special features, etc.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Requirements */}
+            <div className="border rounded-lg p-4">
+              <h3 className="text-lg font-semibold mb-4">Admission Requirements</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="ielts_score">IELTS Score</Label>
+                  <Input id="ielts_score" name="ielts_score" type="number" step="0.1" placeholder="e.g., 6.5" />
+                </div>
+                
+                <div>
+                  <Label htmlFor="toefl_score">TOEFL Score</Label>
+                  <Input id="toefl_score" name="toefl_score" type="number" step="0.1" placeholder="e.g., 80" />
+                </div>
+                
+                <div>
+                  <Label htmlFor="gre_score">GRE Score</Label>
+                  <Input id="gre_score" name="gre_score" type="number" placeholder="e.g., 320" />
+                </div>
+                
+                <div>
+                  <Label htmlFor="min_gpa">Minimum GPA</Label>
+                  <Input id="min_gpa" name="min_gpa" type="number" step="0.01" placeholder="e.g., 3.5" />
+                </div>
+                
+                <div>
+                  <Label htmlFor="letters_of_recommendation">Letters of Recommendation</Label>
+                  <Input id="letters_of_recommendation" name="letters_of_recommendation" type="number" placeholder="e.g., 2" />
+                </div>
+                
+                <div>
+                  <Label htmlFor="application_fee">Application Fee</Label>
+                  <Input id="application_fee" name="application_fee" type="number" placeholder="e.g., 100" />
+                </div>
+                
+                <div>
+                  <Label htmlFor="application_deadline">Application Deadline</Label>
+                  <Input id="application_deadline" name="application_deadline" type="date" />
+                </div>
+                
+                <div>
+                  <Label htmlFor="other_tests">Other Tests</Label>
+                  <Input id="other_tests" name="other_tests" placeholder="e.g., GMAT, SAT" />
+                </div>
+                
+                <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="flex items-center space-x-2">
+                    <input type="checkbox" id="requires_personal_statement" name="requires_personal_statement" />
+                    <Label htmlFor="requires_personal_statement">Personal Statement Required</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <input type="checkbox" id="requires_portfolio" name="requires_portfolio" />
+                    <Label htmlFor="requires_portfolio">Portfolio Required</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <input type="checkbox" id="requires_cv" name="requires_cv" />
+                    <Label htmlFor="requires_cv">CV/Resume Required</Label>
+                  </div>
+                </div>
+              </div>
             </div>
             
             <div>
-              <Label htmlFor="initial">Abbreviation</Label>
-              <Input id="initial" name="initial" />
-            </div>
-            
-            <div>
-              <Label htmlFor="school_id">School *</Label>
-              <select id="school_id" name="school_id" required className="w-full p-2 border border-gray-300 rounded-md">
-                <option value="">Select a school</option>
-                {schools.map((school) => (
-                  <option key={school.id} value={school.id}>
-                    {school.name} {school.initial && `(${school.initial})`}
-                  </option>
-                ))}
-              </select>
-            </div>
-            
-            <div>
-              <Label htmlFor="degree">Degree *</Label>
-              <Input id="degree" name="degree" placeholder="e.g., MS, PhD, BS" required />
-            </div>
-            
-            <div>
-              <Label htmlFor="duration_months">Duration (months)</Label>
-              <Input id="duration_months" name="duration_months" type="number" />
-            </div>
-            
-            <div>
-              <Label htmlFor="currency">Currency</Label>
-              <Input id="currency" name="currency" placeholder="e.g., USD, EUR" />
-            </div>
-            
-            <div>
-              <Label htmlFor="total_tuition">Total Tuition</Label>
-              <Input id="total_tuition" name="total_tuition" type="number" />
-            </div>
-            
-            <div>
-              <Label htmlFor="website_url">Website URL</Label>
-              <Input id="website_url" name="website_url" type="url" />
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <input type="checkbox" id="is_stem" name="is_stem" />
-              <Label htmlFor="is_stem">STEM Designated</Label>
-            </div>
-            
-            <div className="md:col-span-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea id="description" name="description" rows={3} />
-            </div>
-            
-            <div className="md:col-span-2">
               <Button type="submit" className="w-full">Add Program</Button>
             </div>
           </form>
@@ -187,7 +369,9 @@ export default async function ProgramsManagement() {
                   <TableHead>School</TableHead>
                   <TableHead>Degree</TableHead>
                   <TableHead>Duration</TableHead>
+                  <TableHead>Delivery</TableHead>
                   <TableHead>STEM</TableHead>
+                  <TableHead>Requirements</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -201,8 +385,21 @@ export default async function ProgramsManagement() {
                       {program.schools?.name} {program.schools?.initial && `(${program.schools.initial})`}
                     </TableCell>
                     <TableCell>{program.degree}</TableCell>
-                    <TableCell>{program.duration_months ? `${program.duration_months} months` : '-'}</TableCell>
+                    <TableCell>
+                      {program.duration_years ? `${program.duration_years} years` : 
+                       program.duration_months ? `${program.duration_months} months` : '-'}
+                    </TableCell>
+                    <TableCell>{program.delivery_method || '-'}</TableCell>
                     <TableCell>{program.is_stem ? 'Yes' : 'No'}</TableCell>
+                    <TableCell>
+                      {program.requirements ? (
+                        <div className="text-sm">
+                          {program.requirements.ielts_score && `IELTS: ${program.requirements.ielts_score}`}
+                          {program.requirements.toefl_score && (program.requirements.ielts_score ? ', ' : '') + `TOEFL: ${program.requirements.toefl_score}`}
+                          {program.requirements.min_gpa && (program.requirements.ielts_score || program.requirements.toefl_score ? ', ' : '') + `GPA: ${program.requirements.min_gpa}`}
+                        </div>
+                      ) : '-'}
+                    </TableCell>
                     <TableCell>
                       <Button variant="outline" size="sm">Edit</Button>
                     </TableCell>
