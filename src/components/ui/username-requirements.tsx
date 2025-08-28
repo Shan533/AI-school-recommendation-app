@@ -1,40 +1,36 @@
 'use client'
 
-import { Check, X } from 'lucide-react'
+import { AnimatedRequirement } from './animated-requirement'
 
 interface UsernameRequirementProps {
   username: string
+  showOnlyUnmet?: boolean
 }
 
-export function UsernameRequirements({ username }: UsernameRequirementProps) {
+export function UsernameRequirements({ username, showOnlyUnmet = false }: UsernameRequirementProps) {
   const requirements = [
     {
       text: 'At least 3 characters',
       met: username.length >= 3,
     },
     {
-      text: 'No special characters',
+      text: 'Only letters, numbers, and underscores allowed',
       met: /^[a-zA-Z0-9_]+$/.test(username),
-    },
-    {
-      text: 'No spaces',
-      met: !username.includes(' '),
     },
   ]
 
+  // When showOnlyUnmet is true, we still render all requirements
+  // but let AnimatedRequirement handle its own visibility based on met status
   return (
-    <div className="space-y-2 text-sm text-muted-foreground">
+    <div className="text-sm text-muted-foreground">
       {requirements.map((req, index) => (
-        <div key={index} className="flex items-center space-x-2">
-          {req.met ? (
-            <Check className="h-4 w-4 text-green-500" />
-          ) : (
-            <X className="h-4 w-4 text-red-500" />
-          )}
-          <span className={req.met ? 'text-green-500' : 'text-red-500'}>
-            {req.text}
-          </span>
-        </div>
+        <AnimatedRequirement
+          key={req.text}
+          text={req.text}
+          met={req.met}
+          index={index}
+          showOnlyUnmet={showOnlyUnmet}
+        />
       ))}
     </div>
   )

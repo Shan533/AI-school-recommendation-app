@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,6 +10,7 @@ import { registerAction, signInWithGoogleAction } from '@/lib/auth-actions'
 
 import { PasswordRequirements } from '@/components/ui/password-requirements'
 import { UsernameRequirements } from '@/components/ui/username-requirements'
+import { PasswordInput } from '@/components/ui/password-input'
 
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -19,6 +20,21 @@ export default function RegisterPage() {
   const [username, setUsername] = useState('')
   const [showPasswordRequirements, setShowPasswordRequirements] = useState(false)
   const [showUsernameRequirements, setShowUsernameRequirements] = useState(false)
+  
+  // Check if password meets all requirements
+  const isPasswordValid = () => {
+    return password.length >= 8 && 
+           /[A-Z]/.test(password) && /[a-z]/.test(password) && 
+           /[0-9]/.test(password) && 
+           /[^A-Za-z0-9]/.test(password)
+  }
+
+  // Check if username meets all requirements
+  const isUsernameValid = () => {
+    return username.length >= 3 && 
+           /^[a-zA-Z0-9_]+$/.test(username) && 
+           !username.includes(' ')
+  }
 
   async function handleSubmit(formData: FormData) {
     setIsLoading(true)
@@ -129,20 +145,37 @@ export default function RegisterPage() {
                 placeholder="Enter your username"
                 required
                 disabled={isLoading}
-                onChange={(e) => setUsername(e.target.value)}
-                onFocus={() => setShowUsernameRequirements(true)}
+                onChange={(e) => {
+                  const newUsername = e.target.value
+                  setUsername(newUsername)
+                  
+                  // Show requirements if user starts typing
+                  if (newUsername.length > 0) {
+                    setShowUsernameRequirements(true)
+                  } else {
+                    // Hide requirements if username is empty
+                    setShowUsernameRequirements(false)
+                  }
+                }}
+                onFocus={() => {
+                  // Show requirements on focus if username has content
+                  if (username.length > 0) {
+                    setShowUsernameRequirements(true)
+                  }
+                }}
                 onBlur={() => {
-                  // Only hide requirements if username is valid or empty
-                  if (username === '') {
+                  // Hide requirements on blur if username is valid or empty
+                  if (username === '' || isUsernameValid()) {
                     setShowUsernameRequirements(false)
                   }
                 }}
               />
               {showUsernameRequirements && (
-                <div className="mt-2 overflow-hidden">
-                  <div className="animate-in fade-in-0 slide-in-from-top-2 duration-300 ease-out">
-                    <UsernameRequirements username={username} />
-                  </div>
+                <div className="mt-2">
+                  <UsernameRequirements 
+                    username={username} 
+                    showOnlyUnmet={true}
+                  />
                 </div>
               )}
             </div>
@@ -159,27 +192,44 @@ export default function RegisterPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
+              <PasswordInput
                 id="password"
                 name="password"
-                type="password"
                 placeholder="Create a password"
                 required
                 disabled={isLoading}
-                onChange={(e) => setPassword(e.target.value)}
-                onFocus={() => setShowPasswordRequirements(true)}
+                value={password}
+                onChange={(e) => {
+                  const newPassword = e.target.value
+                  setPassword(newPassword)
+                  
+                  // Show requirements if user starts typing
+                  if (newPassword.length > 0) {
+                    setShowPasswordRequirements(true)
+                  } else {
+                    // Hide requirements if password is empty
+                    setShowPasswordRequirements(false)
+                  }
+                }}
+                onFocus={() => {
+                  // Show requirements on focus if password has content
+                  if (password.length > 0) {
+                    setShowPasswordRequirements(true)
+                  }
+                }}
                 onBlur={() => {
-                  // Only hide requirements if password is valid or empty
-                  if (password === '') {
+                  // Hide requirements on blur if password is valid or empty
+                  if (password === '' || isPasswordValid()) {
                     setShowPasswordRequirements(false)
                   }
                 }}
               />
               {showPasswordRequirements && (
-                <div className="mt-2 overflow-hidden">
-                  <div className="animate-in fade-in-0 slide-in-from-top-2 duration-300 ease-out">
-                    <PasswordRequirements password={password} />
-                  </div>
+                <div className="mt-2">
+                  <PasswordRequirements 
+                    password={password} 
+                    showOnlyUnmet={true}
+                  />
                 </div>
               )}
             </div>

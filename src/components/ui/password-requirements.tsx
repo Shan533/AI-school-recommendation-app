@@ -1,48 +1,44 @@
 'use client'
 
-import { Check, X } from 'lucide-react'
+import { AnimatedRequirement } from './animated-requirement'
 
 interface PasswordRequirementProps {
   password: string
+  showOnlyUnmet?: boolean
 }
 
-export function PasswordRequirements({ password }: PasswordRequirementProps) {
+export function PasswordRequirements({ password, showOnlyUnmet = false }: PasswordRequirementProps) {
   const requirements = [
     {
       text: 'At least 8 characters',
       met: password.length >= 8,
     },
     {
-      text: 'Contains uppercase letter',
-      met: /[A-Z]/.test(password),
-    },
-    {
-      text: 'Contains lowercase letter',
-      met: /[a-z]/.test(password),
+      text: 'Contains both uppercase and lowercase letters',
+      met: /[A-Z]/.test(password) && /[a-z]/.test(password),
     },
     {
       text: 'Contains number',
       met: /[0-9]/.test(password),
     },
     {
-      text: 'Contains special character',
+      text: 'Contains special character (!@#$%^&*()_+-)',
       met: /[^A-Za-z0-9]/.test(password),
     },
   ]
 
+  // When showOnlyUnmet is true, we still render all requirements
+  // but let AnimatedRequirement handle its own visibility based on met status
   return (
-    <div className="space-y-2 text-sm text-muted-foreground">
+    <div className="text-sm text-muted-foreground">
       {requirements.map((req, index) => (
-        <div key={index} className="flex items-center space-x-2">
-          {req.met ? (
-            <Check className="h-4 w-4 text-green-500" />
-          ) : (
-            <X className="h-4 w-4 text-red-500" />
-          )}
-          <span className={req.met ? 'text-green-500' : 'text-red-500'}>
-            {req.text}
-          </span>
-        </div>
+        <AnimatedRequirement
+          key={req.text}
+          text={req.text}
+          met={req.met}
+          index={index}
+          showOnlyUnmet={showOnlyUnmet}
+        />
       ))}
     </div>
   )
