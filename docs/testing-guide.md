@@ -1,6 +1,33 @@
 # Testing Guide: AI School Recommend App
 
-This guide walks you through testing all the implemented features in Phase 1.
+**⚠️ This guide has been reorganized. Please use the new testing documentation structure:**
+
+## 📋 New Testing Documentation Structure
+
+The testing documentation has been reorganized into a dedicated testing directory with focused guides:
+
+### 🧪 Current Testing Guides
+- **[Testing Plan](./testing/testing-plan.md)** - Main testing overview and index
+- **[Core Setup Testing](./testing/core-setup-testing.md)** - Environment setup and basic functionality
+- **[Admin CRUD Testing](./testing/admin-crud-testing.md)** - Complete CRUD operations for schools and programs
+- **[CSV Upload Testing](./testing/csv-upload-testing.md)** - Bulk data import functionality
+- **[Public Pages Testing](./testing/public-pages-testing.md)** - User-facing school and program browsing
+
+### 🔮 Future Testing Guides (Phase 2 & 3)
+- **[User Reviews Testing](./testing/user-reviews-testing.md)** - Review and rating system
+- **[Collections Testing](./testing/collections-testing.md)** - User collections and favorites
+- **[AI Recommendations Testing](./testing/ai-recommendations-testing.md)** - Recommendation engine
+
+## 🚀 Quick Start
+
+For immediate testing, start with:
+1. **[Core Setup Testing](./testing/core-setup-testing.md)** - Environment verification
+2. **[Admin CRUD Testing](./testing/admin-crud-testing.md)** - Data management
+3. **[Public Pages Testing](./testing/public-pages-testing.md)** - User experience
+
+---
+
+**Note**: This original testing guide is kept for reference but the new structure provides better organization and future scalability.
 
 ## 🚀 Prerequisites
 
@@ -69,8 +96,8 @@ This guide walks you through testing all the implemented features in Phase 1.
   ```
 - [✅] **View School**: Verify the new school appears in the table.
 - [✅] **Add Multiple Schools**: Create 2-3 more schools for testing.
-- [❌] **Edit School**: Click "Edit" on a school, update some fields (e.g., change the name or location), and save. Confirm the changes are reflected in the table.
-- [❌] **Delete School**: Click "Delete" on a school, confirm the deletion, and verify the school is removed from the table.
+- [✅] **Edit School**: Click "Edit" on a school, update some fields (e.g., change the name or location), and save. Confirm the changes are reflected in the table.
+- [✅] **Delete School**: Click "Delete" on a school, confirm the deletion, and verify the school is removed from the table.
 
 #### Programs Management (`/admin/programs`):
 - [ ] **Add Program**: Create a test program:
@@ -87,8 +114,8 @@ This guide walks you through testing all the implemented features in Phase 1.
   ```
 - [✅] **View Program**: Verify program appears in table with school info
 - [✅] **Add Multiple Programs**: Create programs for different schools
-- [❌] **Edit Program**: Click "Edit" on a program, update some fields (e.g., change the name or duration), and save. Confirm the changes are reflected in the table.
-- [❌] **Delete Program**: Click "Delete" on a program, confirm the deletion, and verify the program is removed from the table.
+- [✅] **Edit Program**: Click "Edit" on a program, update some fields (e.g., change the name or duration), and save. Confirm the changes are reflected in the table.
+- [✅] **Delete Program**: Click "Delete" on a program, confirm the deletion, and verify the program is removed from the table.
 
 ### 5. CSV Upload Testing (`/admin/csv-upload`)
 
@@ -182,8 +209,8 @@ Use this sample data to populate your database for testing:
 ## ✅ Success Criteria
 
 Your implementation is working correctly if:
-- [ ] All pages load without errors
-- [ ] Admin can add/view schools and programs
+- [✅] All pages load without errors
+- [✅] Admin can add/view schools and programs
 - [✅] CSV upload works for both schools and programs
 - [✅] Public pages display data correctly
 - [✅] Authentication and authorization work
