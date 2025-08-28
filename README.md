@@ -1,65 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎓 AI School Recommendation App
 
-## Getting Started
+A modern web application for discovering and reviewing university programs, built with Next.js 15, React 19, and Supabase.
 
-First, run the development server:
+![Next.js](https://img.shields.io/badge/Next.js-15.4.6-black)
+![React](https://img.shields.io/badge/React-19.1.0-blue)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)
+![Supabase](https://img.shields.io/badge/Supabase-2.55.0-green)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.x-38B2AC)
 
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 15.4.6, React 19.1.0, TypeScript 5.x
+- **Styling**: Tailwind CSS 4.x, shadcn/ui
+- **Backend**: Supabase 2.55.0 (PostgreSQL, Auth, RLS)
+- **Testing**: Jest 30.0.5, React Testing Library
+- **Deployment**: Vercel
+- **Form Handling**: React Hook Form, Zod validation
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18+
+- Docker Desktop (optional, for containerized setup)
+
+### Option 1: Docker (Recommended)
+
+**Windows:**
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-# or using docker
-docker compose -f docker-compose.dev.yml up --build
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-## Quick Start with Docker
-### One-Click Startup
-
-#### Windows Users
-```bash
-# Double-click to run
-docker/start-docker.bat
-
-# Or run from command line
 .\docker\start-docker.bat
 ```
 
-#### Linux/Mac Users
+**Linux/Mac:**
 ```bash
-# Add execution permissions
 chmod +x docker/start-docker.sh
-
-# Run script
 ./docker/start-docker.sh
 ```
 
-### What Gets Started
-- **🌐 Web Application**: http://localhost:3000
-- **🔴 Redis**: localhost:6379
-- **🕷️ Web Crawler**: Optional Python service
-- **📊 Redis Monitoring**: Optional web-based management
+### Option 2: Local Development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Clone and install
+git clone https://github.com/your-username/ai-school-recommend-app.git
+cd ai-school-recommend-app
+npm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Set up environment
+cp env.local.example .env.local
+# Edit .env.local with your Supabase credentials
 
-## Learn More
+# Start development server
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Visit [http://localhost:3000](http://localhost:3000) to see the application.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📚 Documentation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **[Design Document](docs/design-doc.mdc)** - Application design and features
+- **[Setup Instructions](docs/setup-instructions.md)** - Detailed setup guide
+- **[Testing Guide](docs/testing-guide.md)** - Testing strategy
 
-## Deploy on Vercel
+## 🧪 Testing
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm test
+npm run test:ci
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🚀 Deployment
+
+Deploy to Vercel:
+```bash
+vercel
+```
+
+---
+
+**Happy Coding! 🎉**

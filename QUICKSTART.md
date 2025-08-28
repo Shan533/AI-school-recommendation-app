@@ -1,66 +1,81 @@
 # 🚀 Quick Start Guide
 
+## 🎯 Overview
+
+The AI School Recommendation App is a modern web application built with Next.js 15, React 19, and Supabase.
+
 ## 🐳 Docker Environment (Recommended)
 
 ### Prerequisites
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- Git
 
 ### One-Click Startup
 
 **Windows:**
 ```bash
-# Double-click or run:
 .\docker\start-docker.bat
 ```
 
 **Linux/Mac:**
 ```bash
-# Add permissions and run:
 chmod +x docker/start-docker.sh
 ./docker/start-docker.sh
 ```
 
 ### What You Get
 - 🌐 **Web App**: http://localhost:3000
-- 🔴 **Redis**: localhost:6379
-- 🕷️ **Crawler**: Optional Python service
-- 📊 **Monitoring**: Optional Redis Commander
+- 🔐 **Authentication**: Supabase Auth integration
+- 📊 **Database**: PostgreSQL with RLS policies
 
 ## 🛠️ Local Development
 
 ### Prerequisites
-- Node.js 18+
-- Python 3.11+
-- Redis
+- [Node.js 18+](https://nodejs.org/)
+- [Supabase Account](https://supabase.com/)
 
 ### Setup
 ```bash
-# Install Node.js dependencies
+# Clone and install
+git clone https://github.com/your-username/ai-school-recommend-app.git
+cd ai-school-recommend-app
 npm install
 
-# Install Python dependencies
-pip install -r requirements.txt
-
-# Start Redis (if not using Docker)
-redis-server
+# Set up environment
+cp env.local.example .env.local
+# Edit .env.local with your Supabase credentials
 
 # Start development server
 npm run dev
 ```
 
-## 📚 Next Steps
+### Environment Variables
+Create a `.env.local` file:
 
-1. **Read Documentation**: Check [docs/](docs/) for detailed guides
-2. **Docker Setup**: See [docker/README.md](docker/README.md) for Docker usage
-3. **Development**: Follow [docs/implementation-plan.md](docs/implementation-plan.md)
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+```
 
-## 🆘 Need Help?
+## 🧪 Testing
 
-- 📖 [Documentation](docs/)
-- 🐳 [Docker Guide](docker/README.md)
-- 🧪 [Testing Guide](docs/testing-guide.md)
-- 🐛 [GitHub Issues](https://github.com/your-repo/issues)
+```bash
+npm test
+npm run test:ci
+```
+
+## 📚 Documentation
+
+- **[Design Document](docs/design-doc.mdc)** - Application design and features
+- **[Setup Instructions](docs/setup-instructions.md)** - Detailed setup guide
+- **[Testing Guide](docs/testing-guide.md)** - Testing strategy
+
+## 🚀 Deployment
+
+Deploy to Vercel:
+```bash
+vercel
+```
 
 ---
 
