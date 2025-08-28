@@ -4,16 +4,50 @@ globs:
 alwaysApply: true
 ---
 
-You are an expert senior software engineer working on the AI School Recommend App, specializing in modern web development with deep expertise in TypeScript, React 19, Next.js 15 (App Router), Supabase, Shadcn UI, Radix UI, and Tailwind CSS. You are thoughtful, precise, and focus on delivering high-quality, maintainable solutions.
+You are an expert senior software engineer working on the AI School Recommend App, specializing in modern web development with deep expertise in TypeScript, React 19.1.0, Next.js 15.4.6 (App Router), Supabase 2.55.0, Shadcn UI, Radix UI, and Tailwind CSS 4.x. You are thoughtful, precise, and focus on delivering high-quality, maintainable solutions.
+
+## Current Technology Stack
+
+### Core Framework
+- **Next.js**: 15.4.6 with App Router and Server Components
+- **React**: 19.1.0 with concurrent features
+- **TypeScript**: 5.x for type safety
+
+### Backend & Database
+- **Supabase**: 2.55.0 (PostgreSQL, Auth, RLS)
+- **Authentication**: Supabase Auth with middleware session management
+
+### UI & Styling
+- **Tailwind CSS**: 4.x with PostCSS
+- **shadcn/ui**: Latest components with Radix UI primitives
+- **Lucide React**: 0.537.0 for icons
+
+### Form Handling & Validation
+- **React Hook Form**: 7.62.0 for form management
+- **Zod**: 4.0.15 for schema validation
+- **@hookform/resolvers**: 5.2.1 for form validation integration
+
+### Testing & Development
+- **Jest**: 30.0.5 with React Testing Library
+- **ESLint**: 9.x with Next.js configuration
+- **Docker**: Containerization for development
+
+### Deployment & Monitoring
+- **Vercel**: Hosting platform with CI/CD
+- **Vercel Analytics**: 1.5.0 for performance monitoring
+
+### Data Processing
+- **PapaParse**: 5.5.3 for CSV processing
 
 ## Project Documentation Reference
 
 Always refer to these documentation files when making changes:
 
 ### Core Documentation
-- **docs/design-doc.md** - Complete application design, features, data schema, and architecture
-- **docs/implementation-plan.md** - Development roadmap, frontend strategy, and testing plan
-- **docs/file-structure.md** - Current project file organization and structure
+- **docs/design-doc.mdc** - Complete application design, features, data schema, and architecture
+- **docs/implementation-plan.mdc** - Development roadmap, frontend strategy, and testing plan
+- **docs/file-structure.mdc** - Current project file organization and structure
+- **docs/schema-design.mdc** - Database schema design and relationships
 
 ### Setup & Testing
 - **docs/setup-instructions.md** - Quick setup guide for environment variables and database
@@ -23,11 +57,14 @@ Always refer to these documentation files when making changes:
 - **supabase/migrations/0000_init.sql** - Complete database schema with RLS policies
 
 ### Key Features Implemented (Phase 1)
-- User authentication with Supabase
+- User authentication with Supabase Auth and middleware
 - Admin dashboard with CRUD operations for schools and programs
-- CSV bulk upload functionality
+- CSV bulk upload functionality with PapaParse
 - Public browsing pages for schools and programs
-- Mobile-first responsive design
+- Mobile-first responsive design with Tailwind CSS 4.x
+- Comprehensive testing with Jest and React Testing Library
+- Docker containerization for development
+- Vercel deployment with analytics
 
 When making changes:
 1. Check relevant documentation first
@@ -119,9 +156,11 @@ const searchParams = await props.searchParams
 
 ### Supabase Integration
 - Use `src/lib/supabase/helpers.ts` for common database operations
-- Server components use `getSupabaseClient()` for database access
+- Server components use `createClient(cookieStore)` from `src/lib/supabase/server.ts`
 - Client components use `createClient()` from `src/lib/supabase/client.ts`
+- Admin operations use `createAdminClient()` for privileged access
 - Always check user authentication and admin status for protected routes
+- Follow RLS policies defined in migration scripts
 
 ### Authentication & Authorization
 ```typescript
@@ -130,18 +169,28 @@ const user = await getCurrentUser()
 if (!user || !(await isAdmin(user.id))) {
   redirect('/login')
 }
+
+// Middleware handles session management and route protection
+// Use Server Actions for authentication operations
+// Session cookies are managed automatically by middleware
 ```
 
 ### File Structure Conventions
 - Admin routes: `src/app/admin/[feature]/page.tsx`
 - Public routes: `src/app/[resource]/page.tsx` and `src/app/[resource]/[id]/page.tsx`
-- API routes: `src/app/api/admin/[resource]/route.ts`
+- API routes: `src/app/api/admin/[resource]/route.ts` and `src/app/api/admin/[resource]/[id]/route.ts`
+- Auth routes: `src/app/auth/[feature]/page.tsx` and `src/app/auth/[feature]/route.ts`
 - Components: Use shadcn/ui components from `src/components/ui/`
+- Admin components: `src/components/admin/[feature].tsx`
+- Form validation: Use Zod schemas in `src/lib/validation.ts`
 
 ### Database Operations
-- Follow RLS policies defined in migration script
+- Follow RLS policies defined in migration scripts
 - Use proper error handling for Supabase operations
 - Include proper TypeScript types for database queries
+- Use UUIDs for primary keys and foreign keys
+- Implement proper timestamps with `created_at` fields
+- Use database transactions for complex operations
 
 ### Mobile-First Design
 - Always implement responsive design with Tailwind CSS
@@ -152,4 +201,42 @@ if (!user || !(await isAdmin(user.id))) {
 - Use Next.js `notFound()` for invalid IDs in dynamic routes
 - Implement proper try-catch blocks for async operations
 - Provide user-friendly error messages
+- Use error boundaries for React components
+- Handle Supabase errors gracefully with proper fallbacks
+
+## Development Infrastructure
+
+### Testing Strategy
+- Use Jest 30.0.5 with React Testing Library for unit and integration tests
+- Test Server Components with proper mocking of Supabase clients
+- Test Client Components with user interaction simulations
+- Use schema validation tests for database migrations
+- Implement E2E tests for critical user flows (future with Playwright)
+
+### Docker Development
+- Use Docker Compose for local development environment
+- Separate containers for web app and future crawler service
+- Hot reloading enabled for development efficiency
+- Consistent environment across team members
+
+### Code Quality Tools
+- ESLint with Next.js configuration for code linting
+- TypeScript 5.x for static type checking
+- Prettier integration via Tailwind CSS
+- Git hooks for pre-commit validation (future)
+
+## Performance & Monitoring
+
+### Optimization Strategies
+- Leverage Server Components for reduced client-side JavaScript
+- Use Next.js Image component for automatic image optimization
+- Implement proper caching strategies for database queries
+- Monitor Core Web Vitals with Vercel Analytics
+
+### Security Best Practices
+- Implement Row-Level Security (RLS) at database level
+- Use HTTP-only cookies for session management
+- Validate all inputs with Zod schemas
+- Follow OWASP security guidelines
+- Regular security audits and dependency updates
 

@@ -1,0 +1,396 @@
+---
+alwaysApply: false
+---
+
+# Project File Structure
+
+This document outlines the file and directory structure for the AI School Recommend App.
+
+```
+AI_school_recommend_app/
+├── docs/
+│   ├── design-doc.md
+│   ├── implementation-plan.mdc
+│   ├── technical-architecture.md
+│   ├── setup-instructions.md
+│   ├── testing-guide.md
+│   ├── file-structure.md
+│   └── testing/
+│       ├── README.md
+│       ├── testing-plan.md
+│       ├── core-setup-testing.md
+│       ├── admin-crud-testing.md
+│       ├── csv-upload-testing.md
+│       ├── public-pages-testing.md
+│       ├── collections-testing.md
+│       ├── user-reviews-testing.md
+│       └── ai-recommendations-testing.md
+├── csv/
+│   ├── rotten-tomatoes.schools.csv
+│   ├── rotten-tomatoes.programs.csv
+│   ├── rotten-tomatoes.programs.updated.csv
+│   └── programs-for-import.csv
+├── __tests__/
+│   ├── home.test.tsx
+│   ├── run-schema-tests.sh
+│   └── schema/
+│       ├── schema-testing-guide.md
+│       ├── schema-test-results.md
+│       ├── test-schema.sql
+│       ├── test-schema-types.ts
+│       └── validate-migration.js
+├── scripts/
+│   └── prepare-programs-csv.mjs
+├── docker/
+│   ├── Docker_README.md
+│   ├── docker-compose.yml
+│   ├── Dockerfile
+│   ├── Dockerfile.crawler
+│   ├── Dockerfile.dev
+│   ├── start-docker.bat
+│   └── start-docker.sh
+├── public/
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── next.svg
+│   ├── vercel.svg
+│   └── window.svg
+├── src/
+│   ├── app/
+│   │   ├── (public)/
+│   │   │   ├── login/
+│   │   │   │   └── page.tsx
+│   │   │   └── register/
+│   │   │       └── page.tsx
+│   │   ├── admin/
+│   │   │   ├── csv-upload/
+│   │   │   │   └── page.tsx
+│   │   │   ├── dashboard/
+│   │   │   │   └── page.tsx
+│   │   │   ├── programs/
+│   │   │   │   └── page.tsx
+│   │   │   ├── schools/
+│   │   │   │   └── page.tsx
+│   │   │   └── users/
+│   │   │       └── page.tsx
+│   │   ├── api/
+│   │   │   ├── admin/
+│   │   │   │   ├── programs/
+│   │   │   │   │   ├── [id]/
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── schools/
+│   │   │   │       ├── [id]/
+│   │   │   │       │   └── route.ts
+│   │   │   │       └── route.ts
+│   │   │   ├── auth/
+│   │   │   │   └── logout/
+│   │   │   │       └── route.ts
+│   │   │   └── debug/
+│   │   │       └── programs/
+│   │   │           └── [id]/
+│   │   ├── auth/
+│   │   │   ├── auth-code-error/
+│   │   │   │   └── page.tsx
+│   │   │   ├── callback/
+│   │   │   │   └── route.ts
+│   │   │   ├── setup-username/
+│   │   │   │   └── page.tsx
+│   │   │   └── verify-email/
+│   │   │       └── page.tsx
+│   │   ├── check-config/
+│   │   ├── profile/
+│   │   │   └── page.tsx
+│   │   ├── programs/
+│   │   │   ├── [id]/
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── schools/
+│   │   │   ├── [id]/
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── test-auth/
+│   │   ├── favicon.ico
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   ├── components/
+│   │   ├── admin/
+│   │   │   ├── programs-management.tsx
+│   │   │   └── schools-management.tsx
+│   │   ├── navigation.tsx
+│   │   ├── review-form.tsx
+│   │   ├── reviews-list.tsx
+│   │   └── ui/
+│   │       ├── animated-requirement.tsx
+│   │       ├── avatar.tsx
+│   │       ├── badge.tsx
+│   │       ├── button.tsx
+│   │       ├── card.tsx
+│   │       ├── dialog.tsx
+│   │       ├── form.tsx
+│   │       ├── input.tsx
+│   │       ├── label.tsx
+│   │       ├── password-input.tsx
+│   │       ├── password-requirements.tsx
+│   │       ├── separator.tsx
+│   │       ├── star-rating.tsx
+│   │       ├── table.tsx
+│   │       ├── textarea.tsx
+│   │       └── username-requirements.tsx
+│   ├── lib/
+│   │   ├── auth-actions.ts
+│   │   ├── supabase/
+│   │   │   ├── client.ts
+│   │   │   ├── helpers.ts
+│   │   │   └── server.ts
+│   │   ├── utils.ts
+│   │   └── validation.ts
+│   └── middleware.ts
+├── supabase/
+│   └── migrations/
+│       ├── 0000_init.sql
+│       ├── 0001_update_programs_table.sql
+│       └── 0002_add_requirements_and_program_enhancements.sql
+├── .env
+├── .gitignore
+├── components.json
+├── env.local.example
+├── eslint.config.mjs
+├── jest.config.cjs
+├── jest.setup.ts
+├── next.config.ts
+├── package-lock.json
+├── package.json
+├── postcss.config.mjs
+├── QUICKSTART.md
+├── README.md
+├── test-program-update.mjs
+└── tsconfig.json
+```
+
+### Directory Descriptions
+
+-   **`docs/`**: Contains all project documentation, including design documents, implementation plans, technical architecture, and setup instructions.
+    -   **`testing/`**: Comprehensive testing documentation and guides for different features.
+-   **`csv/`**: Holds raw CSV data for schools and programs, as well as processed files for database import.
+-   **`__tests__/`**: Contains all test files organized by feature.
+    -   **`schema/`**: Database schema validation and migration tests.
+-   **`scripts/`**: Contains utility and migration scripts for data processing and other operational tasks.
+-   **`docker/`**: Docker configuration files for development and deployment containerization.
+-   **`public/`**: Stores static assets like images, fonts, and icons that are publicly accessible.
+-   **`src/`**: The main application source code directory.
+    -   **`src/app/`**: Core of the Next.js application, using the App Router.
+        -   **`(public)/`**: Routes that are accessible without authentication (login, register).
+        -   **`admin/`**: Protected routes for the admin dashboard (CRUD operations, CSV upload).
+        -   **`api/`**: API routes for server-side logic and data operations.
+        -   **`auth/`**: Authentication-related pages and callbacks.
+        -   **`programs/`**: Public program browsing and detail pages.
+        -   **`schools/`**: Public school browsing and detail pages.
+        -   **`profile/`**: User profile and management pages.
+    -   **`src/components/`**: Reusable React components.
+        -   **`admin/`**: Admin-specific components for data management.
+        -   **`ui/`**: shadcn/ui components and custom UI elements.
+    -   **`src/lib/`**: Libraries, helpers, and utility functions.
+        -   **`supabase/`**: Supabase client and server configurations.
+        -   **`auth-actions.ts`**: Authentication server actions.
+        -   **`validation.ts`**: Zod validation schemas.
+-   **`supabase/`**: Configuration and migration files for the Supabase database.
+    -   **`migrations/`**: SQL files that define the database schema versions.
+-   **Root Configuration Files**: Jest configuration, Next.js config, TypeScript config, and other project setup files.
+# Project File Structure
+
+This document outlines the file and directory structure for the AI School Recommend App.
+
+```
+AI_school_recommend_app/
+├── docs/
+│   ├── design-doc.md
+│   ├── implementation-plan.mdc
+│   ├── technical-architecture.md
+│   ├── setup-instructions.md
+│   ├── testing-guide.md
+│   ├── file-structure.md
+│   └── testing/
+│       ├── README.md
+│       ├── testing-plan.md
+│       ├── core-setup-testing.md
+│       ├── admin-crud-testing.md
+│       ├── csv-upload-testing.md
+│       ├── public-pages-testing.md
+│       ├── collections-testing.md
+│       ├── user-reviews-testing.md
+│       └── ai-recommendations-testing.md
+├── csv/
+│   ├── rotten-tomatoes.schools.csv
+│   ├── rotten-tomatoes.programs.csv
+│   ├── rotten-tomatoes.programs.updated.csv
+│   └── programs-for-import.csv
+├── __tests__/
+│   ├── home.test.tsx
+│   ├── run-schema-tests.sh
+│   └── schema/
+│       ├── schema-testing-guide.md
+│       ├── schema-test-results.md
+│       ├── test-schema.sql
+│       ├── test-schema-types.ts
+│       └── validate-migration.js
+├── scripts/
+│   └── prepare-programs-csv.mjs
+├── docker/
+│   ├── Docker_README.md
+│   ├── docker-compose.yml
+│   ├── Dockerfile
+│   ├── Dockerfile.crawler
+│   ├── Dockerfile.dev
+│   ├── start-docker.bat
+│   └── start-docker.sh
+├── public/
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── next.svg
+│   ├── vercel.svg
+│   └── window.svg
+├── src/
+│   ├── app/
+│   │   ├── (public)/
+│   │   │   ├── login/
+│   │   │   │   └── page.tsx
+│   │   │   └── register/
+│   │   │       └── page.tsx
+│   │   ├── admin/
+│   │   │   ├── csv-upload/
+│   │   │   │   └── page.tsx
+│   │   │   ├── dashboard/
+│   │   │   │   └── page.tsx
+│   │   │   ├── programs/
+│   │   │   │   └── page.tsx
+│   │   │   ├── schools/
+│   │   │   │   └── page.tsx
+│   │   │   └── users/
+│   │   │       └── page.tsx
+│   │   ├── api/
+│   │   │   ├── admin/
+│   │   │   │   ├── programs/
+│   │   │   │   │   ├── [id]/
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── schools/
+│   │   │   │       ├── [id]/
+│   │   │   │       │   └── route.ts
+│   │   │   │       └── route.ts
+│   │   │   ├── auth/
+│   │   │   │   └── logout/
+│   │   │   │       └── route.ts
+│   │   │   └── debug/
+│   │   │       └── programs/
+│   │   │           └── [id]/
+│   │   ├── auth/
+│   │   │   ├── auth-code-error/
+│   │   │   │   └── page.tsx
+│   │   │   ├── callback/
+│   │   │   │   └── route.ts
+│   │   │   ├── setup-username/
+│   │   │   │   └── page.tsx
+│   │   │   └── verify-email/
+│   │   │       └── page.tsx
+│   │   ├── check-config/
+│   │   ├── profile/
+│   │   │   └── page.tsx
+│   │   ├── programs/
+│   │   │   ├── [id]/
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── schools/
+│   │   │   ├── [id]/
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── test-auth/
+│   │   ├── favicon.ico
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   ├── components/
+│   │   ├── admin/
+│   │   │   ├── programs-management.tsx
+│   │   │   └── schools-management.tsx
+│   │   ├── navigation.tsx
+│   │   ├── review-form.tsx
+│   │   ├── reviews-list.tsx
+│   │   └── ui/
+│   │       ├── animated-requirement.tsx
+│   │       ├── avatar.tsx
+│   │       ├── badge.tsx
+│   │       ├── button.tsx
+│   │       ├── card.tsx
+│   │       ├── dialog.tsx
+│   │       ├── form.tsx
+│   │       ├── input.tsx
+│   │       ├── label.tsx
+│   │       ├── password-input.tsx
+│   │       ├── password-requirements.tsx
+│   │       ├── separator.tsx
+│   │       ├── star-rating.tsx
+│   │       ├── table.tsx
+│   │       ├── textarea.tsx
+│   │       └── username-requirements.tsx
+│   ├── lib/
+│   │   ├── auth-actions.ts
+│   │   ├── supabase/
+│   │   │   ├── client.ts
+│   │   │   ├── helpers.ts
+│   │   │   └── server.ts
+│   │   ├── utils.ts
+│   │   └── validation.ts
+│   └── middleware.ts
+├── supabase/
+│   └── migrations/
+│       ├── 0000_init.sql
+│       ├── 0001_update_programs_table.sql
+│       └── 0002_add_requirements_and_program_enhancements.sql
+├── .env
+├── .gitignore
+├── components.json
+├── env.local.example
+├── eslint.config.mjs
+├── jest.config.cjs
+├── jest.setup.ts
+├── next.config.ts
+├── package-lock.json
+├── package.json
+├── postcss.config.mjs
+├── QUICKSTART.md
+├── README.md
+├── test-program-update.mjs
+└── tsconfig.json
+```
+
+### Directory Descriptions
+
+-   **`docs/`**: Contains all project documentation, including design documents, implementation plans, technical architecture, and setup instructions.
+    -   **`testing/`**: Comprehensive testing documentation and guides for different features.
+-   **`csv/`**: Holds raw CSV data for schools and programs, as well as processed files for database import.
+-   **`__tests__/`**: Contains all test files organized by feature.
+    -   **`schema/`**: Database schema validation and migration tests.
+-   **`scripts/`**: Contains utility and migration scripts for data processing and other operational tasks.
+-   **`docker/`**: Docker configuration files for development and deployment containerization.
+-   **`public/`**: Stores static assets like images, fonts, and icons that are publicly accessible.
+-   **`src/`**: The main application source code directory.
+    -   **`src/app/`**: Core of the Next.js application, using the App Router.
+        -   **`(public)/`**: Routes that are accessible without authentication (login, register).
+        -   **`admin/`**: Protected routes for the admin dashboard (CRUD operations, CSV upload).
+        -   **`api/`**: API routes for server-side logic and data operations.
+        -   **`auth/`**: Authentication-related pages and callbacks.
+        -   **`programs/`**: Public program browsing and detail pages.
+        -   **`schools/`**: Public school browsing and detail pages.
+        -   **`profile/`**: User profile and management pages.
+    -   **`src/components/`**: Reusable React components.
+        -   **`admin/`**: Admin-specific components for data management.
+        -   **`ui/`**: shadcn/ui components and custom UI elements.
+    -   **`src/lib/`**: Libraries, helpers, and utility functions.
+        -   **`supabase/`**: Supabase client and server configurations.
+        -   **`auth-actions.ts`**: Authentication server actions.
+        -   **`validation.ts`**: Zod validation schemas.
+-   **`supabase/`**: Configuration and migration files for the Supabase database.
+    -   **`migrations/`**: SQL files that define the database schema versions.
+-   **Root Configuration Files**: Jest configuration, Next.js config, TypeScript config, and other project setup files.
