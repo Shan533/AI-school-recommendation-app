@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { loginAction, signInWithGoogleAction } from '@/lib/auth-actions'
+import { PasswordInput } from '@/components/ui/password-input'
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -115,10 +116,9 @@ export default function LoginPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
+              <PasswordInput
                 id="password"
                 name="password"
-                type="password"
                 placeholder="Enter your password"
                 required
                 disabled={isLoading}

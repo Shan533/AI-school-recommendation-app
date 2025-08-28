@@ -8,10 +8,33 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { registerAction, signInWithGoogleAction } from '@/lib/auth-actions'
 
+import { PasswordRequirements } from '@/components/ui/password-requirements'
+import { UsernameRequirements } from '@/components/ui/username-requirements'
+import { PasswordInput } from '@/components/ui/password-input'
+
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [isError, setIsError] = useState(false)
+  const [password, setPassword] = useState('')
+  const [username, setUsername] = useState('')
+  const [showPasswordRequirements, setShowPasswordRequirements] = useState(false)
+  const [showUsernameRequirements, setShowUsernameRequirements] = useState(false)
+  
+  // Check if password meets all requirements
+  const isPasswordValid = () => {
+    return password.length >= 8 && 
+           /[A-Z]/.test(password) && /[a-z]/.test(password) && 
+           /[0-9]/.test(password) && 
+           /[^A-Za-z0-9]/.test(password)
+  }
+
+  // Check if username meets all requirements
+  const isUsernameValid = () => {
+    return username.length >= 3 && 
+           /^[a-zA-Z0-9_]+$/.test(username) && 
+           !username.includes(' ')
+  }
 
   async function handleSubmit(formData: FormData) {
     setIsLoading(true)
@@ -122,7 +145,39 @@ export default function RegisterPage() {
                 placeholder="Enter your username"
                 required
                 disabled={isLoading}
+                onChange={(e) => {
+                  const newUsername = e.target.value
+                  setUsername(newUsername)
+                  
+                  // Show requirements if user starts typing
+                  if (newUsername.length > 0) {
+                    setShowUsernameRequirements(true)
+                  } else {
+                    // Hide requirements if username is empty
+                    setShowUsernameRequirements(false)
+                  }
+                }}
+                onFocus={() => {
+                  // Show requirements on focus if username has content
+                  if (username.length > 0) {
+                    setShowUsernameRequirements(true)
+                  }
+                }}
+                onBlur={() => {
+                  // Hide requirements on blur if username is valid or empty
+                  if (username === '' || isUsernameValid()) {
+                    setShowUsernameRequirements(false)
+                  }
+                }}
               />
+              {showUsernameRequirements && (
+                <div className="mt-2">
+                  <UsernameRequirements 
+                    username={username} 
+                    showOnlyUnmet={true}
+                  />
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -137,14 +192,46 @@ export default function RegisterPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
+              <PasswordInput
                 id="password"
                 name="password"
-                type="password"
-                placeholder="Create a password (min. 8 characters)"
+                placeholder="Create a password"
                 required
                 disabled={isLoading}
+                value={password}
+                onChange={(e) => {
+                  const newPassword = e.target.value
+                  setPassword(newPassword)
+                  
+                  // Show requirements if user starts typing
+                  if (newPassword.length > 0) {
+                    setShowPasswordRequirements(true)
+                  } else {
+                    // Hide requirements if password is empty
+                    setShowPasswordRequirements(false)
+                  }
+                }}
+                onFocus={() => {
+                  // Show requirements on focus if password has content
+                  if (password.length > 0) {
+                    setShowPasswordRequirements(true)
+                  }
+                }}
+                onBlur={() => {
+                  // Hide requirements on blur if password is valid or empty
+                  if (password === '' || isPasswordValid()) {
+                    setShowPasswordRequirements(false)
+                  }
+                }}
               />
+              {showPasswordRequirements && (
+                <div className="mt-2">
+                  <PasswordRequirements 
+                    password={password} 
+                    showOnlyUnmet={true}
+                  />
+                </div>
+              )}
             </div>
             {message && (
               <div className={`text-sm p-3 rounded-md ${
