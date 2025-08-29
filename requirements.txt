@@ -1,0 +1,20 @@
+# HTTP Client and Web Scraping
+requests>=2.31.0
+httpx>=0.25.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+
+# Data Processing
+pandas>=2.0.0
+pydantic>=2.0.0
+
+# Logging and Utilities
+loguru>=0.7.0
+aiofiles>=23.0.0
+
+# Database
+supabase>=2.0.0
+
+# Optional: For advanced features
+# sqlalchemy>=2.0.0        # For database operations
+# asyncio-mqtt>=0.16.0     # For MQTT messaging
