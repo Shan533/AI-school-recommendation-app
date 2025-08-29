@@ -8,17 +8,6 @@ import { ReviewForm } from '@/components/review-form'
 import { ReviewsList } from '@/components/reviews-list'
 import Link from 'next/link'
 
-// Define the exact type returned by Supabase
-type SupabaseReview = {
-  id: string
-  rating: number
-  comment: string
-  created_at: string
-  profiles: {
-    name: string
-  }
-}
-
 // Define the expected Review type
 interface Review {
   id: string
@@ -28,17 +17,6 @@ interface Review {
   profiles: {
     name: string
   } | null
-}
-
-// Transform function to ensure type safety
-function transformReviews(supabaseReviews: SupabaseReview[]): Review[] {
-  return supabaseReviews.map(review => ({
-    id: review.id,
-    rating: review.rating,
-    comment: review.comment,
-    created_at: review.created_at,
-    profiles: review.profiles || null
-  }))
 }
 
 async function getSchool(id: string) {
@@ -75,6 +53,8 @@ async function getSchoolPrograms(schoolId: string) {
 
 async function getSchoolReviews(schoolId: string) {
   const supabase = await getSupabaseClient()
+  
+  // First, get the reviews
   const { data: reviews, error } = await supabase
     .from('school_reviews')
     .select(`
@@ -82,9 +62,7 @@ async function getSchoolReviews(schoolId: string) {
       rating,
       comment,
       created_at,
-      profiles!inner (
-        name
-      )
+      user_id
     `)
     .eq('school_id', schoolId)
     .order('created_at', { ascending: false })
@@ -94,40 +72,81 @@ async function getSchoolReviews(schoolId: string) {
     return []
   }
   
-  return transformReviews((reviews || []) as unknown as SupabaseReview[])
-}
-
-async function getUserReview(schoolId: string, userId?: string) {
-  if (!userId) return null
-  
-  const supabase = await getSupabaseClient()
-  const { data: review, error } = await supabase
-    .from('school_reviews')
-    .select('id, rating, comment')
-    .eq('school_id', schoolId)
-    .eq('user_id', userId)
-    .single()
-  
-  if (error) {
-    return null
+  if (!reviews || reviews.length === 0) {
+    return []
   }
   
-  return review
+  // Get user profiles for each review
+  const userIds = reviews.map(review => review.user_id)
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, name')
+    .in('id', userIds)
+  
+  // Combine reviews with profile data
+  const reviewsWithProfiles = reviews.map(review => ({
+    id: review.id,
+    rating: review.rating,
+    comment: review.comment,
+    created_at: review.created_at,
+    profiles: profiles?.find(profile => profile.id === review.user_id) || null
+  }))
+  
+  return reviewsWithProfiles as Review[]
+}
+
+async function getUserReviews(schoolId: string, userId?: string) {
+  if (!userId) return []
+  
+  const supabase = await getSupabaseClient()
+  const { data: reviews, error } = await supabase
+    .from('school_reviews')
+    .select(`
+      id,
+      rating,
+      comment,
+      created_at,
+      user_id
+    `)
+    .eq('school_id', schoolId)
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+  
+  if (error) {
+    console.error('Error fetching user reviews:', error)
+    return []
+  }
+  
+  return reviews || []
 }
 
 async function getSchoolRatingStats(schoolId: string) {
   const supabase = await getSupabaseClient()
+  
+  // Get latest rating from each user (only the most recent rating counts)
   const { data, error } = await supabase
     .from('school_reviews')
-    .select('rating')
+    .select('user_id, rating, created_at')
     .eq('school_id', schoolId)
+    .order('created_at', { ascending: false })
   
   if (error || !data || data.length === 0) {
     return { averageRating: 0, totalReviews: 0 }
   }
   
-  const totalReviews = data.length
-  const averageRating = data.reduce((sum, review) => sum + review.rating, 0) / totalReviews
+  // Get only the latest rating from each user
+  const userLatestRatings = new Map()
+  data.forEach(review => {
+    if (!userLatestRatings.has(review.user_id)) {
+      userLatestRatings.set(review.user_id, review.rating)
+    }
+  })
+  
+  const latestRatings = Array.from(userLatestRatings.values())
+  const totalReviews = latestRatings.length
+  const averageRating = totalReviews > 0 
+    ? latestRatings.reduce((sum, rating) => sum + rating, 0) / totalReviews 
+    : 0
   
   return { averageRating, totalReviews }
 }
@@ -141,10 +160,10 @@ export default async function SchoolDetailPage({ params }: { params: Promise<{ i
   }
   
   const user = await getCurrentUser()
-  const [programs, reviews, userReview, ratingStats] = await Promise.all([
+  const [programs, reviews, userReviews, ratingStats] = await Promise.all([
     getSchoolPrograms(school.id),
     getSchoolReviews(school.id),
-    getUserReview(school.id, user?.id),
+    getUserReviews(school.id, user?.id),
     getSchoolRatingStats(school.id)
   ])
 
@@ -159,37 +178,40 @@ export default async function SchoolDetailPage({ params }: { params: Promise<{ i
       {/* School Header */}
       <Card className="mb-8">
         <CardHeader>
-          <div className="flex justify-between items-start">
-            <div>
-              <CardTitle className="text-3xl mb-2">
+          {/* Mobile-first layout: stack vertically on small screens */}
+          <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-start">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-2xl md:text-3xl mb-2 leading-tight">
                 {school.name}
                 {school.initial && <span className="text-gray-600 ml-2">({school.initial})</span>}
               </CardTitle>
               {school.type && (
-                <p className="text-lg text-gray-600">{school.type}</p>
+                <p className="text-base md:text-lg text-gray-600">{school.type}</p>
               )}
               
               {/* Rating Display */}
               {ratingStats.totalReviews > 0 && (
-                <div className="flex items-center gap-4 mt-3">
+                <div className="flex items-center gap-2 md:gap-4 mt-3 flex-wrap">
                   <StarRating rating={ratingStats.averageRating} readonly />
-                  <Badge variant="secondary">
+                  <Badge variant="secondary" className="whitespace-nowrap">
                     {ratingStats.totalReviews} {ratingStats.totalReviews === 1 ? 'Review' : 'Reviews'}
                   </Badge>
                 </div>
               )}
             </div>
-            <div className="flex flex-col gap-2">
+            
+            {/* Stats section - stack on mobile, inline on desktop */}
+            <div className="flex flex-wrap gap-2 justify-start md:justify-end md:flex-shrink-0">
               {school.qs_ranking && (
-                <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg text-center">
-                  <p className="text-sm font-medium">QS World Ranking</p>
-                  <p className="text-2xl font-bold">#{school.qs_ranking}</p>
+                <div className="bg-blue-100 text-blue-800 px-3 py-2 rounded-lg text-center min-w-fit">
+                  <p className="text-xs font-medium whitespace-nowrap">QS World Ranking</p>
+                  <p className="text-lg md:text-xl font-bold">#{school.qs_ranking}</p>
                 </div>
               )}
               {ratingStats.totalReviews > 0 && (
-                <div className="bg-green-100 text-green-800 px-4 py-2 rounded-lg text-center">
-                  <p className="text-sm font-medium">User Rating</p>
-                  <p className="text-2xl font-bold">{ratingStats.averageRating.toFixed(1)}</p>
+                <div className="bg-green-100 text-green-800 px-3 py-2 rounded-lg text-center min-w-fit">
+                  <p className="text-xs font-medium whitespace-nowrap">User Rating</p>
+                  <p className="text-lg md:text-xl font-bold">{ratingStats.averageRating.toFixed(1)}</p>
                 </div>
               )}
             </div>
@@ -215,12 +237,71 @@ export default async function SchoolDetailPage({ params }: { params: Promise<{ i
                 <p>{school.year_founded}</p>
               </div>
             )}
+            {school.type && (
+              <div>
+                <h4 className="font-semibold text-gray-700">Institution Type</h4>
+                <p>{school.type}</p>
+              </div>
+            )}
+            {programs.length > 0 && (
+              <div>
+                <h4 className="font-semibold text-gray-700">STEM Programs</h4>
+                <p>{programs.filter(p => p.is_stem).length} of {programs.length}</p>
+              </div>
+            )}
+            {programs.length > 0 && programs.some(p => p.total_tuition) && (
+              <div>
+                <h4 className="font-semibold text-gray-700">Tuition Range</h4>
+                <p>
+                  {(() => {
+                    const tuitions = programs
+                      .filter(p => p.total_tuition && p.currency)
+                      .map(p => ({ amount: p.total_tuition, currency: p.currency }))
+                    
+                    if (tuitions.length === 0) return 'N/A'
+                    
+                    const minTuition = Math.min(...tuitions.map(t => t.amount))
+                    const maxTuition = Math.max(...tuitions.map(t => t.amount))
+                    const currency = tuitions[0].currency // Assume same currency for all programs
+                    
+                    if (minTuition === maxTuition) {
+                      return `${currency} ${minTuition.toLocaleString()}`
+                    } else {
+                      return `${currency} ${minTuition.toLocaleString()} - ${maxTuition.toLocaleString()}`
+                    }
+                  })()}
+                </p>
+              </div>
+            )}
+            {programs.length > 0 && programs.some(p => p.duration_months) && (
+              <div>
+                <h4 className="font-semibold text-gray-700">Duration Range</h4>
+                <p>
+                  {(() => {
+                    const durations = programs
+                      .filter(p => p.duration_months)
+                      .map(p => p.duration_months)
+                    
+                    if (durations.length === 0) return 'N/A'
+                    
+                    const minDuration = Math.min(...durations)
+                    const maxDuration = Math.max(...durations)
+                    
+                    if (minDuration === maxDuration) {
+                      return `${minDuration} month${minDuration !== 1 ? 's' : ''}`
+                    } else {
+                      return `${minDuration} - ${maxDuration} months`
+                    }
+                  })()}
+                </p>
+              </div>
+            )}
           </div>
           
           {school.website_url && (
             <Button asChild>
               <a href={school.website_url} target="_blank" rel="noopener noreferrer">
-                Visit Official Website
+                Visit Site
               </a>
             </Button>
           )}
@@ -290,7 +371,7 @@ export default async function SchoolDetailPage({ params }: { params: Promise<{ i
             type="school"
             itemId={school.id}
             itemName={school.name}
-            existingReview={userReview}
+            userReviews={userReviews}
           />
         )}
 

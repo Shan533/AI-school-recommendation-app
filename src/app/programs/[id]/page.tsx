@@ -8,17 +8,6 @@ import { ReviewForm } from '@/components/review-form'
 import { ReviewsList } from '@/components/reviews-list'
 import Link from 'next/link'
 
-// Define the exact type returned by Supabase
-type SupabaseReview = {
-  id: string
-  rating: number
-  comment: string
-  created_at: string
-  profiles: {
-    name: string
-  }
-}
-
 // Define the expected Review type
 interface Review {
   id: string
@@ -28,17 +17,6 @@ interface Review {
   profiles: {
     name: string
   } | null
-}
-
-// Transform function to ensure type safety
-function transformReviews(supabaseReviews: SupabaseReview[]): Review[] {
-  return supabaseReviews.map(review => ({
-    id: review.id,
-    rating: review.rating,
-    comment: review.comment,
-    created_at: review.created_at,
-    profiles: review.profiles || null
-  }))
 }
 
 async function getProgram(id: string) {
@@ -74,6 +52,8 @@ async function getProgram(id: string) {
 
 async function getProgramReviews(programId: string) {
   const supabase = await getSupabaseClient()
+  
+  // First, get the reviews
   const { data: reviews, error } = await supabase
     .from('program_reviews')
     .select(`
@@ -81,9 +61,7 @@ async function getProgramReviews(programId: string) {
       rating,
       comment,
       created_at,
-      profiles!inner (
-        name
-      )
+      user_id
     `)
     .eq('program_id', programId)
     .order('created_at', { ascending: false })
@@ -93,40 +71,81 @@ async function getProgramReviews(programId: string) {
     return []
   }
   
-  return transformReviews((reviews || []) as unknown as SupabaseReview[])
-}
-
-async function getUserReview(programId: string, userId?: string) {
-  if (!userId) return null
-  
-  const supabase = await getSupabaseClient()
-  const { data: review, error } = await supabase
-    .from('program_reviews')
-    .select('id, rating, comment')
-    .eq('program_id', programId)
-    .eq('user_id', userId)
-    .single()
-  
-  if (error) {
-    return null
+  if (!reviews || reviews.length === 0) {
+    return []
   }
   
-  return review
+  // Get user profiles for each review
+  const userIds = reviews.map(review => review.user_id)
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, name')
+    .in('id', userIds)
+  
+  // Combine reviews with profile data
+  const reviewsWithProfiles = reviews.map(review => ({
+    id: review.id,
+    rating: review.rating,
+    comment: review.comment,
+    created_at: review.created_at,
+    profiles: profiles?.find(profile => profile.id === review.user_id) || null
+  }))
+  
+  return reviewsWithProfiles as Review[]
+}
+
+async function getUserReviews(programId: string, userId?: string) {
+  if (!userId) return []
+  
+  const supabase = await getSupabaseClient()
+  const { data: reviews, error } = await supabase
+    .from('program_reviews')
+    .select(`
+      id,
+      rating,
+      comment,
+      created_at,
+      user_id
+    `)
+    .eq('program_id', programId)
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+  
+  if (error) {
+    console.error('Error fetching user reviews:', error)
+    return []
+  }
+  
+  return reviews || []
 }
 
 async function getProgramRatingStats(programId: string) {
   const supabase = await getSupabaseClient()
+  
+  // Get latest rating from each user (only the most recent rating counts)
   const { data, error } = await supabase
     .from('program_reviews')
-    .select('rating')
+    .select('user_id, rating, created_at')
     .eq('program_id', programId)
+    .order('created_at', { ascending: false })
   
   if (error || !data || data.length === 0) {
     return { averageRating: 0, totalReviews: 0 }
   }
   
-  const totalReviews = data.length
-  const averageRating = data.reduce((sum, review) => sum + review.rating, 0) / totalReviews
+  // Get only the latest rating from each user
+  const userLatestRatings = new Map()
+  data.forEach(review => {
+    if (!userLatestRatings.has(review.user_id)) {
+      userLatestRatings.set(review.user_id, review.rating)
+    }
+  })
+  
+  const latestRatings = Array.from(userLatestRatings.values())
+  const totalReviews = latestRatings.length
+  const averageRating = totalReviews > 0 
+    ? latestRatings.reduce((sum, rating) => sum + rating, 0) / totalReviews 
+    : 0
   
   return { averageRating, totalReviews }
 }
@@ -140,9 +159,9 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
   }
 
   const user = await getCurrentUser()
-  const [reviews, userReview, ratingStats] = await Promise.all([
+  const [reviews, userReviews, ratingStats] = await Promise.all([
     getProgramReviews(program.id),
-    getUserReview(program.id, user?.id),
+    getUserReviews(program.id, user?.id),
     getProgramRatingStats(program.id)
   ])
 
@@ -157,36 +176,39 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
       {/* Program Header */}
       <Card className="mb-8">
         <CardHeader>
-          <div className="flex justify-between items-start">
-            <div>
-              <CardTitle className="text-3xl mb-2">
+          {/* Mobile-first layout: stack vertically on small screens */}
+          <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-start">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-2xl md:text-3xl mb-2 leading-tight">
                 {program.name}
                 {program.initial && <span className="text-gray-600 ml-2">({program.initial})</span>}
               </CardTitle>
-              <p className="text-lg text-gray-600">{program.degree} Program</p>
+              <p className="text-base md:text-lg text-gray-600">{program.degree} Program</p>
               
               {/* Rating Display */}
               {ratingStats.totalReviews > 0 && (
-                <div className="flex items-center gap-4 mt-3">
+                <div className="flex items-center gap-2 md:gap-4 mt-3 flex-wrap">
                   <StarRating rating={ratingStats.averageRating} readonly />
-                  <Badge variant="secondary">
+                  <Badge variant="secondary" className="whitespace-nowrap">
                     {ratingStats.totalReviews} {ratingStats.totalReviews === 1 ? 'Review' : 'Reviews'}
                   </Badge>
                 </div>
               )}
             </div>
-            <div className="flex gap-2">
+            
+            {/* Badges section - stack on mobile, inline on desktop */}
+            <div className="flex flex-wrap gap-2 justify-start md:justify-end md:flex-shrink-0">
               {program.is_stem && (
-                <span className="bg-green-100 text-green-800 px-3 py-1 rounded-lg font-medium">
+                <span className="bg-green-100 text-green-800 px-2 md:px-3 py-1 rounded-lg font-medium text-sm whitespace-nowrap">
                   STEM Designated
                 </span>
               )}
-              <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg font-medium">
+              <span className="bg-blue-100 text-blue-800 px-2 md:px-3 py-1 rounded-lg font-medium text-sm whitespace-nowrap">
                 {program.degree}
               </span>
               {ratingStats.totalReviews > 0 && (
-                <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-lg text-center">
-                  <span className="text-sm font-medium">★ {ratingStats.averageRating.toFixed(1)}</span>
+                <div className="bg-yellow-100 text-yellow-800 px-2 md:px-3 py-1 rounded-lg text-center text-sm whitespace-nowrap">
+                  <span className="font-medium">★ {ratingStats.averageRating.toFixed(1)}</span>
                 </div>
               )}
             </div>
@@ -258,7 +280,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
             {program.website_url && (
               <Button asChild>
                 <a href={program.website_url} target="_blank" rel="noopener noreferrer">
-                  Visit Program Website
+                  Visit Site
                 </a>
               </Button>
             )}
@@ -272,9 +294,6 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
       {/* School Information */}
       {program.schools && (
         <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>School Information</CardTitle>
-          </CardHeader>
           <CardContent>
             <div className="flex justify-between items-start mb-4">
               <div>
@@ -313,12 +332,12 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
             
             <div className="flex gap-3">
               <Button asChild>
-                <Link href={`/schools/${program.schools.id}`}>View All School Programs</Link>
+                <Link href={`/schools/${program.schools.id}`}>View School</Link>
               </Button>
               {program.schools.website_url && (
                 <Button asChild variant="outline">
                   <a href={program.schools.website_url} target="_blank" rel="noopener noreferrer">
-                    School Website
+                    School Site
                   </a>
                 </Button>
               )}
@@ -473,7 +492,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
             type="program"
             itemId={program.id}
             itemName={program.name}
-            existingReview={userReview}
+            userReviews={userReviews}
           />
         )}
 
