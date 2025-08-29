@@ -152,20 +152,35 @@ AI_school_recommend_app/
 │       ├── 0000_init.sql
 │       ├── 0001_update_programs_table.sql
 │       └── 0002_add_requirements_and_program_enhancements.sql
-├── .env
+├── .dockerignore
 ├── .gitignore
 ├── components.json
-├── env.local.example
 ├── eslint.config.mjs
+├── docker/
+│   ├── Docker_README.md
+│   ├── docker-compose.yml
+│   ├── Dockerfile
+│   ├── Dockerfile.crawler
+│   ├── Dockerfile.dev
+│   ├── start-docker.bat
+│   └── start-docker.sh
+├── docs/
+│   ├── env.local.example
+│   ├── design-doc.mdc
+│   ├── implementation-plan.mdc
+│   ├── technical-architecture.md
+│   ├── setup-instructions.md
+│   ├── testing-guide.md
+│   ├── file-structure.mdc
+│   └── testing/
 ├── jest.config.cjs
 ├── jest.setup.ts
 ├── next.config.ts
+├── next-env.d.ts
 ├── package-lock.json
 ├── package.json
 ├── postcss.config.mjs
-├── QUICKSTART.md
 ├── README.md
-├── test-program-update.mjs
 └── tsconfig.json
 ```
 
@@ -197,6 +212,7 @@ AI_school_recommend_app/
         -   **`validation.ts`**: Zod validation schemas.
 -   **`supabase/`**: Configuration and migration files for the Supabase database.
     -   **`migrations/`**: SQL files that define the database schema versions.
+
 -   **Root Configuration Files**: Jest configuration, Next.js config, TypeScript config, and other project setup files.
 # Project File Structure
 
