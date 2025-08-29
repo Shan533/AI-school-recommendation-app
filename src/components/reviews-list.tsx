@@ -66,35 +66,42 @@ export function ReviewsList({ reviews, type, averageRating, totalReviews }: Revi
         {reviews.map((review, index) => (
           <div key={review.id}>
             <Card>
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <Avatar>
+              <CardContent className="p-4 md:p-6">
+                <div className="flex items-start gap-3 md:gap-4">
+                  <Avatar className="flex-shrink-0">
                     <AvatarFallback>
                       {review.profiles?.name?.charAt(0).toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
                   
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-3">
-                        <h4 className="font-semibold text-gray-900">
+                    {/* Mobile: Stack vertically, Desktop: Side by side */}
+                    <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between md:mb-2">
+                      <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+                        <h4 className="font-semibold text-gray-900 text-sm md:text-base">
                           {review.profiles?.name || 'Anonymous User'}
                         </h4>
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge variant="secondary" className="text-xs whitespace-nowrap">
                           Verified
                         </Badge>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 text-xs md:text-sm">
                         <StarRating rating={review.rating} readonly size="sm" />
-                        <span className="text-sm text-gray-500">
+                        <span className="text-gray-500 whitespace-nowrap">
                           {new Date(review.created_at).toLocaleDateString()}
                         </span>
                       </div>
                     </div>
                     
-                    <p className="text-gray-700 leading-relaxed">
-                      {review.comment}
-                    </p>
+                    {review.comment ? (
+                      <p className="text-gray-700 leading-relaxed">
+                        {review.comment}
+                      </p>
+                    ) : (
+                      <p className="text-gray-500 italic text-sm">
+                        Rating only review
+                      </p>
+                    )}
                   </div>
                 </div>
               </CardContent>

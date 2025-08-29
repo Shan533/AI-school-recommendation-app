@@ -21,23 +21,33 @@ async function getSchoolsWithRatings() {
   
   if (!schools) return []
   
-  // Get ratings for all schools
+  // Get latest ratings for all schools (only latest review per user counts)
   const { data: reviews, error: reviewsError } = await supabase
     .from('school_reviews')
-    .select('school_id, rating')
+    .select('school_id, rating, user_id, created_at')
+    .order('created_at', { ascending: false })
   
   if (reviewsError) {
     console.error('Error fetching reviews:', reviewsError)
     return schools.map(school => ({ ...school, averageRating: 0, totalReviews: 0 }))
   }
   
-  // Calculate average ratings
-  const schoolRatings = reviews?.reduce((acc: Record<string, { ratings: number[]; count: number }>, review) => {
+  // Calculate average ratings using only latest review per user per school
+  const schoolRatings = reviews?.reduce((acc: Record<string, { ratings: number[]; count: number; userLatestReviews: Map<string, { rating: number; user_id: string; created_at: string }> }>, review) => {
     if (!acc[review.school_id]) {
-      acc[review.school_id] = { ratings: [], count: 0 }
+      acc[review.school_id] = { ratings: [], count: 0, userLatestReviews: new Map() }
     }
-    acc[review.school_id].ratings.push(review.rating)
-    acc[review.school_id].count++
+    
+    const schoolData = acc[review.school_id]
+    const existingReview = schoolData.userLatestReviews.get(review.user_id)
+    
+    // Only keep the latest review per user (reviews are ordered by created_at desc)
+    if (!existingReview) {
+      schoolData.userLatestReviews.set(review.user_id, review)
+      schoolData.ratings.push(review.rating)
+      schoolData.count++
+    }
+    
     return acc
   }, {}) || {}
   
@@ -71,45 +81,45 @@ export default async function SchoolsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {schools.length > 0 ? (
           schools.map((school) => (
-            <Card key={school.id} className="hover:shadow-lg transition-shadow">
+            <Card key={school.id} className="hover:shadow-lg transition-shadow flex flex-col h-full">
               <CardHeader>
-                <CardTitle className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-lg font-semibold">{school.name}</h3>
+                <CardTitle className="flex justify-between items-start gap-2 min-w-0">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-semibold leading-tight truncate pr-2">{school.name}</h3>
                     {school.initial && (
                       <span className="text-sm text-gray-600">({school.initial})</span>
                     )}
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 flex-wrap justify-end flex-shrink-0 min-w-fit max-w-[50%]">
                     {school.qs_ranking && (
-                      <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                      <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded whitespace-nowrap">
                         QS #{school.qs_ranking}
                       </span>
                     )}
                     {school.totalReviews > 0 && (
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs whitespace-nowrap">
                         ★ {school.averageRating.toFixed(1)} ({school.totalReviews})
                       </Badge>
                     )}
                   </div>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2 text-sm text-gray-600 mb-4">
+              <CardContent className="flex flex-col flex-grow">
+                <div className="space-y-2 text-sm text-gray-600 mb-4 flex-grow">
                   {school.type && <p><strong>Type:</strong> {school.type}</p>}
                   {school.location && <p><strong>Location:</strong> {school.location}</p>}
                   {school.country && <p><strong>Country:</strong> {school.country}</p>}
                   {school.year_founded && <p><strong>Founded:</strong> {school.year_founded}</p>}
                 </div>
                 
-                <div className="flex gap-2">
+                <div className="flex gap-2 mt-auto">
                   <Button asChild className="flex-1">
-                    <Link href={`/schools/${school.id}`}>View Details</Link>
+                    <Link href={`/schools/${school.id}`}>Details</Link>
                   </Button>
                   {school.website_url && (
                     <Button variant="outline" asChild>
                       <a href={school.website_url} target="_blank" rel="noopener noreferrer">
-                        Website
+                        Visit
                       </a>
                     </Button>
                   )}
