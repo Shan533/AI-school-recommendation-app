@@ -18,9 +18,16 @@ import {
 } from '@/lib/auth-actions'
 
 // Mock dependencies
-jest.mock('@/lib/supabase/server')
-jest.mock('next/headers')
-jest.mock('next/navigation')
+jest.mock('@/lib/supabase/server', () => ({
+  createClient: jest.fn()
+}))
+jest.mock('next/headers', () => ({
+  cookies: jest.fn(),
+  headers: jest.fn()
+}))
+jest.mock('next/navigation', () => ({
+  redirect: jest.fn()
+}))
 
 describe('Authentication Schemas', () => {
   // TODO: Test loginSchema validation

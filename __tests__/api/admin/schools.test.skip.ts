@@ -13,8 +13,14 @@
 import { NextRequest } from 'next/server'
 
 // Mock dependencies
-jest.mock('@/lib/supabase/server')
-jest.mock('next/headers')
+jest.mock('@/lib/supabase/server', () => ({
+  createClient: jest.fn(),
+  createAdminClient: jest.fn()
+}))
+jest.mock('next/headers', () => ({
+  cookies: jest.fn(),
+  headers: jest.fn()
+}))
 
 describe('/api/admin/schools', () => {
   describe('GET', () => {
