@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import ProgramsManagementClient from '@/components/admin/programs-management'
+import { AdminSearchCard } from '@/components/admin/admin-search-card'
+import { filterItems, searchConfigs } from '@/lib/admin-search'
 
 async function getPrograms() {
   const supabase = await getSupabaseClient()
@@ -13,6 +15,7 @@ async function getPrograms() {
     .from('programs')
     .select(`
       *,
+      initial,
       schools (
         name,
         initial
@@ -134,7 +137,9 @@ async function createProgram(formData: FormData) {
   redirect('/admin/programs')
 }
 
-export default async function ProgramsManagementPage() {
+export default async function ProgramsManagementPage(props: {
+  searchParams?: Promise<{ search?: string }>
+}) {
   const user = await getCurrentUser()
   
   if (!user) {
@@ -147,7 +152,16 @@ export default async function ProgramsManagementPage() {
     redirect('/')
   }
 
-  const [programs, schools] = await Promise.all([getPrograms(), getSchools()])
+  const searchParams = await props.searchParams
+  const search = searchParams?.search
+
+  const [allPrograms, schools] = await Promise.all([getPrograms(), getSchools()])
+  
+  // Filter programs based on search
+  const programs = filterItems(allPrograms, {
+    fields: searchConfigs.programs.fields,
+    searchTerm: search || ''
+  })
 
   return (
     <div className="container mx-auto p-6">
@@ -434,10 +448,18 @@ export default async function ProgramsManagementPage() {
         </CardContent>
       </Card>
 
+      {/* Search Programs */}
+      <AdminSearchCard 
+        placeholder={searchConfigs.programs.placeholder}
+        helpText={searchConfigs.programs.helpText}
+      />
+
       {/* Programs List */}
       <Card>
         <CardHeader>
-          <CardTitle>Existing Programs ({programs.length})</CardTitle>
+          <CardTitle>
+            {search ? `Search Results (${programs.length})` : `All Programs (${programs.length})`}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <ProgramsManagementClient initialPrograms={programs} schools={schools} />
