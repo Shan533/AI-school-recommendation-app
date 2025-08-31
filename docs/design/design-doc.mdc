@@ -1,7 +1,7 @@
 ---
+description: product design decisions
 alwaysApply: false
 ---
-
 # Design Document: AI School Recommend App
 
 This document outlines the design for the AI School Recommend App, a modern web application for discovering and reviewing university programs, built with a Next.js frontend and Supabase for the backend.

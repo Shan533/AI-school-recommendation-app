@@ -1,0 +1,212 @@
+---
+description: git commit and PR content
+alwaysApply: false
+---
+# Git Workflow & PR Standards
+
+This rule defines the complete workflow for branch management, commits, and pull requests using Graphite for stacked PRs.
+
+## 🌿 Branch Management
+
+### Branch Naming Convention
+```
+<type>: <brief-description> #<issue-number>
+```
+
+**Examples:**
+- `feat: add user authentication system #123`
+- `fix: resolve mobile navigation overflow #156`
+- `refactor: extract database helpers #189`
+- `docs: update API documentation #234`
+
+### Workflow Steps
+1. **Create Feature Branch**: Start from main branch
+2. **Use Graphite**: For stacked PRs and better branch management
+3. **Regular Commits**: Make atomic commits with clear messages
+4. **Push & Create PR**: After feature completion
+
+## 📝 Commit Message Standards
+
+### Format
+```
+<type>(optional-scope): <description> #<issue-number>
+```
+
+### Commit Types
+- **feat**: New feature implementation
+- **fix**: Bug fixes
+- **refactor**: Code restructuring without functionality changes
+- **chore**: Maintenance tasks (dependencies, build, etc.)
+- **docs**: Documentation updates
+- **test**: Test additions or modifications
+- **style**: Code formatting, linting fixes
+
+### Examples
+```bash
+feat(auth): add email input validation #145
+fix(ui): prevent token expiration crash #151
+refactor(search): extract ranking algorithm to utils #142
+chore: update Next.js to version 15.4.6 #159
+docs(readme): add environment setup guide #168
+test(admin): add review management test suite #173
+```
+
+## 🎯 Pull Request Standards
+
+### PR Title Format
+```
+<type>(scope): <brief-description> #<issue-number>
+```
+
+**Examples:**
+- `feat(auth): add email verification flow #234`
+- `fix(ui): resolve mobile navigation overflow #189`
+- `refactor(api): extract user validation logic #156`
+
+### PR Description Template
+
+```markdown
+## 📋 Summary
+<!-- Brief description of what this PR does and why it's needed -->
+
+## 🔗 Related Issue
+Closes #[issue-number]
+
+## 🚀 Changes Made
+<!-- List the main changes/additions -->
+- 
+- 
+- 
+
+## 🧪 Testing
+### What was tested:
+- [ ] Unit tests pass
+- [ ] Integration tests pass
+- [ ] Manual testing completed
+- [ ] Mobile responsiveness verified
+- [ ] Edge cases tested
+
+### Test Screenshots/Evidence:
+<!-- Add screenshots showing the feature working -->
+<!-- Include before/after comparisons if applicable -->
+
+## 📱 Screenshots
+<!-- Required for UI changes - see screenshot requirements below -->
+
+## ⚠️ Breaking Changes
+<!-- List any breaking changes, or write "None" -->
+
+## 📚 Documentation
+<!-- List any documentation updates needed or completed -->
+```
+
+## 📸 Screenshot Requirements by PR Type
+
+### 🆕 Feature PRs
+**Required Evidence:**
+- [ ] **Desktop View**: Primary functionality working
+- [ ] **Mobile View**: Responsive design verification
+- [ ] **Happy Path**: Main user flow completion
+- [ ] **Edge Cases**: Empty states, long text, maximum data
+- [ ] **Error States**: Validation errors, network failures
+
+**Additional Content:**
+- Clear problem statement and solution approach
+- Performance impact (if applicable)
+- Accessibility considerations
+
+### 🐛 Bug Fix PRs
+**Required Evidence:**
+- [ ] **Before**: Screenshot/description of the bug
+- [ ] **After**: Screenshot showing the fix working
+- [ ] **Steps to Reproduce**: Original bug reproduction steps
+- [ ] **Root Cause**: Brief analysis of what caused the issue
+
+### 🔄 Refactoring PRs
+**Required Evidence:**
+- [ ] **Functionality Unchanged**: Screenshots proving no visual changes
+- [ ] **Performance Metrics**: Before/after performance comparison
+- [ ] **Test Coverage**: Coverage reports showing maintained/improved coverage
+- [ ] **Backward Compatibility**: Evidence that existing functionality works
+
+### 📚 Documentation PRs
+**Required Evidence:**
+- [ ] **Documentation Preview**: Screenshots of updated docs
+- [ ] **Navigation**: Showing how to find the new documentation
+- [ ] **Examples**: Any code examples working correctly
+
+## 🔍 Testing Evidence Requirements
+
+### Terminal Output
+```bash
+# Always include test results
+npm test
+npm run build
+npm run lint
+```
+
+### Coverage Reports
+- Include coverage percentage changes
+- Highlight any coverage improvements
+- Explain any coverage decreases
+
+### Performance Metrics
+- Bundle size changes
+- Load time improvements/regressions
+- Database query performance (if applicable)
+
+## 🤖 AI Assistant Reminders
+
+**After creating PR content, remind the user to add:**
+
+### For UI Changes:
+- [ ] Desktop screenshot (primary functionality)
+- [ ] Mobile screenshot (responsive design)
+- [ ] Empty state screenshot
+- [ ] Error state screenshot
+- [ ] Loading state screenshot (if applicable)
+
+### For API Changes:
+- [ ] API response examples
+- [ ] Error handling examples
+- [ ] Performance benchmarks
+
+### For Database Changes:
+- [ ] Migration test results
+- [ ] Data integrity verification
+- [ ] Performance impact analysis
+
+## 📋 PR Review Checklist
+
+### Before Submitting
+- [ ] All tests passing
+- [ ] No linting errors
+- [ ] Screenshots added (for UI changes)
+- [ ] Documentation updated
+- [ ] Issue linked correctly
+- [ ] Breaking changes documented
+
+### Self-Review
+- [ ] Code follows project conventions
+- [ ] No debugging code left behind
+- [ ] Proper error handling implemented
+- [ ] Performance considerations addressed
+- [ ] Accessibility requirements met
+
+## 🔄 Graphite Integration
+
+### Stacked PRs
+- Use Graphite CLI for managing stacked PRs
+- Each PR should be atomic and independently reviewable
+- Maintain clear dependency relationships between stacks
+
+### Commands Reference
+```bash
+gt branch create <branch-name>
+gt stack submit
+gt branch checkout <branch-name>
+```
+
+---
+
+**Remember**: Quality PRs save review time and reduce deployment risks. Take time to create comprehensive, well-documented PRs with proper evidence.
