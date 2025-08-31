@@ -26,7 +26,13 @@ export async function GET(request: Request) {
 
     if (error || !data.user) {
       console.error('Session exchange error:', error)
-      return NextResponse.redirect(`${origin}/auth/auth-code-error?error=session_exchange`)
+      console.error('Error details:', {
+        error: error?.message,
+        code: error?.status,
+        origin,
+        searchParams: Object.fromEntries(searchParams.entries())
+      })
+      return NextResponse.redirect(`${origin}/auth/auth-code-error?error=session_exchange&details=${encodeURIComponent(error?.message || 'Unknown error')}`)
     }
 
     // Handle user profile
@@ -39,8 +45,11 @@ export async function GET(request: Request) {
     let shouldSetupUsername = false
 
     if (!existingProfile) {
-      // Create basic profile for new OAuth user
+      // Create basic profile for new user (OAuth or invited)
       const defaultName = data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'User'
+      
+      // Check if user was invited and should be admin
+      const isInvitedAdmin = data.user.user_metadata?.is_admin === true
       
       await supabase
         .from('profiles')
@@ -48,11 +57,12 @@ export async function GET(request: Request) {
           {
             id: data.user.id,
             name: defaultName,
-            is_admin: false,
+            is_admin: isInvitedAdmin || false,
           },
         ])
 
-      shouldSetupUsername = true
+      // Only require username setup for OAuth users, not invited users
+      shouldSetupUsername = !data.user.user_metadata?.invited_by
     } else {
       // Check if existing user needs to set up username
       const emailPrefix = data.user.email?.split('@')[0]
