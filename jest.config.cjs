@@ -5,7 +5,14 @@ const createJestConfig = nextJest({ dir: './' });
 const config = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-  testMatch: ['<rootDir>/__tests__/**/*.(test|spec).(js|jsx|ts|tsx)', '<rootDir>/__tests__/**/*.js', '<rootDir>/__tests__/**/*.ts'],
+  testMatch: [
+    '<rootDir>/__tests__/**/*.(test|spec).(js|jsx|ts|tsx)', 
+    '<rootDir>/__tests__/**/*.js', 
+    '<rootDir>/__tests__/**/*.ts'
+  ],
+  testPathIgnorePatterns: [
+    '<rootDir>/__tests__/.*\\.skip\\.'  // Ignore .skip.* test files
+  ],
   
   // Coverage configuration
   collectCoverage: false, // Set to true by --coverage flag
