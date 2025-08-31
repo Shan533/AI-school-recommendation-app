@@ -77,6 +77,20 @@ export default async function AdminDashboard() {
             </Link>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Reviews Management</CardTitle>
+            <CardDescription>
+              View and manage user reviews for schools and programs
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/admin/reviews">
+              <Button className="w-full">Manage Reviews</Button>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

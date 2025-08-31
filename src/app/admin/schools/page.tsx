@@ -5,12 +5,14 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import SchoolsManagementClient from '@/components/admin/schools-management'
+import { AdminSearchCard } from '@/components/admin/admin-search-card'
+import { filterItems, searchConfigs } from '@/lib/admin-search'
 
 async function getSchools() {
   const supabase = await getSupabaseClient()
   const { data: schools, error } = await supabase
     .from('schools')
-    .select('*')
+    .select('*, initial')
     .order('created_at', { ascending: false })
   
   if (error) {
@@ -54,7 +56,9 @@ async function createSchool(formData: FormData) {
   redirect('/admin/schools')
 }
 
-export default async function SchoolsManagementPage() {
+export default async function SchoolsManagementPage(props: {
+  searchParams?: Promise<{ search?: string }>
+}) {
   const user = await getCurrentUser()
   
   if (!user) {
@@ -67,7 +71,16 @@ export default async function SchoolsManagementPage() {
     redirect('/')
   }
 
-  const schools = await getSchools()
+  const searchParams = await props.searchParams
+  const search = searchParams?.search
+
+  const allSchools = await getSchools()
+  
+  // Filter schools based on search
+  const schools = filterItems(allSchools, {
+    fields: searchConfigs.schools.fields,
+    searchTerm: search || ''
+  })
 
   return (
     <div className="container mx-auto p-6">
@@ -150,10 +163,18 @@ export default async function SchoolsManagementPage() {
         </CardContent>
       </Card>
 
+      {/* Search Schools */}
+      <AdminSearchCard 
+        placeholder={searchConfigs.schools.placeholder}
+        helpText={searchConfigs.schools.helpText}
+      />
+
       {/* Schools List */}
       <Card>
         <CardHeader>
-          <CardTitle>Existing Schools ({schools.length})</CardTitle>
+          <CardTitle>
+            {search ? `Search Results (${schools.length})` : `All Schools (${schools.length})`}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <SchoolsManagementClient initialSchools={schools} />

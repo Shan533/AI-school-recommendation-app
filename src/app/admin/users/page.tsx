@@ -4,6 +4,8 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { AdminSearchCard } from '@/components/admin/admin-search-card'
+import { filterItems, searchConfigs } from '@/lib/admin-search'
 
 async function getUsers() {
   const supabaseAdmin = createAdminClient()
@@ -57,7 +59,9 @@ async function toggleAdmin(formData: FormData) {
   redirect('/admin/users')
 }
 
-export default async function UsersManagement() {
+export default async function UsersManagement(props: {
+  searchParams?: Promise<{ search?: string }>
+}) {
   const user = await getCurrentUser()
   
   if (!user) {
@@ -70,7 +74,16 @@ export default async function UsersManagement() {
     redirect('/')
   }
 
-  const users = await getUsers()
+  const searchParams = await props.searchParams
+  const search = searchParams?.search
+
+  const allUsers = await getUsers()
+  
+  // Filter users based on search
+  const users = filterItems(allUsers, {
+    fields: searchConfigs.users.fields,
+    searchTerm: search || ''
+  })
 
   return (
     <div className="container mx-auto p-6">
@@ -81,9 +94,17 @@ export default async function UsersManagement() {
         </Button>
       </div>
 
+      {/* Search Users */}
+      <AdminSearchCard 
+        placeholder={searchConfigs.users.placeholder}
+        helpText={searchConfigs.users.helpText}
+      />
+
       <Card>
         <CardHeader>
-          <CardTitle>All Users</CardTitle>
+          <CardTitle>
+            {search ? `Search Results (${users.length})` : `All Users (${users.length})`}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
