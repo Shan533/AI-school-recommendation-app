@@ -1,44 +1,37 @@
 # Testing Documentation
 
-This directory contains all testing strategies, plans, and guides for the AI School Recommend App.
+This directory contains comprehensive testing documentation for the AI School Recommend App, organized by feature areas and development phases.
 
-## 📋 Document Index
+## 📋 Quick Navigation
 
-### Core Testing Documents
-- **[testing-guide.md](./testing-guide.md)** - Comprehensive testing guide and troubleshooting
-- **[testing-plan.md](./testing-plan.md)** - Overall testing strategy and methodology
+### 🧪 Current Testing (Phase 1)
+- **[Testing Plan](./testing-plan.md)** - Main testing overview and index
+- **[Testing Implementation Plan](./testing-implementation-plan.md)** - ⭐ **NEW**: Unit test implementation roadmap and priorities
+- **[Core Setup Testing](./core-setup-testing.md)** - Environment setup and basic functionality
+- **[Admin CRUD Testing](./admin-crud-testing.md)** - Complete CRUD operations for schools and programs
+- **[CSV Upload Testing](./csv-upload-testing.md)** - Bulk data import functionality
+- **[Public Pages Testing](./public-pages-testing.md)** - User-facing school and program browsing
 
-### Feature Testing Guides
-- **[features/admin-crud-testing.md](./features/admin-crud-testing.md)** - Admin CRUD operations testing
-- **[features/admin-reviews-testing.md](./features/admin-reviews-testing.md)** - Admin review management testing
-- **[features/core-setup-testing.md](./features/core-setup-testing.md)** - Basic setup and configuration testing
-- **[features/csv-upload-testing.md](./features/csv-upload-testing.md)** - CSV bulk upload testing
-- **[features/public-pages-testing.md](./features/public-pages-testing.md)** - Public browsing pages testing
-- **[features/user-reviews-testing.md](./features/user-reviews-testing.md)** - User review system testing
-- **[features/collections-testing.md](./features/collections-testing.md)** - Collections and favorites testing
-- **[features/ai-recommendations-testing.md](./features/ai-recommendations-testing.md)** - AI recommendations testing
+### 🔮 Future Testing (Phase 2 & 3)
+- **[User Reviews Testing](./user-reviews-testing.md)** - Review and rating system
+- **[Collections Testing](./collections-testing.md)** - User collections and favorites
+- **[AI Recommendations Testing](./ai-recommendations-testing.md)** - Recommendation engine
 
-## 🧪 Testing Strategy
+## 🚀 Getting Started
 
-### Testing Levels
-1. **Unit Tests**: Individual component and function testing with Jest
-2. **Integration Tests**: Feature workflow testing with React Testing Library
-3. **E2E Tests**: Full user journey testing (planned with Playwright)
-4. **Manual Testing**: Feature-specific testing checklists
+### For Unit Test Implementation
+1. **Review Implementation Plan**: Start with [Testing Implementation Plan](./testing-implementation-plan.md) to understand priorities
+2. **Begin with HIGH Priority**: Implement `validation.test.ts` first for immediate coverage boost
+3. **Follow the Roadmap**: Work through HIGH → MEDIUM → LOW priority tests
+4. **Check Coverage**: Run `npm run test:coverage` after each implementation
 
-### Test Coverage Goals
-- **Components**: 90%+ coverage for UI components
-- **Business Logic**: 95%+ coverage for core functions
-- **API Routes**: 100% coverage for all endpoints
-- **Database**: Schema validation and migration testing
+### For Manual Testing
+1. **Start with Core Setup**: Begin with [Core Setup Testing](./core-setup-testing.md) to verify your environment
+2. **Test Admin Features**: Use [Admin CRUD Testing](./admin-crud-testing.md) to test data management
+3. **Verify Public Pages**: Use [Public Pages Testing](./public-pages-testing.md) to test user experience
+4. **Test Bulk Operations**: Use [CSV Upload Testing](./csv-upload-testing.md) to test data import
 
-### Testing Tools
-- **Jest**: Unit and integration testing framework
-- **React Testing Library**: Component testing utilities
-- **Supabase Test Client**: Database testing with isolated environments
-- **Docker**: Consistent testing environments
-
-## 🎯 Testing Workflow
+## 📊 Testing Workflow
 
 ### Before Development
 1. Review relevant feature testing guide
