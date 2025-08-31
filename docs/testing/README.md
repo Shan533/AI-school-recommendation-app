@@ -1,110 +1,140 @@
 # Testing Documentation
 
-This directory contains comprehensive testing documentation for the AI School Recommend App, organized by feature areas and development phases.
+This directory contains all testing strategies, plans, and guides for the AI School Recommend App.
 
-## 📋 Quick Navigation
+## 📋 Document Index
 
-### 🧪 Current Testing (Phase 1)
-- **[Testing Plan](./testing-plan.md)** - Main testing overview and index
-- **[Core Setup Testing](./core-setup-testing.md)** - Environment setup and basic functionality
-- **[Admin CRUD Testing](./admin-crud-testing.md)** - Complete CRUD operations for schools and programs
-- **[CSV Upload Testing](./csv-upload-testing.md)** - Bulk data import functionality
-- **[Public Pages Testing](./public-pages-testing.md)** - User-facing school and program browsing
+### Core Testing Documents
+- **[testing-guide.md](./testing-guide.md)** - Comprehensive testing guide and troubleshooting
+- **[testing-plan.md](./testing-plan.md)** - Overall testing strategy and methodology
 
-### 🔮 Future Testing (Phase 2 & 3)
-- **[User Reviews Testing](./user-reviews-testing.md)** - Review and rating system
-- **[Collections Testing](./collections-testing.md)** - User collections and favorites
-- **[AI Recommendations Testing](./ai-recommendations-testing.md)** - Recommendation engine
+### Feature Testing Guides
+- **[features/admin-crud-testing.md](./features/admin-crud-testing.md)** - Admin CRUD operations testing
+- **[features/admin-reviews-testing.md](./features/admin-reviews-testing.md)** - Admin review management testing
+- **[features/core-setup-testing.md](./features/core-setup-testing.md)** - Basic setup and configuration testing
+- **[features/csv-upload-testing.md](./features/csv-upload-testing.md)** - CSV bulk upload testing
+- **[features/public-pages-testing.md](./features/public-pages-testing.md)** - Public browsing pages testing
+- **[features/user-reviews-testing.md](./features/user-reviews-testing.md)** - User review system testing
+- **[features/collections-testing.md](./features/collections-testing.md)** - Collections and favorites testing
+- **[features/ai-recommendations-testing.md](./features/ai-recommendations-testing.md)** - AI recommendations testing
 
-## 🚀 Getting Started
+## 🧪 Testing Strategy
 
-1. **Start with Core Setup**: Begin with [Core Setup Testing](./core-setup-testing.md) to verify your environment
-2. **Test Admin Features**: Use [Admin CRUD Testing](./admin-crud-testing.md) to test data management
-3. **Verify Public Pages**: Use [Public Pages Testing](./public-pages-testing.md) to test user experience
-4. **Test Bulk Operations**: Use [CSV Upload Testing](./csv-upload-testing.md) to test data import
+### Testing Levels
+1. **Unit Tests**: Individual component and function testing with Jest
+2. **Integration Tests**: Feature workflow testing with React Testing Library
+3. **E2E Tests**: Full user journey testing (planned with Playwright)
+4. **Manual Testing**: Feature-specific testing checklists
 
-## 📊 Testing Workflow
+### Test Coverage Goals
+- **Components**: 90%+ coverage for UI components
+- **Business Logic**: 95%+ coverage for core functions
+- **API Routes**: 100% coverage for all endpoints
+- **Database**: Schema validation and migration testing
 
-### Before Each Release
-1. Run all core setup tests
-2. Test all CRUD operations
-3. Verify CSV upload functionality
-4. Test public pages on multiple devices
-5. Check error handling scenarios
-6. Validate mobile responsiveness
+### Testing Tools
+- **Jest**: Unit and integration testing framework
+- **React Testing Library**: Component testing utilities
+- **Supabase Test Client**: Database testing with isolated environments
+- **Docker**: Consistent testing environments
 
-### Continuous Testing
-- Monitor for JavaScript console errors
-- Test new features as they're implemented
-- Update testing guides for new functionality
-- Document any new edge cases discovered
+## 🎯 Testing Workflow
 
-## 🎯 Testing Priorities
+### Before Development
+1. Review relevant feature testing guide
+2. Set up test environment with Docker
+3. Run existing tests to ensure clean state
 
-### High Priority (Critical Path)
-1. Admin authentication and authorization
-2. Schools and programs CRUD operations
-3. CSV upload functionality
-4. Public page data display
-5. Basic error handling
+### During Development
+1. Write tests alongside feature implementation
+2. Follow TDD principles where applicable
+3. Ensure all new code has appropriate test coverage
 
-### Medium Priority (User Experience)
-1. Mobile responsiveness
-2. Form validation
-3. Loading states
-4. User feedback messages
-5. Navigation consistency
+### Before Deployment
+1. Run complete test suite
+2. Execute manual testing checklist
+3. Verify database migrations in test environment
+4. Performance testing for critical paths
 
-### Low Priority (Enhancement)
-1. Performance optimization
-2. Advanced error handling
-3. Accessibility improvements
-4. Cross-browser compatibility
-5. Advanced UI features
+## 🔧 Test Environment Setup
 
-## 📝 Documentation Standards
+### Prerequisites
+- Docker and Docker Compose
+- Node.js 18+ and npm
+- Supabase CLI (for database testing)
 
-### Test Case Format
-Each test case should include:
-- **Test Name**: Clear, descriptive name
-- **Prerequisites**: What needs to be set up
-- **Steps**: Numbered, clear instructions
-- **Expected Result**: What should happen
-- **Actual Result**: What actually happened (for failed tests)
+### Quick Setup
+```bash
+# 1. Start test environment
+docker-compose up -d
 
-### Bug Reporting
-When reporting bugs, include:
-- **Environment**: Browser, OS, device
-- **Steps to Reproduce**: Clear reproduction steps
-- **Expected vs Actual**: What should vs what does happen
-- **Console Errors**: Any JavaScript errors
-- **Screenshots**: Visual evidence if applicable
+# 2. Run test suite
+npm test
 
-## 🔄 Maintenance
+# 3. Run specific feature tests
+npm test -- --testPathPattern=admin
+```
 
-### Updating Testing Guides
-- Update guides when new features are implemented
-- Add new test cases for edge cases discovered
-- Remove obsolete test cases
-- Update links and references as needed
+### Database Testing
+```bash
+# Run schema validation tests
+cd __tests__/schema
+./run-schema-tests.sh
+```
 
-### Version Control
-- Keep testing guides in sync with application versions
-- Tag testing guides with application release versions
-- Maintain changelog for testing guide updates
+## 📊 Test Reporting
+
+### Coverage Reports
+- Generated automatically with Jest
+- Available in `coverage/` directory
+- HTML reports for detailed analysis
+
+### Test Results
+- Console output during development
+- CI/CD integration for automated testing
+- Detailed logs for debugging failures
+
+## 🐛 Debugging Failed Tests
+
+### Common Issues
+1. **Database State**: Ensure clean test database
+2. **Environment Variables**: Verify test environment configuration
+3. **Async Operations**: Check for proper async/await handling
+4. **Component Rendering**: Verify all required props and context
+
+### Debug Tools
+- Jest verbose mode: `npm test -- --verbose`
+- React Testing Library debug: `screen.debug()`
+- Supabase logs: Check test database logs
+- Browser DevTools: For integration test debugging
+
+## 🚀 Continuous Integration
+
+### Automated Testing
+- All tests run on pull request creation
+- Deployment blocked on test failures
+- Automatic test reports in PR comments
+
+### Test Data Management
+- Isolated test databases for each environment
+- Automated test data seeding
+- Cleanup procedures after test runs
 
 ## 📚 Related Documentation
 
-- **[Design Document](../design-doc.md)** - Application architecture and features
-- **[Implementation Plan](../implementation-plan.mdc)** - Development roadmap
-- **[Setup Instructions](../setup-instructions.md)** - Environment setup
-- **[File Structure](../file-structure.md)** - Project organization
+- **[../design/](../design/)** - Design decisions and architecture
+- **[../setup-instructions.md](../setup-instructions.md)** - Environment setup
+- **[../../__tests__/](../../__tests__/)** - Test implementation files
 
-## 🤝 Contributing
+## 🤝 Contributing to Tests
 
-When adding new testing guides:
-1. Follow the established format and structure
-2. Include clear prerequisites and success criteria
-3. Add troubleshooting sections for common issues
-4. Update the main testing plan with links
-5. Ensure cross-references are maintained
+When adding new features:
+
+1. **Create Feature Test Guide**: Document testing approach for new features
+2. **Write Tests First**: Follow TDD principles where possible
+3. **Update Test Plans**: Add new test cases to relevant testing guides
+4. **Maintain Coverage**: Ensure test coverage meets project standards
+
+## 📞 Questions?
+
+For testing-related questions or debugging help, refer to the specific testing guides or reach out to the development team.
