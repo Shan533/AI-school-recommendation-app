@@ -44,12 +44,3 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           delete-old-comments: true
           title: "📊 Code Coverage Report"
-
-      - name: Coverage Comment
-        uses: romeovs/lcov-reporter-action@v0.3.1
-        if: github.event_name == 'pull_request'
-        with:
-          lcov-file: ./coverage/lcov.info
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          delete-old-comments: true
-          title: "📊 Code Coverage Report"
