@@ -1,4 +1,4 @@
-name: CI - Lint & Test
+name: CI - Lint, Test & Coverage
 
 on:
   push:
@@ -34,9 +34,13 @@ jobs:
         run: npm run lint --if-present
 
       - name: Test
-        run: |
-          if npm run | grep -q "test:ci"; then
-            npm run test:ci
-          else
-            npm test
-          fi
+        run: npm run test:ci
+
+      - name: Coverage Comment
+        uses: romeovs/lcov-reporter-action@v0.3.1
+        if: github.event_name == 'pull_request'
+        with:
+          lcov-file: ./coverage/lcov.info
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          delete-old-comments: true
+          title: "📊 Code Coverage Report"

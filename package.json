@@ -10,7 +10,9 @@
     "lint": "next lint",
     "postinstall": "npm rebuild lightningcss --update-binary || true",
     "test": "jest",
-    "test:ci": "jest --ci --coverage"
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:ci": "jest --ci --coverage --watchAll=false"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
