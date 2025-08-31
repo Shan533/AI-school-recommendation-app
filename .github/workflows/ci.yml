@@ -16,6 +16,10 @@ concurrency:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
 
     steps:
       - name: Checkout
@@ -37,10 +41,14 @@ jobs:
         run: npm run test:ci
 
       - name: Coverage Comment
-        uses: romeovs/lcov-reporter-action@v0.3.1
+        uses: MishaKav/jest-coverage-comment@main
         if: github.event_name == 'pull_request'
         with:
-          lcov-file: ./coverage/lcov.info
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          delete-old-comments: true
-          title: "📊 Code Coverage Report"
+          coverage-summary-path: ./coverage/coverage-summary.json
+          title: 📊 Code Coverage Report
+          summary-title: Coverage Summary
+          hide-comment: false
+          create-new-comment: false
+          hide-summary: false
+          junitxml-title: Coverage Report
+          junitxml-path: ./coverage/coverage-final.json

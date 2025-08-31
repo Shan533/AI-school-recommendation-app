@@ -23,8 +23,9 @@ const config = {
   ],
   coverageDirectory: 'coverage',
   coverageReporters: [
-    'text',        // Console output
-    'lcov',        // For PR comments
+    'text',           // Console output
+    'json-summary',   // For PR comments
+    'lcov',          // For other integrations
   ],
   // Coverage thresholds disabled - only use coverage for PR comments
   // coverageThreshold: {
