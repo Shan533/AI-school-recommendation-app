@@ -10,16 +10,22 @@ const config = {
   // Coverage configuration
   collectCoverage: false, // Set to true by --coverage flag
   collectCoverageFrom: [
-    'src/**/*.{js,jsx,ts,tsx}',
+    // Only include backend logic and utilities
+    'src/lib/**/*.{js,jsx,ts,tsx}',           // Utility functions and business logic
+    'src/app/api/**/*.{js,jsx,ts,tsx}',       // API routes
+    
+    // Exclude everything else
     '!src/**/*.d.ts',
     '!src/**/*.stories.{js,jsx,ts,tsx}',
     '!src/**/index.{js,jsx,ts,tsx}',
-    '!src/app/**/layout.tsx',
-    '!src/app/**/loading.tsx',
-    '!src/app/**/not-found.tsx',
-    '!src/app/**/error.tsx',
-    '!src/app/globals.css',
-    '!src/middleware.ts', // Middleware is hard to test in isolation
+    '!src/components/**/*',                    // Exclude all frontend components
+    '!src/app/**/page.tsx',                   // Exclude Next.js pages
+    '!src/app/**/layout.tsx',                 // Exclude Next.js layouts
+    '!src/app/**/loading.tsx',                // Exclude Next.js loading pages
+    '!src/app/**/not-found.tsx',              // Exclude Next.js 404 pages
+    '!src/app/**/error.tsx',                  // Exclude Next.js error pages
+    '!src/app/globals.css',                   // Exclude global CSS
+    '!src/middleware.ts',                     // Middleware is hard to test in isolation
   ],
   coverageDirectory: 'coverage',
   coverageReporters: [

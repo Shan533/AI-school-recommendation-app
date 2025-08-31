@@ -41,8 +41,8 @@ jobs:
         run: npm run test:ci
 
       - name: Coverage Comment
-        uses: MishaKav/jest-coverage-comment@main
-        if: github.event_name == 'pull_request'
+        uses: MishaKav/jest-coverage-comment@v1
+        if: github.event_name == 'pull_request' && success()
         with:
           coverage-summary-path: ./coverage/coverage-summary.json
           title: 📊 Code Coverage Report
@@ -50,5 +50,4 @@ jobs:
           hide-comment: false
           create-new-comment: false
           hide-summary: false
-          junitxml-title: Coverage Report
-          junitxml-path: ./coverage/coverage-final.json
+          coverage-path-prefix: src/
