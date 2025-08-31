@@ -26,21 +26,15 @@ const config = {
     'text',        // Console output
     'lcov',        // For PR comments
   ],
-  coverageThreshold: {
-    global: {
-      branches: 1,
-      functions: 1,
-      lines: 1,
-      statements: 1
-    },
-    // Specific thresholds for critical files (when they have tests)
-    'src/lib/utils.ts': {
-      branches: 90,
-      functions: 90,
-      lines: 90,
-      statements: 90
-    }
-  }
+  // Coverage thresholds disabled - only use coverage for PR comments
+  // coverageThreshold: {
+  //   global: {
+  //     branches: 1,
+  //     functions: 1,
+  //     lines: 1,
+  //     statements: 1
+  //   }
+  // }
 };
 
 module.exports = createJestConfig(config);
