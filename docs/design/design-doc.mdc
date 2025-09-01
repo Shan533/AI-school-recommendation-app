@@ -23,7 +23,7 @@ The application will provide the following core features, designed with simplici
 *   **Framework**: Next.js 15 (utilizing App Router with Server Components)
 *   **Backend & Database**: Supabase (PostgreSQL, Auth, Storage, RLS)
 *   **Styling**: Tailwind CSS 4.x & shadcn/ui
-*   **Testing**: Jest & React Testing Library
+*   **Testing**: Jest & Vitest with React Testing Library (Dual testing strategy)
 *   **Containerization**: Docker
 *   **Deployment**: Vercel with Analytics
 *   **Form Handling**: React Hook Form with Zod validation
@@ -91,7 +91,7 @@ The application will provide the following core features, designed with simplici
 *   **Framework**: Next.js 15 (utilizing App Router with Server Components)
 *   **Backend & Database**: Supabase (PostgreSQL, Auth, Storage, RLS)
 *   **Styling**: Tailwind CSS 4.x & shadcn/ui
-*   **Testing**: Jest & React Testing Library
+*   **Testing**: Jest & Vitest with React Testing Library (Dual testing strategy)
 *   **Containerization**: Docker
 *   **Deployment**: Vercel with Analytics
 *   **Form Handling**: React Hook Form with Zod validation

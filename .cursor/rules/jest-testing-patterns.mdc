@@ -72,6 +72,45 @@ describe('Server Component Function', () => {
 })
 ```
 
+### Vitest Pattern (API Routes)
+```typescript
+// Example: schools.vitest.ts
+import { vi, describe, it, expect, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
+
+// Mock dependencies
+vi.mock('@/lib/supabase/helpers', () => ({
+  getCurrentUser: vi.fn(),
+  isAdmin: vi.fn(),
+  getSupabaseClient: vi.fn()
+}))
+
+// Import API handlers
+import { POST } from '@/app/api/admin/schools/route'
+import { GET, PUT, DELETE } from '@/app/api/admin/schools/[id]/route'
+
+// Create complete mock objects with all required methods
+const mockSupabaseClient = {
+  from: vi.fn(() => ({
+    insert: vi.fn(() => ({ select: vi.fn(() => ({ single: vi.fn() })) })),
+    select: vi.fn(() => ({ eq: vi.fn() })),
+    update: vi.fn(() => ({ eq: vi.fn(() => ({ select: vi.fn() })) })),
+    delete: vi.fn(() => ({ eq: vi.fn() }))
+  }))
+}
+
+describe('API Routes', () => {
+  it('should handle requests properly', async () => {
+    const request = new NextRequest('http://localhost:3000/api/admin/schools', {
+      method: 'POST',
+      body: JSON.stringify({ name: 'Test School' })
+    })
+    const response = await POST(request)
+    expect(response.status).toBe(201)
+  })
+})
+```
+
 ## 🔧 Configuration Setup
 
 ### Jest Configuration (jest.config.cjs)
@@ -102,19 +141,21 @@ export default defineConfig({
 
 ## 📊 Current Project Status
 
-### Working Tests (116 total)
+### Working Tests (175 total)
 - **Jest**: 65 tests passing
   - ✅ `validation.ts` - 26 tests, 100% coverage
   - ✅ `utils.ts` - 4 tests, 100% coverage  
   - ✅ Schema validation - 35 tests
-- **Vitest**: 51 tests passing
+- **Vitest**: 110 tests passing
+  - ✅ `auth-actions.ts` - 36 tests, 98.94% coverage
   - ✅ `helpers.ts` - 20 tests, 100% coverage
+  - ✅ `schools-api` - 23 tests, 80-100% coverage
   - ✅ Basic components - 31 tests
 
 ### Migration Candidates
-- `auth-actions.test.skip.ts` - Server Actions (can migrate to Vitest)
-- `programs.test.skip.ts` - API routes (can migrate to Vitest)
-- `schools.test.skip.ts` - API routes (can migrate to Vitest)
+- ✅ `auth-actions.test.skip.ts` - Migrated to `auth-actions.vitest.ts`
+- ✅ `schools.test.skip.ts` - Migrated to `schools.vitest.ts`
+- `programs.test.skip.ts` - API routes (next to migrate to Vitest)
 
 ## 🚀 Usage Commands
 
@@ -137,8 +178,8 @@ npm run test:vitest:ui      # Interactive UI
 
 ### High Priority (Use Vitest)
 1. Server Components and authentication helpers ✅
-2. API route handlers (next step)
-3. Server Actions (next step)
+2. Server Actions (auth-actions.ts) ✅
+3. API route handlers (Schools API) ✅
 
 ### Medium Priority (Use Jest)
 1. Pure utility functions ✅
@@ -168,12 +209,31 @@ npm run test:vitest:ui      # Interactive UI
 
 ## 📈 Success Metrics
 
-- **Coverage Improvement**: helpers.ts 0% → 100%
-- **Test Count**: 65 → 116 total tests
+- **Coverage Improvement**: 
+  - helpers.ts: 0% → 100%
+  - auth-actions.ts: 0% → 98.94%
+  - Schools API: 0% → 80-100%
+- **Test Count**: 65 → 175 total tests
 - **Zero Conflicts**: Jest and Vitest run independently
 - **Modern Stack**: Ready for Next.js 15 features
+- **API Testing**: Comprehensive CRUD operation coverage
+
+## 🔑 Key Learnings
+
+### Next.js Server Actions Testing
+- Use `vi.mock('next/navigation')` to mock `redirect()`
+- Handle redirect errors: `redirect()` throws `NEXT_REDIRECT` error
+- Test returned `AuthResult` objects, not thrown exceptions
+- Mock `FormData` inputs for server actions
+
+### API Route Testing Best Practices
+- Mock all Supabase client methods (insert, select, update, delete)
+- Test authentication/authorization for every endpoint
+- Verify HTTP status codes and response bodies
+- Test error handling and edge cases
+- Use `NextRequest` for realistic request simulation
 
 ---
 
-**Last Updated**: January 2025 - Vitest migration successful
-**Status**: ✅ Dual testing strategy working perfectly
+**Last Updated**: Aug 2025 - Schools API testing complete
+**Status**: ✅ Dual testing strategy + API testing patterns established
