@@ -34,7 +34,14 @@ export default defineConfig({
         'src/app/globals.css',                   // Exclude global CSS
         'src/middleware.ts',                     // Middleware is hard to test in isolation
       ],
-      reporter: ['text', 'json-summary', 'html']
+      reporter: ['text', 'json', 'json-summary', 'html'],
+      reportsDirectory: 'coverage',
+      // Ensure proper file paths for CI
+      all: true,
+      // Clean coverage directory before each run
+      clean: true,
+      // Clean coverage on each run
+      cleanOnRerun: true
     }
   },
   resolve: {

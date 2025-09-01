@@ -120,8 +120,6 @@ export async function PUT(
       return isNaN(num) ? null : num
     }
 
-
-
     // Complete update data with all fields
     const updateData = {
       name: body.name?.trim() || null,
@@ -262,8 +260,6 @@ export async function PUT(
     )
   }
 }
-
-
 
 export async function DELETE(
   request: NextRequest,
