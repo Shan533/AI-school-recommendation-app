@@ -18,7 +18,8 @@
     "test:vitest": "vitest",
     "test:vitest:watch": "vitest --watch",
     "test:vitest:coverage": "vitest --coverage",
-    "test:vitest:ui": "vitest --ui"
+    "test:vitest:ui": "vitest --ui",
+    "coverage:verify": "node -e \"const fs=require('fs');const cov=JSON.parse(fs.readFileSync('coverage/coverage-summary.json'));console.log('Coverage Summary:', cov.total);console.log('Files:', Object.keys(cov).filter(k=>k!=='total').length);\""
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
