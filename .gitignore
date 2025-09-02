@@ -37,9 +37,7 @@ yarn-error.log*
 .venv/
 __pycache__/
 *.pyc
-.env
 logs/
-.DS_Store
 
 # vercel
 .vercel

@@ -18,11 +18,11 @@ CREATE TABLE unreviewed_schools (
     crawled_at TIMESTAMPTZ DEFAULT NOW(),
     status VARCHAR DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'merged')),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    source_url VARCHAR, -- 爬虫来源URL
-    confidence_score DECIMAL(3,2) DEFAULT 0.0, -- 数据质量置信度 (0.0-1.0)
-    raw_data JSONB, -- 原始爬虫数据，便于调试和扩展
-    matched_school_id UUID REFERENCES schools(id), -- 如果匹配到现有学校，记录ID
-    diff_notes TEXT -- 管理员记录的diff说明
+    source_url VARCHAR, -- crawler source url
+    confidence_score DECIMAL(3,2) DEFAULT 0.0, -- data quality confidence (0.0-1.0)
+    raw_data JSONB, -- raw crawler data, for debugging and extension
+    matched_school_id UUID REFERENCES schools(id), -- if matched to existing school, record ID
+    diff_notes TEXT -- admin recorded diff notes
 );
 
 -- Create unreviewed_programs table for program crawler data
@@ -53,15 +53,15 @@ CREATE TABLE unreviewed_programs (
     crawled_at TIMESTAMPTZ DEFAULT NOW(),
     status VARCHAR DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'merged')),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    source_url VARCHAR, -- 爬虫来源URL
-    confidence_score DECIMAL(3,2) DEFAULT 0.0, -- 数据质量置信度 (0.0-1.0)
-    raw_data JSONB, -- 原始爬虫数据，便于调试和扩展
-    matched_program_id UUID REFERENCES programs(id), -- 如果匹配到现有程序，记录ID
-    matched_school_id UUID REFERENCES schools(id), -- 如果匹配到现有学校，记录ID
-    diff_notes TEXT, -- 管理员记录的diff说明
+    source_url VARCHAR, -- crawler source url
+    confidence_score DECIMAL(3,2) DEFAULT 0.0, -- data quality confidence (0.0-1.0)
+    raw_data JSONB, -- raw crawler data, for debugging and extension
+    matched_program_id UUID REFERENCES programs(id), -- if matched to existing program, record ID
+    matched_school_id UUID REFERENCES schools(id), -- if matched to existing school, record ID
+    diff_notes TEXT, -- admin recorded diff notes
     
     -- Additional field for school name matching during crawling
-    school_name TEXT -- 学校名称，用于匹配和显示
+    school_name TEXT -- school name, for matching and displaying
 );
 
 -- Create crawler_jobs table to track crawling sessions
@@ -75,7 +75,7 @@ CREATE TABLE crawler_jobs (
     successful_items INTEGER DEFAULT 0,
     failed_items INTEGER DEFAULT 0,
     error_log TEXT,
-    metadata JSONB, -- 存储爬虫配置、统计等元数据
+    metadata JSONB, -- crawler configuration, statistics, etc.
     
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -86,7 +86,7 @@ CREATE TABLE crawler_logs (
     job_id UUID REFERENCES crawler_jobs(id),
     level VARCHAR NOT NULL CHECK (level IN ('DEBUG', 'INFO', 'WARNING', 'ERROR')),
     message TEXT NOT NULL,
-    context JSONB, -- 存储相关的上下文信息
+    context JSONB, -- related context information
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

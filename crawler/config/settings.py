@@ -23,9 +23,9 @@ class CrawlerSettings:
     # MAX_CONCURRENT_REQUESTS = int(os.getenv('CRAWLER_MAX_CONCURRENT', 3))
 
 
-    DELAY_BETWEEN_REQUESTS = 5.0      # 5秒延迟
-    MAX_CONCURRENT_REQUESTS = 1        # 单线程
-    REQUEST_TIMEOUT = 60               # 60秒超时
+    DELAY_BETWEEN_REQUESTS = 5.0      # 5 second delay
+    MAX_CONCURRENT_REQUESTS = 1        # Single-threaded
+    REQUEST_TIMEOUT = 60               # 60 second timeout
 
     # Supabase Configuration
     SUPABASE_URL = os.getenv('NEXT_PUBLIC_SUPABASE_URL')
