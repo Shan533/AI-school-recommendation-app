@@ -21,10 +21,12 @@ AI_school_recommend_app/
 │   │   ├── design-doc.mdc
 │   │   ├── implementation-plan.mdc
 │   │   ├── schema-design.mdc
-│   │   └── search-system-design.md
+│   │   ├── search-system-design.md
+│   │   └── web-crawler-design.md
 │   └── testing/
 │       ├── README.md
 │       ├── testing-guide.md
+│       ├── testing-implementation-plan.md
 │       ├── testing-plan.md
 │       └── features/
 │           ├── admin-crud-testing.md
@@ -34,13 +36,21 @@ AI_school_recommend_app/
 │           ├── core-setup-testing.md
 │           ├── csv-upload-testing.md
 │           ├── public-pages-testing.md
+│           ├── README.md
 │           └── user-reviews-testing.md
-├── csv/
-│   ├── programs-for-import.csv
-│   ├── rotten-tomatoes.programs.csv
-│   └── rotten-tomatoes.programs.updated.csv
 ├── __tests__/
+│   ├── api/
+│   │   └── admin/
+│   │       ├── programs.test.ts
+│   │       └── schools.test.ts
 │   ├── home.test.tsx
+│   ├── lib/
+│   │   ├── admin-search.test.ts
+│   │   ├── auth-actions.test.ts
+│   │   ├── supabase/
+│   │   │   └── helpers.test.ts
+│   │   ├── utils.test.ts
+│   │   └── validation.test.ts
 │   ├── run-schema-tests.sh
 │   └── schema/
 │       ├── schema-test-results.md
@@ -48,6 +58,33 @@ AI_school_recommend_app/
 │       ├── test-schema-types.ts
 │       ├── test-schema.sql
 │       └── validate-migration.js
+├── crawler/
+│   ├── __init__.py
+│   ├── auth_check.py
+│   ├── check_website_accessibility.py
+│   ├── config/
+│   │   └── __init__.py
+│   │   └── settings.py
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── base_crawler.py
+│   │   └── http_client.py
+│   ├── README.md
+│   ├── scripts/
+│   │   ├── __init__.py
+│   │   ├── crawl_qs_topN.py
+│   │   └── crawl_universities.py
+│   ├── storage/
+│   │   ├── __init__.py
+│   │   └── supabase_manager.py
+│   ├── tests/
+│   │   ├── __init__.py
+│   │   ├── test_qs_top200.py
+│   │   ├── test_single_website.py
+│   │   ├── test_supabase_integration.py
+│   │   └── test_university_crawler.py
+│   └── utils/
+│       └── __init__.py
 ├── scripts/
 │   └── prepare-programs-csv.mjs
 ├── docker/
@@ -93,16 +130,20 @@ AI_school_recommend_app/
 │   │   │   │   ├── reviews/
 │   │   │   │   │   └── [id]/
 │   │   │   │   │       └── route.ts
-│   │   │   │   └── schools/
+│   │   │   │   ├── schools/
+│   │   │   │   │   ├── [id]/
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── users/
 │   │   │   │       ├── [id]/
 │   │   │   │       │   └── route.ts
-│   │   │   │       └── route.ts
+│   │   │   │       ├── invite/
+│   │   │   │       │   └── route.ts
+│   │   │   │       └── magic-link/
+│   │   │   │           └── route.ts
 │   │   │   ├── auth/
 │   │   │   │   └── logout/
 │   │   │   │       └── route.ts
-│   │   │   ├── debug/
-│   │   │   │   └── programs/
-│   │   │   │       └── [id]/
 │   │   │   ├── reviews/
 │   │   │   │   ├── program/
 │   │   │   │   │   └── [id]/
@@ -121,7 +162,6 @@ AI_school_recommend_app/
 │   │   │   │   └── page.tsx
 │   │   │   └── verify-email/
 │   │   │       └── page.tsx
-│   │   ├── check-config/
 │   │   ├── profile/
 │   │   │   └── page.tsx
 │   │   ├── programs/
@@ -142,7 +182,8 @@ AI_school_recommend_app/
 │   │   │   ├── admin-search-card.tsx
 │   │   │   ├── delete-review-button.tsx
 │   │   │   ├── programs-management.tsx
-│   │   │   └── schools-management.tsx
+│   │   │   ├── schools-management.tsx
+│   │   │   └── user-management.tsx
 │   │   ├── navigation.tsx
 │   │   ├── review-form.tsx
 │   │   ├── reviews-list.tsx
@@ -179,7 +220,10 @@ AI_school_recommend_app/
 │       ├── 0001_update_programs_table.sql
 │       ├── 0002_add_requirements_and_program_enhancements.sql
 │       ├── 0003_update_reviews_for_half_stars_and_optional_comments.sql
-│       └── 0004_admin_review_management.sql
+│       ├── 0004_admin_review_management.sql
+│       └── 0005_add_crawler_tables.sql
+├── test/
+│   └── setup.ts
 ├── components.json
 ├── eslint.config.mjs
 ├── jest.config.cjs
@@ -188,8 +232,10 @@ AI_school_recommend_app/
 ├── package-lock.json
 ├── package.json
 ├── postcss.config.mjs
+├── requirements.txt
 ├── README.md
-└── tsconfig.json
+├── tsconfig.json
+└── vitest.config.ts
 ```
 
 ## Directory Descriptions
@@ -197,12 +243,21 @@ AI_school_recommend_app/
 ### Core Directories
 
 - **`docs/`**: Contains all project documentation, including design documents, implementation plans, technical architecture, and setup instructions.
+  - **`design/`**: Application design documents, architecture plans, and system specifications.
   - **`testing/`**: Comprehensive testing documentation and guides for different features.
 
-- **`csv/`**: Holds raw CSV data for schools and programs, as well as processed files for database import.
-
-- **`__tests__/`**: Contains all test files organized by feature.
+- **`__tests__/`**: Contains all test files organized by feature and module.
+  - **`api/`**: API endpoint tests organized by resource type.
+  - **`lib/`**: Library and utility function tests.
   - **`schema/`**: Database schema validation and migration tests.
+
+- **`crawler/`**: Python-based web crawler system for data collection.
+  - **`config/`**: Configuration settings and environment variables.
+  - **`core/`**: Core crawler functionality and HTTP client.
+  - **`scripts/`**: Crawler execution scripts for different data sources.
+  - **`storage/`**: Data storage and Supabase integration.
+  - **`tests/`**: Crawler system tests and validation.
+  - **`utils/`**: Utility functions for the crawler system.
 
 - **`scripts/`**: Contains utility and migration scripts for data processing and other operational tasks.
 
@@ -217,8 +272,9 @@ AI_school_recommend_app/
     - **`(public)/`**: Routes that are accessible without authentication (login, register).
     - **`admin/`**: Protected routes for the admin dashboard (CRUD operations, CSV upload, reviews management).
     - **`api/`**: API routes for server-side logic and data operations.
-      - **`admin/`**: Admin-specific API endpoints for managing schools, programs, and reviews.
+      - **`admin/`**: Admin-specific API endpoints for managing schools, programs, users, and reviews.
       - **`reviews/`**: Public review submission endpoints.
+      - **`auth/`**: Authentication-related API endpoints.
     - **`auth/`**: Authentication-related pages and callbacks.
     - **`programs/`**: Public program browsing and detail pages.
     - **`schools/`**: Public school browsing and detail pages.
@@ -239,33 +295,21 @@ AI_school_recommend_app/
 - **`supabase/`**: Configuration and migration files for the Supabase database.
   - **`migrations/`**: SQL files that define the database schema versions, including RLS policies.
 
-- **Root Configuration Files**: Jest configuration, Next.js config, TypeScript config, and other project setup files.
+- **`test/`**: Test setup and configuration files.
 
-## Recent Updates
+- **Root Configuration Files**: Jest configuration, Next.js config, TypeScript config, Python requirements, and other project setup files.
 
-### Admin Review Management System
-- Added `src/app/admin/reviews/page.tsx` - Admin interface for managing user reviews
-- Added `src/api/admin/reviews/[id]/route.ts` - API endpoint for review deletion
-- Added `src/components/admin/delete-review-button.tsx` - Client component for review deletion
-- Added `supabase/migrations/0004_admin_review_management.sql` - RLS policies for admin review access
 
-### Advanced Search System
-- Added `src/lib/admin-search.ts` - Intelligent search with ranking algorithm
-- Added `src/components/admin/admin-search-card.tsx` - Reusable search UI component
-- Enhanced all admin pages with unified search functionality
-
-### Database Schema Evolution
-- `0003_update_reviews_for_half_stars_and_optional_comments.sql` - Enhanced review system
-- `0004_admin_review_management.sql` - Admin permissions for review management
 
 ## Key Features Implemented
 
-1. **Admin Dashboard**: Complete CRUD operations for schools, programs, and users
+1. **Admin Dashboard**: Complete CRUD operations for schools, programs, users, and reviews
 2. **Review Management**: Admin interface for moderating user reviews
 3. **Advanced Search**: Intelligent search with exact match prioritization and abbreviation support
 4. **CSV Upload**: Bulk data import functionality
 5. **Authentication System**: Supabase-based auth with role-based access control
 6. **Public Pages**: Browse schools and programs with review submission
-7. **Responsive Design**: Mobile-first approach with Tailwind CSS
-8. **Testing Infrastructure**: Jest with React Testing Library
-9. **Docker Support**: Containerized development environment
+7. **Web Crawler**: Python-based system for automated data collection
+8. **Responsive Design**: Mobile-first approach with Tailwind CSS
+9. **Testing Infrastructure**: Jest with React Testing Library and Vitest
+10. **Docker Support**: Containerized development environment

@@ -14,7 +14,9 @@
     "test:coverage": "jest --coverage",
     "test:ci": "jest --ci --coverage --watchAll=false",
     "test:vitest:ci": "vitest run --coverage",
+    "test:all": "npm run test:ci && npm run test:vitest:ci",
     "test:vitest": "vitest",
+    "test:vitest:watch": "vitest --watch",
     "test:vitest:coverage": "vitest --coverage",
     "test:vitest:ui": "vitest --ui"
   },
@@ -43,7 +45,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "@testing-library/jest-dom": "^6.7.0",
+    "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^20",

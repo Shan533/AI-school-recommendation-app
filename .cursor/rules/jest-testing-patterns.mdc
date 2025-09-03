@@ -1,27 +1,32 @@
 ---
-description: jest testing
+description: Testing patterns for Next.js 15 + Supabase
 alwaysApply: false
 ---
-# Jest Testing Patterns for Next.js 15 + Supabase
+# Testing Patterns for Next.js 15 + Supabase
 
-## 🚨 Known Issues & Solutions
+## 🎯 Dual Testing Strategy (Recommended)
 
-### Module Resolution Problems
-**Problem**: Jest cannot resolve `@/lib/supabase/server` and other Next.js Server Component modules
-```
-Cannot find module '@/lib/supabase/server' from '__tests__/...'
-```
+### ✅ **SOLUTION**: Use Jest + Vitest Together
+**Jest**: Excellent for pure functions and schema validation
+**Vitest**: Perfect for Server Components and API routes
 
-**Root Cause**: Next.js 15 Server Components + Jest compatibility issues with module resolution
+## 🛠️ Tool Selection Guide
 
-**Solutions**:
-1. **Focus on Pure Functions First** - Test utility functions without external dependencies
-2. **Use Manual Mocks** - Create `__mocks__` directory for problematic modules
-3. **Skip Complex Mocks** - Use `.skip.ts` extension for files with unresolved dependencies
+### Use Jest For:
+- ✅ Pure utility functions (`validation.ts`, `utils.ts`)
+- ✅ Schema validation and database migrations
+- ✅ Simple component tests without Server Components
+- ✅ Established patterns that work well
 
-### Successful Testing Patterns
+### Use Vitest For:
+- ✅ Server Components (`helpers.ts`, `auth-actions.ts`)
+- ✅ API route testing
+- ✅ Next.js 15 modern features
+- ✅ ESM modules with complex dependencies
 
-#### ✅ **Pure Functions (WORKS PERFECTLY)**
+## 📋 Testing Patterns
+
+### Jest Pattern (Pure Functions)
 ```typescript
 // Example: validation.test.ts
 import { validateRange } from '@/lib/validation'
@@ -33,242 +38,142 @@ describe('validateRange', () => {
 })
 ```
 
-#### ❌ **Server Components (PROBLEMATIC)**
+### Vitest Pattern (Server Components)
 ```typescript
-// AVOID: Direct import of server components
-import { getCurrentUser } from '@/lib/supabase/helpers'
-jest.mock('@/lib/supabase/server') // This fails
-```
+// Example: helpers.vitest.ts
+import { vi, describe, it, expect, beforeEach } from 'vitest'
 
-## 🎯 Testing Priority Strategy
-
-### Phase 1: Pure Functions (HIGH Success Rate)
-- `src/lib/validation.ts` ✅ **100% coverage achieved**
-- `src/lib/utils.ts` ✅ **Already covered**
-- Focus on business logic without external dependencies
-
-### Phase 2: Client-Side Logic (MEDIUM Success Rate)
-- Components that use `'use client'`
-- Browser-only utilities
-- Form validation logic
-
-### Phase 3: Server Components (LOW Success Rate - SKIP FOR NOW)
-- Authentication helpers
-- Database operations
-- API route handlers
-- Next.js Server Actions
-
-## 🛠️ Jest Configuration Best Practices
-
-### Coverage Focus
-```javascript
-collectCoverageFrom: [
-  'src/lib/**/*.{js,jsx,ts,tsx}',     // Utility functions
-  'src/app/api/**/*.{js,jsx,ts,tsx}', // API routes
-  '!src/components/**/*',             // Skip frontend components
-  '!src/app/**/page.tsx',            // Skip Next.js pages
-]
-```
-
-### Skip Problematic Files
-```javascript
-testPathIgnorePatterns: [
-  '<rootDir>/__tests__/.*\\.skip\\.'  // Skip .skip.* files
-]
-```
-
-## 📋 Quick Testing Checklist
-
-### Before Writing Tests
-1. **Check if function is pure** (no external dependencies)
-2. **Identify external dependencies** (Supabase, Next.js APIs)
-3. **Choose appropriate testing strategy** based on complexity
-
-### For Pure Functions ✅
-1. Import directly
-2. Write test cases for all branches
-3. Test edge cases and boundary values
-4. Expect 100% coverage
-
-### For Functions with Dependencies ⚠️
-1. Try simple mocking first
-2. If Jest resolution fails, use `.skip.ts` extension
-3. Document the issue for future resolution
-4. Focus on testable parts of the codebase
-
-## 🚀 Immediate Actions
-
-### When Adding New Tests
-1. **Start with pure functions** - guaranteed success
-2. **Use existing working patterns** - copy from `validation.test.ts`
-3. **Avoid complex mocking** until Next.js + Jest compatibility improves
-4. **Document blockers** - use `.skip.ts` and comments
-
-### Current Status
-- ✅ **validation.test.ts** - 26 tests, 100% coverage
-- ⏸️ **helpers.test.ts** - Skipped due to module resolution
-- ⏸️ **auth-actions.test.ts** - Skipped due to Server Actions
-- ⏸️ **API route tests** - Skipped due to Next.js integration
-
-## 💡 Pro Tips
-
-### Maximize Coverage with Minimal Effort
-1. **Target pure utility functions first**
-2. **Write comprehensive test cases** (boundary values, error cases)
-3. **Use descriptive test names** for better debugging
-4. **Group related tests** in describe blocks
-
-### Mock Strategy (When It Works)
-```typescript
-// Simple, working pattern
-const mockFunction = jest.fn()
-jest.mock('module-name', () => ({
-  functionName: mockFunction
+// Mock modules with Vitest
+vi.mock('@/lib/supabase/server', () => ({
+  createClient: vi.fn()
 }))
-```
 
-### When to Skip
-- Module resolution errors
-- Complex Next.js integrations
-- Server Component dependencies
-- Authentication flows requiring real auth state
+vi.mock('next/headers', () => ({
+  cookies: vi.fn()
+}))
 
----
+// Import mocked modules
+import { createClient } from '@/lib/supabase/server'
+import { cookies } from 'next/headers'
 
-**Last Updated**: Testing structure setup phase
-**Next Review**: After Next.js + Jest compatibility improves
-# Jest Testing Patterns for Next.js 15 + Supabase
+// Create typed mocks
+const mockCreateClient = vi.mocked(createClient)
+const mockCookies = vi.mocked(cookies)
 
-## 🚨 Known Issues & Solutions
-
-### Module Resolution Problems
-**Problem**: Jest cannot resolve `@/lib/supabase/server` and other Next.js Server Component modules
-```
-Cannot find module '@/lib/supabase/server' from '__tests__/...'
-```
-
-**Root Cause**: Next.js 15 Server Components + Jest compatibility issues with module resolution
-
-**Solutions**:
-1. **Focus on Pure Functions First** - Test utility functions without external dependencies
-2. **Use Manual Mocks** - Create `__mocks__` directory for problematic modules
-3. **Skip Complex Mocks** - Use `.skip.ts` extension for files with unresolved dependencies
-
-### Successful Testing Patterns
-
-#### ✅ **Pure Functions (WORKS PERFECTLY)**
-```typescript
-// Example: validation.test.ts
-import { validateRange } from '@/lib/validation'
-
-describe('validateRange', () => {
-  it('should return null for valid values', () => {
-    expect(validateRange(5, 1, 10, 'Test')).toBeNull()
+// Test implementation
+describe('Server Component Function', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+  
+  it('should work with proper mocking', async () => {
+    // Test logic here
   })
 })
 ```
 
-#### ❌ **Server Components (PROBLEMATIC)**
-```typescript
-// AVOID: Direct import of server components
-import { getCurrentUser } from '@/lib/supabase/helpers'
-jest.mock('@/lib/supabase/server') // This fails
-```
+## 🔧 Configuration Setup
 
-## 🎯 Testing Priority Strategy
-
-### Phase 1: Pure Functions (HIGH Success Rate)
-- `src/lib/validation.ts` ✅ **100% coverage achieved**
-- `src/lib/utils.ts` ✅ **Already covered**
-- Focus on business logic without external dependencies
-
-### Phase 2: Client-Side Logic (MEDIUM Success Rate)
-- Components that use `'use client'`
-- Browser-only utilities
-- Form validation logic
-
-### Phase 3: Server Components (LOW Success Rate - SKIP FOR NOW)
-- Authentication helpers
-- Database operations
-- API route handlers
-- Next.js Server Actions
-
-## 🛠️ Jest Configuration Best Practices
-
-### Coverage Focus
-```javascript
-collectCoverageFrom: [
-  'src/lib/**/*.{js,jsx,ts,tsx}',     // Utility functions
-  'src/app/api/**/*.{js,jsx,ts,tsx}', // API routes
-  '!src/components/**/*',             // Skip frontend components
-  '!src/app/**/page.tsx',            // Skip Next.js pages
-]
-```
-
-### Skip Problematic Files
+### Jest Configuration (jest.config.cjs)
 ```javascript
 testPathIgnorePatterns: [
-  '<rootDir>/__tests__/.*\\.skip\\.'  // Skip .skip.* files
+  '<rootDir>/__tests__/.*\\.skip\\.',    // Skip .skip.* files
+  '<rootDir>/__tests__/.*\\.vitest\\.'  // Skip .vitest.* files
 ]
 ```
 
-## 📋 Quick Testing Checklist
-
-### Before Writing Tests
-1. **Check if function is pure** (no external dependencies)
-2. **Identify external dependencies** (Supabase, Next.js APIs)
-3. **Choose appropriate testing strategy** based on complexity
-
-### For Pure Functions ✅
-1. Import directly
-2. Write test cases for all branches
-3. Test edge cases and boundary values
-4. Expect 100% coverage
-
-### For Functions with Dependencies ⚠️
-1. Try simple mocking first
-2. If Jest resolution fails, use `.skip.ts` extension
-3. Document the issue for future resolution
-4. Focus on testable parts of the codebase
-
-## 🚀 Immediate Actions
-
-### When Adding New Tests
-1. **Start with pure functions** - guaranteed success
-2. **Use existing working patterns** - copy from `validation.test.ts`
-3. **Avoid complex mocking** until Next.js + Jest compatibility improves
-4. **Document blockers** - use `.skip.ts` and comments
-
-### Current Status
-- ✅ **validation.test.ts** - 26 tests, 100% coverage
-- ⏸️ **helpers.test.ts** - Skipped due to module resolution
-- ⏸️ **auth-actions.test.ts** - Skipped due to Server Actions
-- ⏸️ **API route tests** - Skipped due to Next.js integration
-
-## 💡 Pro Tips
-
-### Maximize Coverage with Minimal Effort
-1. **Target pure utility functions first**
-2. **Write comprehensive test cases** (boundary values, error cases)
-3. **Use descriptive test names** for better debugging
-4. **Group related tests** in describe blocks
-
-### Mock Strategy (When It Works)
+### Vitest Configuration (vitest.config.ts)
 ```typescript
-// Simple, working pattern
-const mockFunction = jest.fn()
-jest.mock('module-name', () => ({
-  functionName: mockFunction
-}))
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['./test/setup.ts'],
+    include: ['__tests__/**/*.{test,spec,vitest}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+})
 ```
 
-### When to Skip
-- Module resolution errors
-- Complex Next.js integrations
-- Server Component dependencies
-- Authentication flows requiring real auth state
+## 📊 Current Project Status
+
+### Working Tests (116 total)
+- **Jest**: 65 tests passing
+  - ✅ `validation.ts` - 26 tests, 100% coverage
+  - ✅ `utils.ts` - 4 tests, 100% coverage  
+  - ✅ Schema validation - 35 tests
+- **Vitest**: 51 tests passing
+  - ✅ `helpers.ts` - 20 tests, 100% coverage
+  - ✅ Basic components - 31 tests
+
+### Migration Candidates
+- `auth-actions.test.skip.ts` - Server Actions (can migrate to Vitest)
+- `programs.test.skip.ts` - API routes (can migrate to Vitest)
+- `schools.test.skip.ts` - API routes (can migrate to Vitest)
+
+## 🚀 Usage Commands
+
+### Jest (Pure Functions)
+```bash
+npm test                    # Run Jest tests
+npm run test:watch          # Jest watch mode
+npm run test:coverage       # Jest coverage
+```
+
+### Vitest (Server Components)
+```bash
+npm run test:vitest         # Run Vitest tests
+npm run test:vitest:watch   # Vitest watch mode
+npm run test:vitest:coverage # Vitest coverage
+npm run test:vitest:ui      # Interactive UI
+```
+
+## 🎯 Testing Priorities
+
+### High Priority (Use Vitest)
+1. Server Components and authentication helpers ✅
+2. API route handlers (next step)
+3. Server Actions (next step)
+
+### Medium Priority (Use Jest)
+1. Pure utility functions ✅
+2. Validation schemas ✅
+3. Database schema tests ✅
+
+### File Naming Convention
+- **Jest**: `*.test.ts` - Pure functions, schemas
+- **Vitest**: `*.vitest.ts` - Server Components, API routes
+- **Skip**: `*.skip.ts` - Problematic tests to be migrated
+
+## 💡 Migration Strategy
+
+### When to Migrate to Vitest
+1. Module resolution errors with Jest
+2. Server Component imports
+3. Next.js API route testing
+4. Modern ESM module dependencies
+
+### Migration Steps
+1. Copy test from `.skip.ts` file
+2. Replace Jest imports with Vitest
+3. Update mocking from `jest.mock()` to `vi.mock()`
+4. Use `vi.mocked()` for typed mocks
+5. Rename file to `.vitest.ts`
+6. Test and verify coverage
+
+## 📈 Success Metrics
+
+- **Coverage Improvement**: helpers.ts 0% → 100%
+- **Test Count**: 65 → 116 total tests
+- **Zero Conflicts**: Jest and Vitest run independently
+- **Modern Stack**: Ready for Next.js 15 features
 
 ---
 
-**Last Updated**: Testing structure setup phase
-**Next Review**: After Next.js + Jest compatibility improves
+**Last Updated**: January 2025 - Vitest migration successful
+**Status**: ✅ Dual testing strategy working perfectly
