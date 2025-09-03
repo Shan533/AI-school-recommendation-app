@@ -10,6 +10,7 @@ import { createClient } from '@/lib/supabase/client'
 
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 
 export default function SetupUsernamePage() {
   const [username, setUsername] = useState('')
