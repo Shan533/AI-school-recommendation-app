@@ -8,6 +8,9 @@ import { Label } from '@/components/ui/label'
 import { resendEmailVerification } from '@/lib/auth-actions'
 import Link from 'next/link'
 
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+
 export default function VerifyEmailPage() {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
