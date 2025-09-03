@@ -60,16 +60,17 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ## 🧪 Testing
 
 ```bash
-# Jest (Pure Functions) - 65 tests
+# Run all tests
 npm test
-npm run test:ci
 
-# Vitest (Server Components) - 51 tests  
-npm run test:vitest
-npm run test:vitest:ci
+# Watch mode
+npm run test:watch
 
-# Run All Tests - 116 total
-npm run test:all
+# Coverage report
+npm run test:coverage
+
+# Interactive UI
+npm run test:ui
 ```
 
 ## 📚 Documentation
@@ -77,13 +78,6 @@ npm run test:all
 - **[Design Document](docs/design-doc.mdc)** - Application design and features
 - **[Setup Instructions](docs/setup-instructions.md)** - Detailed setup guide
 - **[Testing Guide](docs/testing-guide.md)** - Testing strategy
-
-## 🚀 Deployment
-
-Deploy to Vercel:
-```bash
-vercel
-```
 
 ---
 

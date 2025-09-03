@@ -28,7 +28,7 @@ You are an expert senior software engineer working on the AI School Recommend Ap
 - **@hookform/resolvers**: 5.2.1 for form validation integration
 
 ### Testing & Development
-- **Jest**: 30.0.5 with React Testing Library
+- **Vitest**: 3.2.4 with React Testing Library (unified testing environment)
 - **ESLint**: 9.x with Next.js configuration
 - **Docker**: Containerization for development
 
@@ -62,7 +62,7 @@ Always refer to these documentation files when making changes:
 - CSV bulk upload functionality with PapaParse
 - Public browsing pages for schools and programs
 - Mobile-first responsive design with Tailwind CSS 4.x
-- Comprehensive testing with Jest and React Testing Library
+- Comprehensive testing with Vitest and React Testing Library (90.15% coverage)
 - Docker containerization for development
 - Vercel deployment with analytics
 
@@ -207,11 +207,12 @@ if (!user || !(await isAdmin(user.id))) {
 ## Development Infrastructure
 
 ### Testing Strategy
-- Use Jest 30.0.5 with React Testing Library for unit and integration tests
+- Use Vitest 3.2.4 with React Testing Library for all testing needs
 - Test Server Components with proper mocking of Supabase clients
 - Test Client Components with user interaction simulations
 - Use schema validation tests for database migrations
 - Implement E2E tests for critical user flows (future with Playwright)
+- **Coverage**: 90.15% overall with 278 tests passing
 
 ### Docker Development
 - Use Docker Compose for local development environment

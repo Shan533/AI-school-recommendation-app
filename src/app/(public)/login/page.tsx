@@ -90,6 +90,10 @@ export default function LoginPage() {
               {isLoading ? 'Signing in...' : 'Continue with Google'}
             </Button>
             
+            <div className="text-xs text-center text-gray-500 bg-blue-50 p-2 rounded-md">
+              <p>Using Google? You can reset your password through your Google account settings.</p>
+            </div>
+            
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t" />
@@ -137,26 +141,34 @@ export default function LoginPage() {
               {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
-          <div className="mt-4 text-center text-sm space-y-2">
-            <div>
-              Don&apos;t have an account?{' '}
-              <Link 
-                href="/register" 
-                className="text-blue-600 hover:underline font-medium"
-              >
-                Sign up
-              </Link>
+                      <div className="mt-4 text-center text-sm space-y-2">
+              <div>
+                <Link 
+                  href="/forgot-password" 
+                  className="text-blue-600 hover:underline font-medium"
+                >
+                  Forgot your password?
+                </Link>
+              </div>
+              <div>
+                Don&apos;t have an account?{' '}
+                <Link 
+                  href="/register" 
+                  className="text-blue-600 hover:underline font-medium"
+                >
+                  Sign up
+                </Link>
+              </div>
+              <div>
+                Need to verify your email?{' '}
+                <Link 
+                  href="/auth/verify-email" 
+                  className="text-blue-600 hover:underline font-medium"
+                >
+                  Verify now
+                </Link>
+              </div>
             </div>
-            <div>
-              Need to verify your email?{' '}
-              <Link 
-                href="/auth/verify-email" 
-                className="text-blue-600 hover:underline font-medium"
-              >
-                Verify now
-              </Link>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>

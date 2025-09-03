@@ -1,34 +1,28 @@
----
-description: Testing patterns for Next.js 15 + Supabase
-alwaysApply: false
----
-# Testing Patterns for Next.js 15 + Supabase
+# Testing Patterns for Next.js 15 + Supabase (Vitest)
 
-## 🎯 Dual Testing Strategy (Recommended)
+## 🎯 **SOLUTION**: Unified Vitest Testing Strategy ✅
 
-### ✅ **SOLUTION**: Use Jest + Vitest Together
-**Jest**: Excellent for pure functions and schema validation
-**Vitest**: Perfect for Server Components and API routes
+**Status**: Successfully migrated from Jest to Vitest for all testing needs
+**Result**: Single testing environment with better Next.js 15 support
 
 ## 🛠️ Tool Selection Guide
 
-### Use Jest For:
+### ✅ **Vitest For Everything** (Current Implementation)
 - ✅ Pure utility functions (`validation.ts`, `utils.ts`)
-- ✅ Schema validation and database migrations
-- ✅ Simple component tests without Server Components
-- ✅ Established patterns that work well
-
-### Use Vitest For:
 - ✅ Server Components (`helpers.ts`, `auth-actions.ts`)
-- ✅ API route testing
+- ✅ API route testing (all admin and public APIs)
 - ✅ Next.js 15 modern features
 - ✅ ESM modules with complex dependencies
+- ✅ Schema validation and database migrations
+- ✅ React components and authentication flows
+
 
 ## 📋 Testing Patterns
 
-### Jest Pattern (Pure Functions)
+### Vitest Pattern (All Functions)
 ```typescript
 // Example: validation.test.ts
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { validateRange } from '@/lib/validation'
 
 describe('validateRange', () => {
@@ -111,17 +105,37 @@ describe('API Routes', () => {
 })
 ```
 
-## 🔧 Configuration Setup
+### Vitest Pattern (React Components)
+```typescript
+// Example: profile-actions.test.tsx
+import { vi, describe, it, expect, beforeEach } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
+import { ProfileActions } from '@/components/profile/profile-actions'
 
-### Jest Configuration (jest.config.cjs)
-```javascript
-testPathIgnorePatterns: [
-  '<rootDir>/__tests__/.*\\.skip\\.',    // Skip .skip.* files
-  '<rootDir>/__tests__/.*\\.vitest\\.'  // Skip .vitest.* files
-]
+// Mock dependencies
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn()
+  })
+}))
+
+describe('ProfileActions', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+  
+  it('should render change email and reset password buttons', () => {
+    render(<ProfileActions userEmail="test@example.com" />)
+    
+    expect(screen.getByText('Change Email')).toBeInTheDocument()
+    expect(screen.getByText('Reset Password')).toBeInTheDocument()
+  })
+})
 ```
 
-### Vitest Configuration (vitest.config.ts)
+## 🔧 Configuration Setup
+
+### Vitest Configuration (vitest.config.ts) ✅
 ```typescript
 export default defineConfig({
   plugins: [react()],
@@ -139,84 +153,50 @@ export default defineConfig({
 })
 ```
 
-## 📊 Current Project Status
+### Test Setup (test/setup.ts) ✅
+```typescript
+import { beforeAll, afterEach, afterAll } from 'vitest'
+import { cleanup } from '@testing-library/react'
+import '@testing-library/jest-dom'
 
-### Working Tests (175 total)
-- **Jest**: 65 tests passing
-  - ✅ `validation.ts` - 26 tests, 100% coverage
-  - ✅ `utils.ts` - 4 tests, 100% coverage  
-  - ✅ Schema validation - 35 tests
-- **Vitest**: 110 tests passing
-  - ✅ `auth-actions.ts` - 36 tests, 98.94% coverage
-  - ✅ `helpers.ts` - 20 tests, 100% coverage
-  - ✅ `schools-api` - 23 tests, 80-100% coverage
-  - ✅ Basic components - 31 tests
+beforeAll(() => {
+  // Setup any global test configurations
+})
 
-### Migration Candidates
-- ✅ `auth-actions.test.skip.ts` - Migrated to `auth-actions.vitest.ts`
-- ✅ `schools.test.skip.ts` - Migrated to `schools.vitest.ts`
-- `programs.test.skip.ts` - API routes (next to migrate to Vitest)
+afterEach(() => {
+  cleanup()
+})
+
+afterAll(() => {
+  // Cleanup global resources
+})
+```
 
 ## 🚀 Usage Commands
 
-### Jest (Pure Functions)
+### Vitest (All Testing)
 ```bash
-npm test                    # Run Jest tests
-npm run test:watch          # Jest watch mode
-npm run test:coverage       # Jest coverage
+npm test                    # Run all Vitest tests
+npm run test:watch         # Vitest watch mode
+npm run test:coverage      # Vitest coverage
+npm run test:ui            # Interactive UI
 ```
 
-### Vitest (Server Components)
+### Test Specific Files
 ```bash
-npm run test:vitest         # Run Vitest tests
-npm run test:vitest:watch   # Vitest watch mode
-npm run test:vitest:coverage # Vitest coverage
-npm run test:vitest:ui      # Interactive UI
+# Run specific test suites
+npm test __tests__/lib/auth-actions-password-reset.test.ts
+npm test __tests__/components/profile/profile-actions.test.tsx
+npm test __tests__/components/auth/forgot-password-form.test.tsx
+
+# Run with coverage for specific files
+npm run test:coverage __tests__/lib/auth-actions-password-reset.test.ts
 ```
-
-## 🎯 Testing Priorities
-
-### High Priority (Use Vitest)
-1. Server Components and authentication helpers ✅
-2. Server Actions (auth-actions.ts) ✅
-3. API route handlers (Schools API) ✅
-
-### Medium Priority (Use Jest)
-1. Pure utility functions ✅
-2. Validation schemas ✅
-3. Database schema tests ✅
 
 ### File Naming Convention
-- **Jest**: `*.test.ts` - Pure functions, schemas
-- **Vitest**: `*.vitest.ts` - Server Components, API routes
-- **Skip**: `*.skip.ts` - Problematic tests to be migrated
+- **All Tests**: `*.test.ts` or `*.test.tsx` (Vitest)
+- **Legacy**: `*.vitest.ts` (being standardized to `.test.ts`)
 
-## 💡 Migration Strategy
-
-### When to Migrate to Vitest
-1. Module resolution errors with Jest
-2. Server Component imports
-3. Next.js API route testing
-4. Modern ESM module dependencies
-
-### Migration Steps
-1. Copy test from `.skip.ts` file
-2. Replace Jest imports with Vitest
-3. Update mocking from `jest.mock()` to `vi.mock()`
-4. Use `vi.mocked()` for typed mocks
-5. Rename file to `.vitest.ts`
-6. Test and verify coverage
-
-## 📈 Success Metrics
-
-- **Coverage Improvement**: 
-  - helpers.ts: 0% → 100%
-  - auth-actions.ts: 0% → 98.94%
-  - Schools API: 0% → 80-100%
-- **Test Count**: 65 → 175 total tests
-- **Zero Conflicts**: Jest and Vitest run independently
-- **Modern Stack**: Ready for Next.js 15 features
-- **API Testing**: Comprehensive CRUD operation coverage
 
 ## 🔑 Key Learnings
 
@@ -233,7 +213,33 @@ npm run test:vitest:ui      # Interactive UI
 - Test error handling and edge cases
 - Use `NextRequest` for realistic request simulation
 
----
+### Vitest Mocking Strategy
+```typescript
+// Standard Vitest mocking pattern
+vi.mock('@/lib/supabase/server', () => ({
+  createClient: vi.fn()
+}))
 
-**Last Updated**: Aug 2025 - Schools API testing complete
-**Status**: ✅ Dual testing strategy + API testing patterns established
+vi.mock('next/headers', () => ({
+  cookies: vi.fn(),
+  headers: vi.fn()
+}))
+
+// Import after mocking
+import { createClient } from '@/lib/supabase/server'
+const mockCreateClient = vi.mocked(createClient)
+```
+
+### React Component Testing
+```typescript
+// Mock navigation and external dependencies
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn()
+  })
+}))
+
+// Test user interactions
+fireEvent.click(screen.getByText('Change Email'))
+expect(mockScrollIntoView).toHaveBeenCalled()
+```

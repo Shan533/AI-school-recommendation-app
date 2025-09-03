@@ -20,12 +20,12 @@ This directory contains comprehensive testing documentation for the AI School Re
 ## 🚀 Getting Started
 
 ### For Unit Test Implementation
-1. **Choose Testing Tool**: 
-   - **Jest**: Pure functions (`validation.ts`, `utils.ts`) ✅ 100% coverage
-   - **Vitest**: Server Components (`helpers.ts`) ✅ 100% coverage
+1. **Testing Tool**: **Vitest** (Unified testing environment) ✅
+   - All functions: Pure functions, Server Components, API routes
+   - 100% coverage for core modules, 90.15% overall coverage
 2. **Review Implementation Plan**: Start with [Testing Implementation Plan](./testing-implementation-plan.md) to understand priorities
-3. **Check Current Status**: 116 tests passing (65 Jest + 51 Vitest)
-4. **Run Coverage**: `npm run test:coverage` (Jest) or `npm run test:vitest:coverage` (Vitest)
+3. **Check Current Status**: 278 tests passing (all using Vitest)
+4. **Run Coverage**: `npm run test:coverage` (Vitest)
 
 ### For Manual Testing
 1. **Start with Core Setup**: Begin with [Core Setup Testing](./core-setup-testing.md) to verify your environment
@@ -46,14 +46,16 @@ This directory contains comprehensive testing documentation for the AI School Re
 ### Test Commands
 ```bash
 # Run all tests
-npm test && npm run test:vitest
+npm test
 
 # Coverage reports
-npm run test:coverage && npm run test:vitest:coverage
+npm run test:coverage
 
 # Watch mode for development
-npm run test:watch          # Jest
-npm run test:vitest:watch   # Vitest
+npm run test:watch
+
+# Interactive UI
+npm run test:ui
 ```
 
 ### Continuous Testing
