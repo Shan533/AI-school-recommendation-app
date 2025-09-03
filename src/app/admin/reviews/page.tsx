@@ -65,14 +65,11 @@ async function getAllReviews(searchTerm?: string) {
       `)
       .order('created_at', { ascending: false })
 
-    console.log('School reviews count:', schoolReviews?.length || 0)
-    console.log('Program reviews count:', programReviews?.length || 0)
-
     if (schoolError) {
-      console.error('School reviews error:', schoolError)
+      // Handle school reviews error silently
     }
     if (programError) {
-      console.error('Program reviews error:', programError)
+      // Handle program reviews error silently
     }
 
     const allReviews = [
@@ -81,7 +78,6 @@ async function getAllReviews(searchTerm?: string) {
     ]
 
     if (allReviews.length === 0) {
-      console.log('No reviews found in database')
       return []
     }
 
@@ -140,7 +136,6 @@ async function getAllReviews(searchTerm?: string) {
     let filteredReviews = reviewsWithDetails
     if (searchTerm && searchTerm.trim()) {
       const searchLower = searchTerm.trim().toLowerCase()
-      console.log('Applying search filter for:', searchLower)
       
       filteredReviews = reviewsWithDetails.filter(review => {
         // Search in comment (handle null/undefined)
@@ -173,26 +168,13 @@ async function getAllReviews(searchTerm?: string) {
         const matches = commentMatch || userNameMatch || schoolNameMatch || schoolInitialMatch || 
                        programNameMatch || programInitialMatch || programSchoolNameMatch || programSchoolInitialMatch
         
-        if (matches) {
-          console.log('Match found in review:', review.id, {
-            commentMatch: !!commentMatch,
-            userNameMatch: !!userNameMatch,
-            schoolNameMatch: !!schoolNameMatch,
-            schoolInitialMatch: !!schoolInitialMatch,
-            programNameMatch: !!programNameMatch,
-            programInitialMatch: !!programInitialMatch,
-            programSchoolNameMatch: !!programSchoolNameMatch,
-            programSchoolInitialMatch: !!programSchoolInitialMatch
-          })
-        }
+
         
         return matches
       })
     }
 
-    console.log('Total reviews with details:', reviewsWithDetails.length)
-    console.log('Filtered reviews:', filteredReviews.length)
-    console.log('Search term:', searchTerm)
+
     
     return filteredReviews
   } catch (error) {
@@ -210,8 +192,7 @@ async function getReviewStats() {
       supabase.from('program_reviews').select('id, rating')
     ])
 
-    console.log('School reviews stats:', schoolReviews.data?.length || 0)
-    console.log('Program reviews stats:', programReviews.data?.length || 0)
+
 
     const totalReviews = (schoolReviews.data?.length || 0) + (programReviews.data?.length || 0)
     const allRatings = [
@@ -242,26 +223,41 @@ async function getReviewStats() {
 async function deleteReview(formData: FormData) {
   'use server'
   
-  const reviewId = formData.get('reviewId') as string
-  const reviewType = formData.get('reviewType') as string
-  
-  if (!reviewId || !reviewType) {
-    return
+  try {
+    const reviewId = formData.get('reviewId') as string
+    const reviewType = formData.get('reviewType') as string
+    
+    if (!reviewId || !reviewType) {
+      throw new Error('Missing review ID or type')
+    }
+    
+    const supabaseAdmin = createAdminClient()
+    const tableName = reviewType === 'school' ? 'school_reviews' : 'program_reviews'
+    
+    // First check if review exists
+    const { data: existingReview, error: checkError } = await supabaseAdmin
+      .from(tableName)
+      .select('id')
+      .eq('id', reviewId)
+      .single()
+    
+    if (checkError || !existingReview) {
+      throw new Error('Review not found')
+    }
+    
+    const { error } = await supabaseAdmin
+      .from(tableName)
+      .delete()
+      .eq('id', reviewId)
+    
+    if (error) {
+      throw new Error(`Failed to delete review: ${error.message}`)
+    }
+    
+    return { success: true, message: 'Review deleted successfully' }
+  } catch (error) {
+    throw error
   }
-
-  const supabaseAdmin = createAdminClient()
-  const tableName = reviewType === 'school' ? 'school_reviews' : 'program_reviews'
-  
-  const { error } = await supabaseAdmin
-    .from(tableName)
-    .delete()
-    .eq('id', reviewId)
-  
-  if (error) {
-    console.error('Error deleting review:', error)
-  }
-  
-  redirect('/admin/reviews')
 }
 
 export default async function AdminReviewsPage({
