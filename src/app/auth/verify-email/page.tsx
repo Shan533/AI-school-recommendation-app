@@ -10,6 +10,7 @@ import Link from 'next/link'
 
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 
 export default function VerifyEmailPage() {
   const [email, setEmail] = useState('')

@@ -1,6 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Force dynamic rendering for auth pages to avoid build-time Supabase client issues
+  experimental: {
+    ppr: false,
+  },
+  // Disable static generation for problematic pages
+  trailingSlash: false,
+  // Disable static generation for auth pages
+  output: 'standalone',
   webpack: (config, { isServer }) => {
     // Suppress Supabase Edge Runtime warnings
     if (!isServer) {
