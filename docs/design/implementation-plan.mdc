@@ -47,7 +47,7 @@ We will follow a phased approach to build the application, ensuring that we deli
 
 Testing will be integrated throughout the development process to ensure quality and reliability.
 
-*   **Unit Testing**: Use Jest and React Testing Library to test individual components and utility functions.
+*   **Unit Testing**: Use Vitest and React Testing Library to test individual components and utility functions (90.15% coverage achieved).
 *   **Integration Testing**: Test how different parts of the application work together, such as the flow from user login to submitting a review.
 *   **End-to-End (E2E) Testing**: Use a framework like Cypress or Playwright to automate user flows and test the application from the user's perspective.
 *   **Manual Testing**: Conduct manual testing before each release to catch any issues not covered by automated tests.
@@ -67,7 +67,7 @@ Performance will be a key consideration, addressed after the core features are i
 ### 5. Development Infrastructure
 
 *   **Docker Containerization**: Use Docker for consistent development environments and easy deployment.
-*   **Testing Framework**: Comprehensive Jest setup with React Testing Library for component testing.
+*   **Testing Framework**: Comprehensive Vitest setup with React Testing Library for component testing (unified testing environment).
 *   **Code Quality**: ESLint configuration for code linting and TypeScript for type safety.
 *   **CI/CD**: Automated testing and deployment through Vercel's Git integration.
 

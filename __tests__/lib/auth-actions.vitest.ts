@@ -36,7 +36,8 @@ import {
   logoutAction,
   signInWithGoogleAction,
   resendEmailVerification,
-  type AuthResult
+  type AuthResult,
+  updateUsernameAction
 } from '@/lib/auth-actions'
 import { createClient } from '@/lib/supabase/server'
 import { cookies, headers } from 'next/headers'
@@ -645,6 +646,263 @@ describe('Authentication Validation Schemas', () => {
 
       expect(result.success).toBe(false)
       expect(result.error).toContain('letters, numbers, and underscores')
+    })
+  })
+})
+
+describe('Username Update Actions', () => {
+  describe('updateUsernameAction', () => {
+    it('should update username successfully with valid data', async () => {
+      const mockFormData = new FormData()
+      mockFormData.append('username', 'newusername')
+
+      const mockUser = { id: 'user-123', email: 'test@example.com' }
+      const mockProfile = { id: 'user-123', name: 'oldusername', is_admin: false }
+
+      // Mock Supabase client with proper chaining
+      const mockSupabase = {
+        auth: {
+          getUser: vi.fn().mockResolvedValue({
+            data: { user: mockUser },
+            error: null
+          })
+        },
+        from: vi.fn().mockImplementation((table) => {
+          if (table === 'profiles') {
+            return {
+              select: vi.fn().mockReturnValue({
+                eq: vi.fn().mockReturnValue({
+                  single: vi.fn().mockResolvedValue({
+                    data: mockProfile,
+                    error: null
+                  }),
+                  neq: vi.fn().mockReturnValue({
+                    single: vi.fn().mockResolvedValue({
+                      data: null,
+                      error: { code: 'PGRST116' } // No rows returned
+                    })
+                  })
+                })
+              }),
+              update: vi.fn().mockReturnValue({
+                eq: vi.fn().mockReturnValue({
+                  select: vi.fn().mockResolvedValue({
+                    data: [{ ...mockProfile, name: 'newusername' }],
+                    error: null
+                  })
+                })
+              })
+            }
+          }
+          return {}
+        })
+      }
+
+      vi.mocked(createClient).mockReturnValue(mockSupabase as any)
+
+      const result = await updateUsernameAction(mockFormData)
+
+      expect(result.success).toBe(true)
+      expect(result.error).toBe('Username updated successfully!')
+      expect(mockSupabase.auth.getUser).toHaveBeenCalled()
+      expect(mockSupabase.from).toHaveBeenCalledWith('profiles')
+    })
+
+    it('should handle validation errors', async () => {
+      const mockFormData = new FormData()
+      mockFormData.append('username', 'ab') // Too short
+
+      const result = await updateUsernameAction(mockFormData)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Username must be at least 3 characters')
+    })
+
+    it('should handle invalid username format', async () => {
+      const mockFormData = new FormData()
+      mockFormData.append('username', 'user@name') // Contains special character
+
+      const result = await updateUsernameAction(mockFormData)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Username can only contain letters, numbers, and underscores')
+    })
+
+    it('should handle user authentication errors', async () => {
+      const mockFormData = new FormData()
+      mockFormData.append('username', 'newusername')
+
+      const mockSupabase = {
+        auth: {
+          getUser: vi.fn().mockResolvedValue({
+            data: { user: null },
+            error: { message: 'Authentication failed' }
+          })
+        }
+      }
+
+      vi.mocked(createClient).mockReturnValue(mockSupabase as any)
+
+      const result = await updateUsernameAction(mockFormData)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('User not authenticated')
+    })
+
+    it('should handle profile not found errors', async () => {
+      const mockFormData = new FormData()
+      mockFormData.append('username', 'newusername')
+
+      const mockUser = { id: 'user-123', email: 'test@example.com' }
+
+      const mockSupabase = {
+        auth: {
+          getUser: vi.fn().mockResolvedValue({
+            data: { user: mockUser },
+            error: null
+          })
+        },
+        from: vi.fn().mockReturnValue({
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
+                data: null,
+                error: { message: 'Profile not found' }
+              })
+            })
+          })
+        })
+      }
+
+      vi.mocked(createClient).mockReturnValue(mockSupabase as any)
+
+      const result = await updateUsernameAction(mockFormData)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Profile not found')
+    })
+
+    it('should handle username already taken errors', async () => {
+      const mockFormData = new FormData()
+      mockFormData.append('username', 'existinguser')
+
+      const mockUser = { id: 'user-123', email: 'test@example.com' }
+      const mockProfile = { id: 'user-123', name: 'oldusername', is_admin: false }
+      const existingUser = { name: 'existinguser' }
+
+      // Mock Supabase client with proper chaining
+      const mockSupabase = {
+        auth: {
+          getUser: vi.fn().mockResolvedValue({
+            data: { user: mockUser },
+            error: null
+          })
+        },
+        from: vi.fn().mockImplementation((table) => {
+          if (table === 'profiles') {
+            return {
+              select: vi.fn().mockReturnValue({
+                eq: vi.fn().mockReturnValue({
+                  single: vi.fn().mockResolvedValue({
+                    data: mockProfile,
+                    error: null
+                  }),
+                  neq: vi.fn().mockReturnValue({
+                    single: vi.fn().mockResolvedValue({
+                      data: existingUser,
+                      error: null
+                    })
+                  })
+                })
+              }),
+              update: vi.fn().mockReturnValue({
+                eq: vi.fn().mockReturnValue({
+                  select: vi.fn().mockResolvedValue({
+                    data: null,
+                    error: { message: 'Update failed' }
+                  })
+                })
+              })
+            }
+          }
+          return {}
+        })
+      }
+
+      vi.mocked(createClient).mockReturnValue(mockSupabase as any)
+
+      const result = await updateUsernameAction(mockFormData)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Username already taken')
+    })
+
+    it('should handle database update errors', async () => {
+      const mockFormData = new FormData()
+      mockFormData.append('username', 'newusername')
+
+      const mockUser = { id: 'user-123', email: 'test@example.com' }
+      const mockProfile = { id: 'user-123', name: 'oldusername', is_admin: false }
+
+      // Mock Supabase client with proper chaining
+      const mockSupabase = {
+        auth: {
+          getUser: vi.fn().mockResolvedValue({
+            data: { user: mockUser },
+            error: null
+          })
+        },
+        from: vi.fn().mockImplementation((table) => {
+          if (table === 'profiles') {
+            return {
+              select: vi.fn().mockReturnValue({
+                eq: vi.fn().mockReturnValue({
+                  single: vi.fn().mockResolvedValue({
+                    data: mockProfile,
+                    error: null
+                  }),
+                  neq: vi.fn().mockReturnValue({
+                    single: vi.fn().mockResolvedValue({
+                      data: null,
+                      error: { code: 'PGRST116' } // No rows returned
+                    })
+                  })
+                })
+              }),
+              update: vi.fn().mockReturnValue({
+                eq: vi.fn().mockReturnValue({
+                  select: vi.fn().mockResolvedValue({
+                    data: null,
+                    error: { message: 'Update failed' }
+                  })
+                })
+              })
+            }
+          }
+          return {}
+        })
+      }
+
+      vi.mocked(createClient).mockReturnValue(mockSupabase as any)
+
+      const result = await updateUsernameAction(mockFormData)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Update failed')
+    })
+
+    it('should handle unexpected errors', async () => {
+      const mockFormData = new FormData()
+      mockFormData.append('username', 'newusername')
+
+      vi.mocked(createClient).mockImplementation(() => {
+        throw new Error('Unexpected error')
+      })
+
+      const result = await updateUsernameAction(mockFormData)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('An unexpected error occurred')
     })
   })
 })

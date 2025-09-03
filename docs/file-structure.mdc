@@ -40,15 +40,32 @@ AI_school_recommend_app/
 │           └── user-reviews-testing.md
 ├── __tests__/
 │   ├── api/
-│   │   └── admin/
-│   │       ├── programs.test.ts
-│   │       └── schools.test.ts
+│   │   ├── admin/
+│   │   │   ├── programs.vitest.ts
+│   │   │   ├── reviews.vitest.ts
+│   │   │   ├── schools.vitest.ts
+│   │   │   └── users.vitest.ts
+│   │   ├── auth/
+│   │   │   └── logout.vitest.ts
+│   │   └── reviews/
+│   │       ├── program.vitest.ts
+│   │       └── school.vitest.ts
+│   ├── components/
+│   │   ├── auth/
+│   │   │   ├── forgot-password-form.test.tsx
+│   │   │   └── update-email-form.test.tsx
+│   │   └── profile/
+│   │       ├── change-username-form.test.tsx
+│   │       ├── profile-actions.test.tsx
+│   │       └── reset-password-button.test.tsx
 │   ├── home.test.tsx
 │   ├── lib/
 │   │   ├── admin-search.test.ts
-│   │   ├── auth-actions.test.ts
+│   │   ├── auth-actions-password-reset.test.ts
 │   │   ├── supabase/
-│   │   │   └── helpers.test.ts
+│   │   │   ├── client.vitest.ts
+│   │   │   ├── helpers.vitest.ts
+│   │   │   └── server.vitest.ts
 │   │   ├── utils.test.ts
 │   │   └── validation.test.ts
 │   ├── run-schema-tests.sh
@@ -184,7 +201,14 @@ AI_school_recommend_app/
 │   │   │   ├── programs-management.tsx
 │   │   │   ├── schools-management.tsx
 │   │   │   └── user-management.tsx
+│   │   ├── auth/
+│   │   │   ├── forgot-password-form.tsx
+│   │   │   └── update-email-form.tsx
 │   │   ├── navigation.tsx
+│   │   ├── profile/
+│   │   │   ├── change-username-form.tsx
+│   │   │   ├── profile-actions.tsx
+│   │   │   └── profile-content.tsx
 │   │   ├── review-form.tsx
 │   │   ├── reviews-list.tsx
 │   │   └── ui/
@@ -226,8 +250,9 @@ AI_school_recommend_app/
 │   └── setup.ts
 ├── components.json
 ├── eslint.config.mjs
-├── jest.config.cjs
-├── jest.setup.ts
+├── vitest.config.ts
+├── test/
+│   └── setup.ts
 ├── next.config.ts
 ├── package-lock.json
 ├── package.json
@@ -282,13 +307,15 @@ AI_school_recommend_app/
 
   - **`src/components/`**: Reusable React components.
     - **`admin/`**: Admin-specific components for data management and review moderation.
+    - **`auth/`**: Authentication-related components for password reset and email updates.
+    - **`profile/`**: User profile management components for username editing and profile display.
     - **`ui/`**: shadcn/ui components and custom UI elements.
 
   - **`src/lib/`**: Libraries, helpers, and utility functions.
     - **`admin-search.ts`**: Advanced search functionality with intelligent ranking.
     - **`supabase/`**: Supabase client and server configurations.
-    - **`auth-actions.ts`**: Authentication server actions.
-    - **`validation.ts`**: Zod validation schemas.
+    - **`auth-actions.ts`**: Authentication server actions including username updates and email management.
+    - **`validation.ts`**: Zod validation schemas for forms and data validation.
 
 ### Database & Configuration
 
@@ -297,7 +324,7 @@ AI_school_recommend_app/
 
 - **`test/`**: Test setup and configuration files.
 
-- **Root Configuration Files**: Jest configuration, Next.js config, TypeScript config, Python requirements, and other project setup files.
+- **Root Configuration Files**: Vitest configuration, Next.js config, TypeScript config, Python requirements, and other project setup files.
 
 
 
@@ -311,5 +338,7 @@ AI_school_recommend_app/
 6. **Public Pages**: Browse schools and programs with review submission
 7. **Web Crawler**: Python-based system for automated data collection
 8. **Responsive Design**: Mobile-first approach with Tailwind CSS
-9. **Testing Infrastructure**: Jest with React Testing Library and Vitest
+9. **Testing Infrastructure**: Vitest with React Testing Library (unified testing environment)
 10. **Docker Support**: Containerized development environment
+11. **User Profile Management**: Username editing, email updates, and password reset functionality
+12. **Profile Components**: Interactive profile management with responsive design

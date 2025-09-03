@@ -239,3 +239,225 @@ export async function logoutAction(): Promise<void> {
   await supabase.auth.signOut()
   redirect('/')
 }
+
+// Password reset validation schema
+const resetPasswordSchema = z.object({
+  email: z.string().email('Invalid email address'),
+})
+
+// Email update validation schema
+const updateEmailSchema = z.object({
+  email: z.string().email('Invalid email address'),
+})
+
+export async function resetPasswordAction(formData: FormData): Promise<AuthResult> {
+  try {
+    const rawFormData = {
+      email: formData.get('email') as string,
+    }
+
+    // Validate form data
+    const validatedFields = resetPasswordSchema.safeParse(rawFormData)
+    if (!validatedFields.success) {
+      return {
+        success: false,
+        error: validatedFields.error.issues[0]?.message || 'Invalid input',
+      }
+    }
+
+    const { email } = validatedFields.data
+    const cookieStore = await cookies()
+    const supabase = createClient(cookieStore)
+
+    // Send password reset email
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/reset-password`,
+    })
+
+    if (error) {
+      return {
+        success: false,
+        error: error.message,
+      }
+    }
+
+    return {
+      success: true,
+      error: 'Password reset link sent! Check your email.',
+    }
+  } catch (error) {
+    console.error('Password reset error:', error)
+    return {
+      success: false,
+      error: 'An unexpected error occurred',
+    }
+  }
+}
+
+export async function updateEmailAction(formData: FormData): Promise<AuthResult> {
+  try {
+    const rawFormData = {
+      email: formData.get('email') as string,
+    }
+
+    // Validate form data
+    const validatedFields = updateEmailSchema.safeParse(rawFormData)
+    if (!validatedFields.success) {
+      return {
+        success: false,
+        error: validatedFields.error.issues[0]?.message || 'Invalid input',
+      }
+    }
+
+    const { email } = validatedFields.data
+    const cookieStore = await cookies()
+    const supabase = createClient(cookieStore)
+
+    // Update user email
+    const { error } = await supabase.auth.updateUser({
+      email,
+    })
+
+    if (error) {
+      return {
+        success: false,
+        error: error.message,
+      }
+    }
+
+    return {
+      success: true,
+      error: 'Email update initiated! Check your new email for confirmation.',
+    }
+  } catch (error) {
+    console.error('Email update error:', error)
+    return {
+      success: false,
+      error: 'An unexpected error occurred',
+    }
+  }
+}
+
+// Username update validation schema
+const updateUsernameSchema = z.object({
+  username: z.string()
+    .min(3, 'Username must be at least 3 characters')
+    .regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores')
+    .refine(val => !val.includes(' '), 'Username cannot contain spaces'),
+})
+
+export async function updateUsernameAction(formData: FormData): Promise<AuthResult> {
+  try {
+    const rawFormData = {
+      username: formData.get('username') as string,
+    }
+
+    // Validate form data
+    const validatedFields = updateUsernameSchema.safeParse(rawFormData)
+    if (!validatedFields.success) {
+      return {
+        success: false,
+        error: validatedFields.error.issues[0]?.message || 'Invalid input',
+      }
+    }
+
+    const { username } = validatedFields.data
+    const cookieStore = await cookies()
+    const supabase = createClient(cookieStore)
+
+    // Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) {
+      console.error('User authentication error:', userError)
+      return {
+        success: false,
+        error: 'User not authenticated',
+      }
+    }
+    
+    console.log('Current user ID:', user.id)
+    console.log('Attempting to update username to:', username)
+    
+    // Check if profile exists
+    const { data: existingProfile, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+    
+    if (profileError) {
+      console.error('Profile fetch error:', profileError)
+      return {
+        success: false,
+        error: 'Profile not found',
+      }
+    }
+    
+    if (!existingProfile) {
+      console.error('Profile not found for user:', user.id)
+      return {
+        success: false,
+        error: 'Profile not found',
+      }
+    }
+    
+    console.log('Existing profile:', existingProfile)
+
+    // Check if username is already taken
+    console.log('Checking if username is already taken...')
+    const { data: existingUser, error: checkError } = await supabase
+      .from('profiles')
+      .select('name')
+      .eq('name', username)
+      .neq('id', user.id)
+      .single()
+
+    if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows returned
+      console.error('Username availability check error:', checkError)
+      return {
+        success: false,
+        error: 'Failed to check username availability',
+      }
+    }
+
+    if (existingUser) {
+      console.log('Username already taken by:', existingUser)
+      return {
+        success: false,
+        error: 'Username already taken',
+      }
+    }
+    
+    console.log('Username is available')
+
+    // Update username in profiles table
+    console.log('Updating username in profiles table...')
+    const { data: updateResult, error: updateError } = await supabase
+      .from('profiles')
+      .update({ name: username })
+      .eq('id', user.id)
+      .select()
+
+    if (updateError) {
+      console.error('Update error:', updateError)
+      return {
+        success: false,
+        error: updateError.message,
+      }
+    }
+    
+    console.log('Update result:', updateResult)
+    console.log('Username updated successfully')
+
+    return {
+      success: true,
+      error: 'Username updated successfully!',
+    }
+  } catch (error) {
+    console.error('Username update error:', error)
+    return {
+      success: false,
+      error: 'An unexpected error occurred',
+    }
+  }
+}
