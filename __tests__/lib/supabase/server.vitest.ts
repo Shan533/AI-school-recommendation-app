@@ -61,43 +61,115 @@ describe('Supabase Server Configuration', () => {
     process.env = originalEnv
   })
 
-  describe('createClient', () => {
-    it('should create server client with correct configuration', () => {
-      // Set up environment variables
-      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key'
+           describe('createClient', () => {
+           it('should create server client with correct configuration', () => {
+             // Set up environment variables
+             process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key'
 
-      // Mock the createServerClient to return a mock client
-      const mockClient = { auth: {}, from: vi.fn() }
-      mockCreateServerClient.mockReturnValue(mockClient as any)
+             // Mock the createServerClient to return a mock client
+             const mockClient = { auth: {}, from: vi.fn() }
+             mockCreateServerClient.mockReturnValue(mockClient as any)
 
-      // Mock cookie store
-      const mockCookieStore = {
-        get: vi.fn(),
-        set: vi.fn(),
-        delete: vi.fn()
-      }
-      mockCookies.mockReturnValue(mockCookieStore as any)
+             // Mock cookie store
+             const mockCookieStore = {
+               get: vi.fn(),
+               set: vi.fn(),
+               delete: vi.fn()
+             }
+             mockCookies.mockReturnValue(mockCookieStore as any)
 
-      const result = createClient(mockCookieStore)
+             const result = createClient(mockCookieStore)
 
-      // Verify createServerClient was called with correct parameters
-      expect(mockCreateServerClient).toHaveBeenCalledTimes(1)
-      expect(mockCreateServerClient).toHaveBeenCalledWith(
-        'https://test.supabase.co',
-        'test-anon-key',
-        {
-          cookies: {
-            get: expect.any(Function),
-            set: expect.any(Function),
-            remove: expect.any(Function)
-          }
-        }
-      )
+             // Verify createServerClient was called with correct parameters
+             expect(mockCreateServerClient).toHaveBeenCalledTimes(1)
+             expect(mockCreateServerClient).toHaveBeenCalledWith(
+               'https://test.supabase.co',
+               'test-anon-key',
+               {
+                 cookies: {
+                   get: expect.any(Function),
+                   set: expect.any(Function),
+                   remove: expect.any(Function)
+                 }
+               }
+             )
 
-      // Verify the result
-      expect(result).toBe(mockClient)
-    })
+             // Verify the result
+             expect(result).toBe(mockClient)
+           })
+
+           it('should handle cookie set errors gracefully (Server Component)', () => {
+             // Set up environment variables
+             process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key'
+
+             // Mock the createServerClient to return a mock client
+             const mockClient = { auth: {}, from: vi.fn() }
+             mockCreateServerClient.mockReturnValue(mockClient as any)
+
+             // Mock cookie store that throws error on set
+             const mockCookieStore = {
+               get: vi.fn(),
+               set: vi.fn().mockImplementation(() => {
+                 throw new Error('Server Component set error')
+               }),
+               delete: vi.fn()
+             }
+             mockCookies.mockReturnValue(mockCookieStore as any)
+
+             const result = createClient(mockCookieStore)
+
+             // Verify createServerClient was called
+             expect(mockCreateServerClient).toHaveBeenCalledTimes(1)
+
+             // Get the cookies configuration that was passed
+             const cookiesConfig = mockCreateServerClient.mock.calls[0][2]?.cookies
+             expect(cookiesConfig).toBeDefined()
+
+             // Test the set function - should not throw error
+             if (cookiesConfig?.set) {
+               expect(() => cookiesConfig.set('test-cookie', 'test-value', {})).not.toThrow()
+             }
+
+             expect(result).toBe(mockClient)
+           })
+
+           it('should handle cookie remove errors gracefully (Server Component)', () => {
+             // Set up environment variables
+             process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key'
+
+             // Mock the createServerClient to return a mock client
+             const mockClient = { auth: {}, from: vi.fn() }
+             mockCreateServerClient.mockReturnValue(mockClient as any)
+
+             // Mock cookie store that throws error on delete
+             const mockCookieStore = {
+               get: vi.fn(),
+               set: vi.fn(),
+               delete: vi.fn().mockImplementation(() => {
+                 throw new Error('Server Component delete error')
+               })
+             }
+             mockCookies.mockReturnValue(mockCookieStore as any)
+
+             const result = createClient(mockCookieStore)
+
+             // Verify createServerClient was called
+             expect(mockCreateServerClient).toHaveBeenCalledTimes(1)
+
+             // Get the cookies configuration that was passed
+             const cookiesConfig = mockCreateServerClient.mock.calls[0][2]?.cookies
+             expect(cookiesConfig).toBeDefined()
+
+             // Test the remove function - should not throw error
+             if (cookiesConfig?.remove) {
+               expect(() => cookiesConfig.remove('test-cookie', {})).not.toThrow()
+             }
+
+             expect(result).toBe(mockClient)
+           })
 
     it('should handle missing environment variables gracefully', () => {
       // Remove environment variables
@@ -290,6 +362,45 @@ describe('Supabase Server Configuration', () => {
 
       // Verify createSupabaseClient was called twice
       expect(mockCreateSupabaseClient).toHaveBeenCalledTimes(2)
+    })
+
+    it('should execute cookie remove function successfully', async () => {
+      // Set up environment variables
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key'
+
+      // Mock the createServerClient to return a mock client
+      const mockClient = { auth: {}, from: vi.fn() }
+      mockCreateServerClient.mockReturnValue(mockClient as any)
+
+      // Mock cookie store with working set method
+      const mockCookieStore = {
+        get: vi.fn(),
+        set: vi.fn(),
+        delete: vi.fn()
+      }
+      mockCookies.mockReturnValue(mockCookieStore as any)
+
+      const result = createClient(mockCookieStore)
+
+      // Verify createServerClient was called
+      expect(mockCreateServerClient).toHaveBeenCalledTimes(1)
+
+      // Get the cookies configuration that was passed
+      const cookiesConfig = mockCreateServerClient.mock.calls[0][2]?.cookies
+      expect(cookiesConfig).toBeDefined()
+
+      // Test the remove function - should call set with empty value
+      if (cookiesConfig?.remove) {
+        cookiesConfig.remove('test-cookie', { path: '/' })
+        expect(mockCookieStore.set).toHaveBeenCalledWith({
+          name: 'test-cookie',
+          value: '',
+          path: '/'
+        })
+      }
+
+      expect(result).toBe(mockClient)
     })
   })
 })

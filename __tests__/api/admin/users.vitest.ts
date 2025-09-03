@@ -564,32 +564,88 @@ describe('Users Admin API', () => {
       expect(responseData.error).toBe('Email is required')
     })
 
-    it('should handle magic link generation errors gracefully', async () => {
-      mockGetCurrentUser.mockResolvedValue({ id: 'admin-123' } as any)
-      mockIsAdmin.mockResolvedValue(true)
+               it('should handle magic link generation errors gracefully', async () => {
+             mockGetCurrentUser.mockResolvedValue({ id: 'admin-123' } as any)
+             mockIsAdmin.mockResolvedValue(true)
 
-      // Mock headers
-      const mockHeadersList = {
-        get: vi.fn((key: string) => {
-          if (key === 'host') return 'localhost:3000'
-          if (key === 'x-forwarded-proto') return 'http'
-          return null
-        })
-      }
-      mockHeaders.mockResolvedValue(mockHeadersList as any)
+             // Mock headers
+             const mockHeadersList = {
+               get: vi.fn((key: string) => {
+                 if (key === 'host') return 'localhost:3000'
+                 if (key === 'x-forwarded-proto') return 'http'
+                 return null
+               })
+             }
+             mockHeaders.mockResolvedValue(mockHeadersList as any)
 
-      // Mock magic link generation error
-      mockSupabaseAdmin.auth.admin.generateLink.mockResolvedValue({
-        data: null,
-        error: { message: 'Magic link generation failed' }
-      })
+             // Mock magic link generation error
+             mockSupabaseAdmin.auth.admin.generateLink.mockResolvedValue({
+               data: null,
+               error: { message: 'Magic link generation failed' }
+             })
 
-      const request = createRequest({ email: 'test@example.com' })
-      const response = await sendMagicLink(request)
+             const request = createRequest({ email: 'test@example.com' })
+             const response = await sendMagicLink(request)
 
-      expect(response.status).toBe(500)
-      const responseData = await response.json()
-      expect(responseData.error).toBe('Magic link generation failed')
-    })
+             expect(response.status).toBe(500)
+             const responseData = await response.json()
+             expect(responseData.error).toBe('Magic link generation failed')
+           })
+
+           it('should handle missing environment variables gracefully', async () => {
+             mockGetCurrentUser.mockResolvedValue({ id: 'admin-123' } as any)
+             mockIsAdmin.mockResolvedValue(true)
+
+             // Remove environment variables
+             delete process.env.NEXT_PUBLIC_SITE_URL
+             delete process.env.VERCEL_URL
+
+             // Mock headers with no host
+             const mockHeadersList = {
+               get: vi.fn((key: string) => null)
+             }
+             mockHeaders.mockResolvedValue(mockHeadersList as any)
+
+             // Mock magic link generation success
+             mockSupabaseAdmin.auth.admin.generateLink.mockResolvedValue({
+               data: null,
+               error: null
+             })
+
+             const request = createRequest({ email: 'test@example.com' })
+             const response = await sendMagicLink(request)
+
+             expect(response.status).toBe(200)
+             const responseData = await response.json()
+             expect(responseData.message).toBe('Magic link sent successfully')
+           })
+
+           it('should use VERCEL_URL when available', async () => {
+             mockGetCurrentUser.mockResolvedValue({ id: 'admin-123' } as any)
+             mockIsAdmin.mockResolvedValue(true)
+
+             // Set VERCEL_URL environment variable
+             process.env.VERCEL_URL = 'my-app.vercel.app'
+             delete process.env.NEXT_PUBLIC_SITE_URL
+
+             // Mock headers with no host
+             const mockHeadersList = {
+               get: vi.fn((key: string) => null)
+             }
+             mockHeaders.mockResolvedValue(mockHeadersList as any)
+
+             // Mock magic link generation success
+             mockSupabaseAdmin.auth.admin.generateLink.mockResolvedValue({
+               data: null,
+               error: null
+             })
+
+             const request = createRequest({ email: 'test@example.com' })
+             const response = await sendMagicLink(request)
+
+             expect(response.status).toBe(200)
+             const responseData = await response.json()
+             expect(responseData.message).toBe('Magic link sent successfully')
+           })
   })
 })

@@ -68,5 +68,17 @@ describe('Auth Logout API', () => {
       await expect(POST(request)).rejects.toThrow('NEXT_REDIRECT')
       expect(mockLogoutAction).toHaveBeenCalledTimes(1)
     })
+
+    it('should handle successful logoutAction completion', async () => {
+      // Mock logoutAction to complete successfully
+      mockLogoutAction.mockResolvedValue(undefined)
+
+      const request = createRequest()
+
+      // Should complete without throwing
+      await expect(POST(request)).resolves.toBeUndefined()
+      expect(mockLogoutAction).toHaveBeenCalledTimes(1)
+      expect(mockLogoutAction).toHaveBeenCalledWith()
+    })
   })
 })
