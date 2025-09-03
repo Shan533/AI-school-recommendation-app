@@ -41,7 +41,7 @@ jobs:
 
       - name: Coverage Comment
         uses: MishaKav/jest-coverage-comment@v1
-        if: github.event_name == 'pull_request' && success()
+        if: github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork && success()
         with:
           coverage-summary-path: ./coverage/coverage-summary.json
           title: 📊 Code Coverage Report
@@ -50,3 +50,69 @@ jobs:
           create-new-comment: false
           hide-summary: false
           coverage-path-prefix: src/
+
+  preview-deploy:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    needs: ci
+    environment:
+      name: Preview
+      url: ${{ steps.deploy.outputs.preview_url }}
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Vercel Deploy (Preview)
+        id: deploy
+        run: |
+          npm i -g vercel
+          URL=$(vercel --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} --confirm --prod=false --cwd .)
+          echo "preview_url=${URL}" >> $GITHUB_OUTPUT
+
+  production-deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: ci
+    environment:
+      name: Production
+      url: ${{ steps.deploy.outputs.prod_url }}
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Vercel Deploy (Production)
+        id: deploy
+        run: |
+          npm i -g vercel
+          URL=$(vercel --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} --confirm --prod --cwd .)
+          echo "prod_url=${URL}" >> $GITHUB_OUTPUT
