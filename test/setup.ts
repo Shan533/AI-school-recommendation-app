@@ -1,36 +1,23 @@
+/**
+ * Vitest setup file
+ * Configures testing environment for Next.js 15 + Supabase
+ */
+
+import { beforeAll, afterEach, afterAll } from 'vitest'
+import { cleanup } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import { vi } from 'vitest'
-
-// Mock Next.js router
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({
-    push: vi.fn(),
-    replace: vi.fn(),
-    prefetch: vi.fn(),
-    back: vi.fn(),
-    forward: vi.fn(),
-    refresh: vi.fn(),
-  }),
-  useSearchParams: () => new URLSearchParams(),
-  usePathname: () => '/',
-}))
-
-// Mock Next.js headers
-vi.mock('next/headers', () => ({
-  cookies: vi.fn(() => ({
-    get: vi.fn(),
-    set: vi.fn(),
-    delete: vi.fn(),
-  })),
-  headers: vi.fn(() => ({
-    get: vi.fn(),
-    set: vi.fn(),
-    append: vi.fn(),
-    delete: vi.fn(),
-  })),
-}))
 
 // Global test setup
-beforeEach(() => {
-  vi.clearAllMocks()
+beforeAll(() => {
+  // Setup any global test configurations
 })
+
+// Cleanup after each test
+afterEach(() => {
+  cleanup()
+})
+// Cleanup after all tests
+afterAll(() => {
+  // Cleanup global resources
+})
+

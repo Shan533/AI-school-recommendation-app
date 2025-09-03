@@ -34,7 +34,7 @@ export default defineConfig({
         'src/app/globals.css',                   // Exclude global CSS
         'src/middleware.ts',                     // Middleware is hard to test in isolation
       ],
-      reporter: ['text', 'json', 'json-summary', 'html']
+      reporter: ['text', 'json-summary', 'html']
     }
   },
   resolve: {

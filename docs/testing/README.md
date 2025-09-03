@@ -20,10 +20,12 @@ This directory contains comprehensive testing documentation for the AI School Re
 ## 🚀 Getting Started
 
 ### For Unit Test Implementation
-1. **Review Implementation Plan**: Start with [Testing Implementation Plan](./testing-implementation-plan.md) to understand priorities
-2. **Begin with HIGH Priority**: Implement `validation.test.ts` first for immediate coverage boost
-3. **Follow the Roadmap**: Work through HIGH → MEDIUM → LOW priority tests
-4. **Check Coverage**: Run `npm run test:coverage` after each implementation
+1. **Choose Testing Tool**: 
+   - **Jest**: Pure functions (`validation.ts`, `utils.ts`) ✅ 100% coverage
+   - **Vitest**: Server Components (`helpers.ts`) ✅ 100% coverage
+2. **Review Implementation Plan**: Start with [Testing Implementation Plan](./testing-implementation-plan.md) to understand priorities
+3. **Check Current Status**: 116 tests passing (65 Jest + 51 Vitest)
+4. **Run Coverage**: `npm run test:coverage` (Jest) or `npm run test:vitest:coverage` (Vitest)
 
 ### For Manual Testing
 1. **Start with Core Setup**: Begin with [Core Setup Testing](./core-setup-testing.md) to verify your environment
@@ -33,85 +35,86 @@ This directory contains comprehensive testing documentation for the AI School Re
 
 ## 📊 Testing Workflow
 
-### Before Development
-1. Review relevant feature testing guide
-2. Set up test environment with Docker
-3. Run existing tests to ensure clean state
+### Before Each Release
+1. Run all unit tests: `npm test && npm run test:vitest`
+2. Test all CRUD operations
+3. Verify CSV upload functionality
+4. Test public pages on multiple devices
+5. Check error handling scenarios
+6. Validate mobile responsiveness
 
-### During Development
-1. Write tests alongside feature implementation
-2. Follow TDD principles where applicable
-3. Ensure all new code has appropriate test coverage
-
-### Before Deployment
-1. Run complete test suite
-2. Execute manual testing checklist
-3. Verify database migrations in test environment
-4. Performance testing for critical paths
-
-## 🔧 Test Environment Setup
-
-### Prerequisites
-- Docker and Docker Compose
-- Node.js 18+ and npm
-- Supabase CLI (for database testing)
-
-### Quick Setup
+### Test Commands
 ```bash
-# 1. Start test environment
-docker-compose up -d
+# Run all tests
+npm test && npm run test:vitest
 
-# 2. Run test suite
-npm test
+# Coverage reports
+npm run test:coverage && npm run test:vitest:coverage
 
-# 3. Run specific feature tests
-npm test -- --testPathPattern=admin
+# Watch mode for development
+npm run test:watch          # Jest
+npm run test:vitest:watch   # Vitest
 ```
 
-### Database Testing
-```bash
-# Run schema validation tests
-cd __tests__/schema
-./run-schema-tests.sh
-```
+### Continuous Testing
+- Monitor for JavaScript console errors
+- Test new features as they're implemented
+- Update testing guides for new functionality
+- Document any new edge cases discovered
 
-## 📊 Test Reporting
+## 🎯 Testing Priorities
 
-### Coverage Reports
-- Generated automatically with Jest
-- Available in `coverage/` directory
-- HTML reports for detailed analysis
+### High Priority (Critical Path)
+1. Admin authentication and authorization
+2. Schools and programs CRUD operations
+3. CSV upload functionality
+4. Public page data display
+5. Basic error handling
 
-### Test Results
-- Console output during development
-- CI/CD integration for automated testing
-- Detailed logs for debugging failures
+### Medium Priority (User Experience)
+1. Mobile responsiveness
+2. Form validation
+3. Loading states
+4. User feedback messages
+5. Navigation consistency
 
-## 🐛 Debugging Failed Tests
+### Low Priority (Enhancement)
+1. Performance optimization
+2. Advanced error handling
+3. Accessibility improvements
+4. Cross-browser compatibility
+5. Advanced UI features
 
-### Common Issues
-1. **Database State**: Ensure clean test database
-2. **Environment Variables**: Verify test environment configuration
-3. **Async Operations**: Check for proper async/await handling
-4. **Component Rendering**: Verify all required props and context
+## 📝 Documentation Standards
 
-### Debug Tools
-- Jest verbose mode: `npm test -- --verbose`
-- React Testing Library debug: `screen.debug()`
-- Supabase logs: Check test database logs
-- Browser DevTools: For integration test debugging
+### Test Case Format
+Each test case should include:
+- **Test Name**: Clear, descriptive name
+- **Prerequisites**: What needs to be set up
+- **Steps**: Numbered, clear instructions
+- **Expected Result**: What should happen
+- **Actual Result**: What actually happened (for failed tests)
 
-## 🚀 Continuous Integration
+### Bug Reporting
+When reporting bugs, include:
+- **Environment**: Browser, OS, device
+- **Steps to Reproduce**: Clear reproduction steps
+- **Expected vs Actual**: What should vs what does happen
+- **Console Errors**: Any JavaScript errors
+- **Screenshots**: Visual evidence if applicable
 
-### Automated Testing
-- All tests run on pull request creation
-- Deployment blocked on test failures
-- Automatic test reports in PR comments
+## 🔄 Maintenance
 
-### Test Data Management
-- Isolated test databases for each environment
-- Automated test data seeding
-- Cleanup procedures after test runs
+### Updating Testing Guides
+- Update guides when new features are implemented
+- Add new test cases for edge cases discovered
+- Remove obsolete test cases
+- Update links and references as needed
+
+### Version Control
+- Keep testing guides in sync with application versions
+- Tag testing guides with application release versions
+- Maintain changelog for testing guide updates
 
 ## 📚 Related Documentation
 

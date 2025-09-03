@@ -11,7 +11,8 @@ const config = {
     '<rootDir>/__tests__/**/*.ts'
   ],
   testPathIgnorePatterns: [
-    '<rootDir>/__tests__/.*\\.skip\\.'  // Ignore .skip.* test files
+    '<rootDir>/__tests__/.*\\.skip\\.',  // Ignore .skip.* test files
+    '<rootDir>/__tests__/.*\\.vitest\\.' // Ignore .vitest.* test files
   ],
   
   // Coverage configuration

@@ -60,8 +60,16 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ## 🧪 Testing
 
 ```bash
+# Jest (Pure Functions) - 65 tests
 npm test
 npm run test:ci
+
+# Vitest (Server Components) - 51 tests  
+npm run test:vitest
+npm run test:vitest:ci
+
+# Run All Tests - 116 total
+npm run test:all
 ```
 
 ## 📚 Documentation

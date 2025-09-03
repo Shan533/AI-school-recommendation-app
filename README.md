@@ -13,7 +13,7 @@ A modern web application for discovering and reviewing university programs, buil
 - **Frontend**: Next.js 15.4.6, React 19.1.0, TypeScript 5.x
 - **Styling**: Tailwind CSS 4.x, shadcn/ui
 - **Backend**: Supabase 2.55.0 (PostgreSQL, Auth, RLS)
-- **Testing**: Jest 30.0.5, React Testing Library
+- **Testing**: Jest 30.0.5 + Vitest 3.2.4, React Testing Library
 - **Deployment**: Vercel
 - **Form Handling**: React Hook Form, Zod validation
 
@@ -63,8 +63,16 @@ Visit [http://localhost:3000](http://localhost:3000) to see the application.
 ## 🧪 Testing
 
 ```bash
+# Jest (Pure Functions)
 npm test
 npm run test:ci
+
+# Vitest (Server Components)
+npm run test:vitest
+npm run test:vitest:ci
+
+# Run All Tests
+npm run test:all
 ```
 
 ## 🚀 Deployment
