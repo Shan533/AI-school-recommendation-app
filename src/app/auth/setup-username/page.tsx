@@ -8,6 +8,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { createClient } from '@/lib/supabase/client'
 
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+
 export default function SetupUsernamePage() {
   const [username, setUsername] = useState('')
   const [isLoading, setIsLoading] = useState(false)
