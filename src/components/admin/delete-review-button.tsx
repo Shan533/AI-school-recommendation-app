@@ -6,7 +6,7 @@ import { useState } from 'react'
 interface DeleteReviewButtonProps {
   reviewId: string
   reviewType: 'school' | 'program'
-  onDelete: (formData: FormData) => Promise<void>
+  onDelete: (formData: FormData) => Promise<{ success: boolean; message: string }>
 }
 
 export function DeleteReviewButton({ reviewId, reviewType, onDelete }: DeleteReviewButtonProps) {
@@ -26,10 +26,17 @@ export function DeleteReviewButton({ reviewId, reviewType, onDelete }: DeleteRev
       formData.append('reviewId', reviewId)
       formData.append('reviewType', reviewType)
       
-      await onDelete(formData)
+      const result = await onDelete(formData)
+      
+      if (result.success) {
+        // Show success message and refresh the page
+        alert(result.message)
+        window.location.reload()
+      }
     } catch (error) {
-      console.error('Error deleting review:', error)
-      alert('Failed to delete review. Please try again.')
+      // Show more specific error message
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete review. Please try again.'
+      alert(`Error: ${errorMessage}`)
     } finally {
       setIsDeleting(false)
     }
