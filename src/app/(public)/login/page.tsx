@@ -90,10 +90,6 @@ export default function LoginPage() {
               {isLoading ? 'Signing in...' : 'Continue with Google'}
             </Button>
             
-            <div className="text-xs text-center text-gray-500 bg-blue-50 p-2 rounded-md">
-              <p>Using Google? You can reset your password through your Google account settings.</p>
-            </div>
-            
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t" />
