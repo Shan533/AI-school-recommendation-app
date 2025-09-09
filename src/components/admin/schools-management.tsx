@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -30,6 +30,11 @@ export default function SchoolsManagement({ initialSchools }: SchoolsManagementP
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [schoolToDelete, setSchoolToDelete] = useState<School | null>(null)
   const [loading, setLoading] = useState(false)
+
+  // Update schools state when initialSchools prop changes (e.g., when search is performed)
+  useEffect(() => {
+    setSchools(initialSchools)
+  }, [initialSchools])
 
   const handleEditSchool = async (formData: FormData) => {
     if (!editingSchool) return
