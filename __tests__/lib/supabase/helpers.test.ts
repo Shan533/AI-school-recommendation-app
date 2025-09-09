@@ -1,0 +1,448 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
+
+// Mock Next.js cookies
+vi.mock('next/headers', () => ({
+  cookies: vi.fn(() => Promise.resolve({
+    get: vi.fn(),
+    set: vi.fn(),
+    delete: vi.fn(),
+    has: vi.fn(),
+    getAll: vi.fn(),
+    toString: vi.fn()
+  }))
+}))
+
+// Mock Supabase server client
+const mockSupabaseClient = {
+  auth: {
+    getUser: vi.fn()
+  },
+  from: vi.fn(() => ({
+    select: vi.fn(() => ({
+      eq: vi.fn(() => ({
+        order: vi.fn(() => ({
+          then: vi.fn((callback) => callback({ data: [], error: null }))
+        })),
+        single: vi.fn(() => Promise.resolve({ data: null, error: null }))
+      }))
+    }))
+  }))
+}
+
+vi.mock('@/lib/supabase/server', () => ({
+  createClient: vi.fn(() => mockSupabaseClient)
+}))
+
+describe('Supabase Helpers', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  describe('getSupabaseClient', () => {
+    it('should create and return a Supabase client', async () => {
+      const { getSupabaseClient } = await import('@/lib/supabase/helpers')
+      const client = await getSupabaseClient()
+      
+      expect(client).toBe(mockSupabaseClient)
+    })
+  })
+
+  describe('getCurrentUser', () => {
+    it('should return user when authenticated', async () => {
+      const mockUser = { id: 'user-123', email: 'test@example.com' }
+      mockSupabaseClient.auth.getUser.mockResolvedValue({
+        data: { user: mockUser },
+        error: null
+      })
+
+      const { getCurrentUser } = await import('@/lib/supabase/helpers')
+      const user = await getCurrentUser()
+      
+      expect(user).toEqual(mockUser)
+    })
+
+    it('should return null when not authenticated', async () => {
+      mockSupabaseClient.auth.getUser.mockResolvedValue({
+        data: { user: null },
+        error: null
+      })
+
+      const { getCurrentUser } = await import('@/lib/supabase/helpers')
+      const user = await getCurrentUser()
+      
+      expect(user).toBeNull()
+    })
+
+    it('should return null when auth error occurs', async () => {
+      mockSupabaseClient.auth.getUser.mockResolvedValue({
+        data: { user: null },
+        error: { message: 'Auth error' }
+      })
+
+      const { getCurrentUser } = await import('@/lib/supabase/helpers')
+      const user = await getCurrentUser()
+      
+      expect(user).toBeNull()
+    })
+  })
+
+  describe('getUserProfile', () => {
+    it('should return user profile when found', async () => {
+      const mockProfile = {
+        id: 'user-123',
+        username: 'testuser',
+        is_admin: false
+      }
+
+      const mockChain = {
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn(() => Promise.resolve({ data: mockProfile, error: null }))
+          }))
+        }))
+      }
+      mockSupabaseClient.from.mockReturnValue(mockChain)
+
+      const { getUserProfile } = await import('@/lib/supabase/helpers')
+      const profile = await getUserProfile('user-123')
+      
+      expect(profile).toEqual(mockProfile)
+      expect(mockSupabaseClient.from).toHaveBeenCalledWith('profiles')
+    })
+
+    it('should return null when profile not found', async () => {
+      const mockChain = {
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn(() => Promise.resolve({ 
+              data: null, 
+              error: { code: 'PGRST116', message: 'Not found' } 
+            }))
+          }))
+        }))
+      }
+      mockSupabaseClient.from.mockReturnValue(mockChain)
+
+      const { getUserProfile } = await import('@/lib/supabase/helpers')
+      const profile = await getUserProfile('user-123')
+      
+      expect(profile).toBeNull()
+    })
+
+    it('should return null when database error occurs', async () => {
+      const mockChain = {
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn(() => Promise.resolve({ 
+              data: null, 
+              error: { message: 'Database error' } 
+            }))
+          }))
+        }))
+      }
+      mockSupabaseClient.from.mockReturnValue(mockChain)
+
+      const { getUserProfile } = await import('@/lib/supabase/helpers')
+      const profile = await getUserProfile('user-123')
+      
+      expect(profile).toBeNull()
+    })
+  })
+
+  describe('isAdmin', () => {
+    it('should return true when user is admin', async () => {
+      const mockProfile = {
+        id: 'user-123',
+        username: 'admin',
+        is_admin: true
+      }
+
+      const mockChain = {
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn(() => Promise.resolve({ data: mockProfile, error: null }))
+          }))
+        }))
+      }
+      mockSupabaseClient.from.mockReturnValue(mockChain)
+
+      const { isAdmin } = await import('@/lib/supabase/helpers')
+      const result = await isAdmin('user-123')
+      
+      expect(result).toBe(true)
+    })
+
+    it('should return false when user is not admin', async () => {
+      const mockProfile = {
+        id: 'user-123',
+        username: 'user',
+        is_admin: false
+      }
+
+      const mockChain = {
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn(() => Promise.resolve({ data: mockProfile, error: null }))
+          }))
+        }))
+      }
+      mockSupabaseClient.from.mockReturnValue(mockChain)
+
+      const { isAdmin } = await import('@/lib/supabase/helpers')
+      const result = await isAdmin('user-123')
+      
+      expect(result).toBe(false)
+    })
+
+    it('should return false when profile not found', async () => {
+      const mockChain = {
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn(() => Promise.resolve({ 
+              data: null, 
+              error: { code: 'PGRST116', message: 'Not found' } 
+            }))
+          }))
+        }))
+      }
+      mockSupabaseClient.from.mockReturnValue(mockChain)
+
+      const { isAdmin } = await import('@/lib/supabase/helpers')
+      const result = await isAdmin('user-123')
+      
+      expect(result).toBe(false)
+    })
+
+    it('should return false when profile is null', async () => {
+      const mockChain = {
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn(() => Promise.resolve({ data: null, error: null }))
+          }))
+        }))
+      }
+      mockSupabaseClient.from.mockReturnValue(mockChain)
+
+      const { isAdmin } = await import('@/lib/supabase/helpers')
+      const result = await isAdmin('user-123')
+      
+      expect(result).toBe(false)
+    })
+  })
+
+  describe('getUserCollections', () => {
+    it('should return collections with item counts', async () => {
+      const mockCollections = [
+        {
+          id: 'collection-1',
+          name: 'My Favorites',
+          description: 'Favorite programs',
+          created_at: '2024-01-01T00:00:00Z',
+          updated_at: '2024-01-01T00:00:00Z',
+          collection_items: [{ id: 'item-1' }, { id: 'item-2' }]
+        },
+        {
+          id: 'collection-2',
+          name: 'Research Programs',
+          description: null,
+          created_at: '2024-01-02T00:00:00Z',
+          updated_at: '2024-01-02T00:00:00Z',
+          collection_items: []
+        }
+      ]
+
+      const mockChain = {
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            order: vi.fn(() => ({
+              then: vi.fn((callback) => callback({ data: mockCollections, error: null }))
+            }))
+          }))
+        }))
+      }
+      mockSupabaseClient.from.mockReturnValue(mockChain)
+
+      const { getUserCollections } = await import('@/lib/supabase/helpers')
+      const collections = await getUserCollections('user-123')
+      
+      expect(collections).toEqual([
+        {
+          id: 'collection-1',
+          name: 'My Favorites',
+          description: 'Favorite programs',
+          created_at: '2024-01-01T00:00:00Z',
+          updated_at: '2024-01-01T00:00:00Z',
+          item_count: 2
+        },
+        {
+          id: 'collection-2',
+          name: 'Research Programs',
+          description: null,
+          created_at: '2024-01-02T00:00:00Z',
+          updated_at: '2024-01-02T00:00:00Z',
+          item_count: 0
+        }
+      ])
+    })
+
+    it('should return empty array when database error occurs', async () => {
+      const mockChain = {
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            order: vi.fn(() => ({
+              then: vi.fn((callback) => callback({ 
+                data: null, 
+                error: { message: 'Database error' } 
+              }))
+            }))
+          }))
+        }))
+      }
+      mockSupabaseClient.from.mockReturnValue(mockChain)
+
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      const { getUserCollections } = await import('@/lib/supabase/helpers')
+      const collections = await getUserCollections('user-123')
+      
+      expect(collections).toEqual([])
+      expect(consoleSpy).toHaveBeenCalledWith('Error fetching collections:', { message: 'Database error' })
+      
+      consoleSpy.mockRestore()
+    })
+
+    it('should return empty array when no collections found', async () => {
+      const mockChain = {
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            order: vi.fn(() => ({
+              then: vi.fn((callback) => callback({ data: [], error: null }))
+            }))
+          }))
+        }))
+      }
+      mockSupabaseClient.from.mockReturnValue(mockChain)
+
+      const { getUserCollections } = await import('@/lib/supabase/helpers')
+      const collections = await getUserCollections('user-123')
+      
+      expect(collections).toEqual([])
+    })
+
+    it('should handle null collections data', async () => {
+      const mockChain = {
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            order: vi.fn(() => ({
+              then: vi.fn((callback) => callback({ data: null, error: null }))
+            }))
+          }))
+        }))
+      }
+      mockSupabaseClient.from.mockReturnValue(mockChain)
+
+      const { getUserCollections } = await import('@/lib/supabase/helpers')
+      const collections = await getUserCollections('user-123')
+      
+      expect(collections).toEqual([])
+    })
+  })
+
+  describe('getCollectionWithItems', () => {
+    it('should return collection with items when found', async () => {
+      const mockCollection = {
+        id: 'collection-1',
+        name: 'My Favorites',
+        description: 'Favorite programs',
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-01T00:00:00Z',
+        collection_items: [
+          {
+            id: 'item-1',
+            notes: 'Great program',
+            created_at: '2024-01-01T00:00:00Z',
+            school_id: 'school-1',
+            program_id: null,
+            schools: {
+              id: 'school-1',
+              name: 'Harvard University',
+              initial: 'HU',
+              location: 'Cambridge, MA',
+              country: 'USA'
+            },
+            programs: null
+          }
+        ]
+      }
+
+      const mockChain = {
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              single: vi.fn(() => Promise.resolve({ data: mockCollection, error: null }))
+            }))
+          }))
+        }))
+      }
+      mockSupabaseClient.from.mockReturnValue(mockChain)
+
+      const { getCollectionWithItems } = await import('@/lib/supabase/helpers')
+      const collection = await getCollectionWithItems('collection-1', 'user-123')
+      
+      expect(collection).toEqual(mockCollection)
+    })
+
+    it('should return null when collection not found', async () => {
+      const mockChain = {
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              single: vi.fn(() => Promise.resolve({ 
+                data: null, 
+                error: { code: 'PGRST116', message: 'Not found' } 
+              }))
+            }))
+          }))
+        }))
+      }
+      mockSupabaseClient.from.mockReturnValue(mockChain)
+
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      const { getCollectionWithItems } = await import('@/lib/supabase/helpers')
+      const collection = await getCollectionWithItems('collection-1', 'user-123')
+      
+      expect(collection).toBeNull()
+      expect(consoleSpy).toHaveBeenCalledWith('Error fetching collection:', { code: 'PGRST116', message: 'Not found' })
+      
+      consoleSpy.mockRestore()
+    })
+
+    it('should return null when database error occurs', async () => {
+      const mockChain = {
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              single: vi.fn(() => Promise.resolve({ 
+                data: null, 
+                error: { message: 'Database error' } 
+              }))
+            }))
+          }))
+        }))
+      }
+      mockSupabaseClient.from.mockReturnValue(mockChain)
+
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      const { getCollectionWithItems } = await import('@/lib/supabase/helpers')
+      const collection = await getCollectionWithItems('collection-1', 'user-123')
+      
+      expect(collection).toBeNull()
+      expect(consoleSpy).toHaveBeenCalledWith('Error fetching collection:', { message: 'Database error' })
+      
+      consoleSpy.mockRestore()
+    })
+  })
+})

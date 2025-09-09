@@ -73,3 +73,86 @@ export function validateSchoolData(data: Record<string, unknown>): string[] {
   
   return errors
 }
+
+// Collections validation
+export function validateCollectionData(data: Record<string, unknown>): string[] {
+  const errors: string[] = []
+  
+  // Name validation
+  if (!data.name || typeof data.name !== 'string' || data.name.trim().length === 0) {
+    errors.push('Collection name is required')
+  } else if (data.name.length > 100) {
+    errors.push('Collection name must be less than 100 characters')
+  }
+  
+  // Description validation (optional)
+  if (data.description && typeof data.description === 'string' && data.description.length > 500) {
+    errors.push('Collection description must be less than 500 characters')
+  }
+  
+  return errors
+}
+
+export function validateCollectionItemData(data: Record<string, unknown>): string[] {
+  const errors: string[] = []
+  
+  // Must have either school_id or program_id, but not both
+  const hasSchoolId = data.school_id && typeof data.school_id === 'string'
+  const hasProgramId = data.program_id && typeof data.program_id === 'string'
+  
+  if (!hasSchoolId && !hasProgramId) {
+    errors.push('Either school_id or program_id is required')
+  } else if (hasSchoolId && hasProgramId) {
+    errors.push('Cannot specify both school_id and program_id')
+  }
+  
+  // Notes validation (optional)
+  if (data.notes && typeof data.notes === 'string' && data.notes.length > 500) {
+    errors.push('Notes must be less than 500 characters')
+  }
+  
+  return errors
+}
+
+// TypeScript interfaces for collections
+export interface Collection {
+  id: string
+  user_id: string
+  name: string
+  description?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface CollectionItem {
+  id: string
+  collection_id: string
+  school_id?: string
+  program_id?: string
+  notes?: string
+  created_at: string
+}
+
+export interface CollectionWithItems extends Collection {
+  items: CollectionItemWithDetails[]
+}
+
+export interface CollectionItemWithDetails extends CollectionItem {
+  school?: {
+    id: string
+    name: string
+    initial?: string
+    location?: string
+    country?: string
+  }
+  program?: {
+    id: string
+    name: string
+    initial?: string
+    degree: string
+    school: {
+      name: string
+      initial?: string
+    }
+  }
+}

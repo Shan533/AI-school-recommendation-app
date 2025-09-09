@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { StarRating } from '@/components/ui/star-rating'
 import { ReviewForm } from '@/components/review-form'
 import { ReviewsList } from '@/components/reviews-list'
+import AddToCollectionButton from '@/components/collections/add-to-collection-button'
 import Link from 'next/link'
 
 // Define the expected Review type
@@ -276,17 +277,28 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
             )}
           </div>
           
-          <div className="flex gap-3">
-            {program.website_url && (
-              <Button asChild>
-                <a href={program.website_url} target="_blank" rel="noopener noreferrer">
-                  Visit Site
-                </a>
-              </Button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            {user && (
+              <div className="w-full sm:w-auto">
+                <AddToCollectionButton
+                  programId={program.id}
+                  itemName={program.name}
+                  className="w-full sm:w-auto"
+                />
+              </div>
             )}
-            <Button asChild variant="outline">
-              <Link href={`/schools/${program.schools?.id}`}>View School Details</Link>
-            </Button>
+            <div className="flex flex-wrap gap-3 flex-1">
+              {program.website_url && (
+                <Button asChild className="flex-1 sm:flex-initial">
+                  <a href={program.website_url} target="_blank" rel="noopener noreferrer">
+                    Visit Site
+                  </a>
+                </Button>
+              )}
+              <Button asChild variant="outline" className="flex-1 sm:flex-initial">
+                <Link href={`/schools/${program.schools?.id}`}>View School Details</Link>
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
