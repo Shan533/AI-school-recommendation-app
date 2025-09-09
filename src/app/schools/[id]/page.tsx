@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { StarRating } from '@/components/ui/star-rating'
 import { ReviewForm } from '@/components/review-form'
 import { ReviewsList } from '@/components/reviews-list'
+import AddToCollectionButton from '@/components/collections/add-to-collection-button'
 import Link from 'next/link'
 
 // Define the expected Review type
@@ -298,13 +299,26 @@ export default async function SchoolDetailPage({ params }: { params: Promise<{ i
             )}
           </div>
           
-          {school.website_url && (
-            <Button asChild>
-              <a href={school.website_url} target="_blank" rel="noopener noreferrer">
-                Visit Site
-              </a>
-            </Button>
-          )}
+          <div className="flex flex-col sm:flex-row gap-3">
+            {user && (
+              <div className="w-full sm:w-auto">
+                <AddToCollectionButton
+                  schoolId={school.id}
+                  itemName={school.name}
+                  className="w-full sm:w-auto"
+                />
+              </div>
+            )}
+            {school.website_url && (
+              <div className="flex-1">
+                <Button asChild className="w-full sm:w-auto">
+                  <a href={school.website_url} target="_blank" rel="noopener noreferrer">
+                    Visit Site
+                  </a>
+                </Button>
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
 

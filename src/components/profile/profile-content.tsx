@@ -10,6 +10,7 @@ import Link from 'next/link'
 import ProfileActions from '@/components/profile/profile-actions'
 import ChangeUsernameForm from '@/components/profile/change-username-form'
 import UpdateEmailForm from '@/components/auth/update-email-form'
+import CollectionsPreview from '@/components/collections/collections-preview'
 import { User } from '@supabase/supabase-js'
 
 // Define proper types for the component props
@@ -102,6 +103,9 @@ export default function ProfileContent({ profile, user, schoolReviews, programRe
           </div>
         </CardContent>
       </Card>
+
+      {/* Collections Preview */}
+      <CollectionsPreview userId={user.id} />
 
       {/* Change Email Section */}
       <Card className="mb-8" id="email-update-section">
