@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -52,6 +52,11 @@ export default function UserManagement({ initialUsers, currentUserId }: UserMana
   // Error and success states
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+
+  // Update users state when initialUsers prop changes (e.g., when search is performed)
+  useEffect(() => {
+    setUsers(initialUsers)
+  }, [initialUsers])
 
   const clearMessages = () => {
     setError('')

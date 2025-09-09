@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -63,6 +63,11 @@ export default function ProgramsManagement({ initialPrograms, schools }: Program
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [programToDelete, setProgramToDelete] = useState<Program | null>(null)
   const [loading, setLoading] = useState(false)
+
+  // Update programs state when initialPrograms prop changes (e.g., when search is performed)
+  useEffect(() => {
+    setPrograms(initialPrograms)
+  }, [initialPrograms])
 
   const handleEditProgram = async (formData: FormData) => {
     if (!editingProgram) return
