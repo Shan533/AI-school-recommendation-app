@@ -35,12 +35,6 @@ This rule defines the complete workflow for branch management, commits, and pull
 # Run all tests - MUST pass 100%
 npm test
 
-# Run specific test suites if needed
-npm test -- __tests__/api/
-npm test -- __tests__/components/
-npm test -- __tests__/lib/
-```
-
 ### 🔍 Code Quality
 ```bash
 # Check for linting errors - MUST pass
@@ -69,23 +63,6 @@ npm test && npm run lint && npm run build
 ```
 
 **⚠️ COMMIT ONLY IF ALL CHECKS PASS**
-
-### 🚨 Common Issues & Fixes
-
-**Test Failures:**
-- Review failing test output carefully
-- Update tests if you modified functionality
-- Check for missing mocks or environment setup
-
-**Linting Errors:**
-- Run `npm run lint -- --fix` for auto-fixes
-- Manually fix remaining style issues
-- Ensure consistent code formatting
-
-**Build Errors:**
-- Check TypeScript errors carefully
-- Verify all imports and exports
-- Ensure environment variables are properly typed
 
 ## 📝 Commit Message Standards
 
@@ -152,50 +129,9 @@ Closes #[issue-number]
 <!-- Add screenshots showing the feature working -->
 <!-- Include before/after comparisons if applicable -->
 
-## 📱 Screenshots
-<!-- Required for UI changes - see screenshot requirements below -->
-
-## ⚠️ Breaking Changes
-<!-- List any breaking changes, or write "None" -->
-
 ## 📚 Documentation
 <!-- List any documentation updates needed or completed -->
 ```
-
-## 📸 Screenshot Requirements by PR Type
-
-### 🆕 Feature PRs
-**Required Evidence:**
-- [ ] **Desktop View**: Primary functionality working
-- [ ] **Mobile View**: Responsive design verification
-- [ ] **Happy Path**: Main user flow completion
-- [ ] **Edge Cases**: Empty states, long text, maximum data
-- [ ] **Error States**: Validation errors, network failures
-
-**Additional Content:**
-- Clear problem statement and solution approach
-- Performance impact (if applicable)
-- Accessibility considerations
-
-### 🐛 Bug Fix PRs
-**Required Evidence:**
-- [ ] **Before**: Screenshot/description of the bug
-- [ ] **After**: Screenshot showing the fix working
-- [ ] **Steps to Reproduce**: Original bug reproduction steps
-- [ ] **Root Cause**: Brief analysis of what caused the issue
-
-### 🔄 Refactoring PRs
-**Required Evidence:**
-- [ ] **Functionality Unchanged**: Screenshots proving no visual changes
-- [ ] **Performance Metrics**: Before/after performance comparison
-- [ ] **Test Coverage**: Coverage reports showing maintained/improved coverage
-- [ ] **Backward Compatibility**: Evidence that existing functionality works
-
-### 📚 Documentation PRs
-**Required Evidence:**
-- [ ] **Documentation Preview**: Screenshots of updated docs
-- [ ] **Navigation**: Showing how to find the new documentation
-- [ ] **Examples**: Any code examples working correctly
 
 ## 🔍 Testing Evidence Requirements
 
