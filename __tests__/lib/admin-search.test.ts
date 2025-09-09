@@ -1,4 +1,4 @@
-import { filterItems, searchConfigs, MatchType, getMatchInfo } from '@/lib/admin-search'
+import { filterItems, searchConfigs, MatchType, getMatchInfo, simpleFilterItems } from '@/lib/admin-search'
 
 // Mock data for testing
 const mockSchools = [
@@ -366,6 +366,77 @@ describe('Admin Search System', () => {
     test('should include nested school fields in programs config', () => {
       expect(searchConfigs.programs.fields).toContain('schools.name')
       expect(searchConfigs.programs.fields).toContain('schools.initial')
+    })
+  })
+
+  describe('simpleFilterItems (legacy function)', () => {
+    test('should return all items when search term is empty', () => {
+      const result = simpleFilterItems(mockSchools, { fields: ['name'], searchTerm: '' })
+      expect(result).toEqual(mockSchools)
+    })
+
+    test('should return all items when search term is only whitespace', () => {
+      const result = simpleFilterItems(mockSchools, { fields: ['name'], searchTerm: '   ' })
+      expect(result).toEqual(mockSchools)
+    })
+
+    test('should filter items by exact field match', () => {
+      const result = simpleFilterItems(mockSchools, { fields: ['initial'], searchTerm: 'CMU' })
+      expect(result).toHaveLength(1)
+      expect(result[0].name).toBe('Carnegie Mellon University')
+    })
+
+    test('should filter items by partial field match', () => {
+      const result = simpleFilterItems(mockSchools, { fields: ['name'], searchTerm: 'Carnegie' })
+      expect(result).toHaveLength(1)
+      expect(result[0].name).toBe('Carnegie Mellon University')
+    })
+
+    test('should filter items by multiple fields', () => {
+      const result = simpleFilterItems(mockSchools, { fields: ['name', 'initial'], searchTerm: 'MIT' })
+      expect(result).toHaveLength(1)
+      expect(result[0].name).toBe('Massachusetts Institute of Technology')
+    })
+
+    test('should handle nested field paths', () => {
+      const result = simpleFilterItems(mockPrograms, { fields: ['schools.name'], searchTerm: 'Stanford' })
+      expect(result).toHaveLength(2) // Both programs have Stanford in their schools
+      expect(result.some(p => p.name === 'Bachelor of Science in Computer Science')).toBe(true)
+      expect(result.some(p => p.name === 'PhD in Artificial Intelligence')).toBe(true)
+    })
+
+    test('should ignore null and undefined values', () => {
+      const itemsWithNulls = [
+        { id: '1', name: 'Test School', initial: null },
+        { id: '2', name: null, initial: 'TS' },
+        { id: '3', name: 'Another School', initial: 'AS' }
+      ]
+      
+      const result = simpleFilterItems(itemsWithNulls, { fields: ['initial'], searchTerm: 'TS' })
+      expect(result).toHaveLength(1) // Should match the item with initial: 'TS'
+      expect(result[0].id).toBe('2')
+    })
+
+    test('should handle case insensitive search', () => {
+      const result = simpleFilterItems(mockSchools, { fields: ['name'], searchTerm: 'carnegie' })
+      expect(result).toHaveLength(1)
+      expect(result[0].name).toBe('Carnegie Mellon University')
+    })
+
+    test('should return empty array when no matches found', () => {
+      const result = simpleFilterItems(mockSchools, { fields: ['name'], searchTerm: 'NonExistent' })
+      expect(result).toHaveLength(0)
+    })
+
+    test('should handle non-string values by converting to string', () => {
+      const itemsWithNumbers = [
+        { id: '1', name: 'School 1', rating: 4.5 },
+        { id: '2', name: 'School 2', rating: 3.8 }
+      ]
+      
+      const result = simpleFilterItems(itemsWithNumbers, { fields: ['rating'], searchTerm: '4.5' })
+      expect(result).toHaveLength(1)
+      expect(result[0].name).toBe('School 1')
     })
   })
 })
