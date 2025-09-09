@@ -15,6 +15,7 @@ export async function PUT(
     // Get current user
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
+      console.error('Auth error in school review update:', authError)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     
@@ -35,14 +36,19 @@ export async function PUT(
       .single()
     
     if (checkError || !existingReview) {
+      console.error('School review lookup error:', checkError)
       return NextResponse.json({ error: 'Review not found' }, { status: 404 })
     }
     
     if (existingReview.user_id !== user.id) {
+      console.error('Permission denied - user mismatch:', {
+        reviewUserId: existingReview.user_id,
+        currentUserId: user.id
+      })
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
     
-    // Update the review
+    // Update the review (RLS policies will ensure user can only update their own reviews)
     const { data, error } = await supabase
       .from('school_reviews')
       .update({
@@ -58,6 +64,14 @@ export async function PUT(
         error: 'Failed to update review', 
         details: error.message,
         code: error.code 
+      }, { status: 500 })
+    }
+    
+    // Check if any rows were actually updated
+    if (!data || data.length === 0) {
+      console.error('No rows updated - possible RLS policy issue')
+      return NextResponse.json({ 
+        error: 'Update failed - no rows affected'
       }, { status: 500 })
     }
     

@@ -23,7 +23,69 @@ This rule defines the complete workflow for branch management, commits, and pull
 1. **Create Feature Branch**: Start from main branch
 2. **Use Graphite**: For stacked PRs and better branch management
 3. **Regular Commits**: Make atomic commits with clear messages
-4. **Push & Create PR**: After feature completion
+4. **Pre-Commit Validation**: Run all checks before committing (see below)
+5. **Push & Create PR**: After feature completion
+
+## ✅ Pre-Commit Validation Checklist
+
+**MANDATORY: Run these commands before every commit:**
+
+### 🧪 Testing
+```bash
+# Run all tests - MUST pass 100%
+npm test
+
+# Run specific test suites if needed
+npm test -- __tests__/api/
+npm test -- __tests__/components/
+npm test -- __tests__/lib/
+```
+
+### 🔍 Code Quality
+```bash
+# Check for linting errors - MUST pass
+npm run lint
+
+# Check TypeScript compilation - MUST pass
+npm run build
+
+# Verify no runtime errors
+npm run start  # Test locally if significant changes
+```
+
+### 📊 Coverage & Performance
+```bash
+# Check test coverage (aim for >90%)
+npm test -- --coverage
+
+# Verify bundle size (check for significant increases)
+npm run build && du -sh .next/static/
+```
+
+### 🔧 Pre-Commit Command Sequence
+```bash
+# Complete validation sequence
+npm test && npm run lint && npm run build
+```
+
+**⚠️ COMMIT ONLY IF ALL CHECKS PASS**
+
+### 🚨 Common Issues & Fixes
+
+**Test Failures:**
+- Review failing test output carefully
+- Update tests if you modified functionality
+- Check for missing mocks or environment setup
+
+**Linting Errors:**
+- Run `npm run lint -- --fix` for auto-fixes
+- Manually fix remaining style issues
+- Ensure consistent code formatting
+
+**Build Errors:**
+- Check TypeScript errors carefully
+- Verify all imports and exports
+- Ensure environment variables are properly typed
 
 ## 📝 Commit Message Standards
 

@@ -79,7 +79,7 @@ describe('Supabase Server Configuration', () => {
              }
              mockCookies.mockReturnValue(mockCookieStore as any)
 
-             const result = createClient(mockCookieStore)
+             const result = createClient(mockCookieStore as any)
 
              // Verify createServerClient was called with correct parameters
              expect(mockCreateServerClient).toHaveBeenCalledTimes(1)
@@ -118,19 +118,19 @@ describe('Supabase Server Configuration', () => {
              }
              mockCookies.mockReturnValue(mockCookieStore as any)
 
-             const result = createClient(mockCookieStore)
+             const result = createClient(mockCookieStore as any)
 
              // Verify createServerClient was called
              expect(mockCreateServerClient).toHaveBeenCalledTimes(1)
 
              // Get the cookies configuration that was passed
-             const cookiesConfig = mockCreateServerClient.mock.calls[0][2]?.cookies
+             const cookiesConfig = mockCreateServerClient.mock.calls[0][2]?.cookies as any
              expect(cookiesConfig).toBeDefined()
 
-             // Test the set function - should not throw error
-             if (cookiesConfig?.set) {
-               expect(() => cookiesConfig.set('test-cookie', 'test-value', {})).not.toThrow()
-             }
+            // Test the set function - should not throw error
+            if (cookiesConfig?.set) {
+              expect(() => cookiesConfig.set('test-cookie', 'test-value', {})).not.toThrow()
+            }
 
              expect(result).toBe(mockClient)
            })
@@ -154,19 +154,19 @@ describe('Supabase Server Configuration', () => {
              }
              mockCookies.mockReturnValue(mockCookieStore as any)
 
-             const result = createClient(mockCookieStore)
+             const result = createClient(mockCookieStore as any)
 
              // Verify createServerClient was called
              expect(mockCreateServerClient).toHaveBeenCalledTimes(1)
 
              // Get the cookies configuration that was passed
-             const cookiesConfig = mockCreateServerClient.mock.calls[0][2]?.cookies
+             const cookiesConfig = mockCreateServerClient.mock.calls[0][2]?.cookies as any
              expect(cookiesConfig).toBeDefined()
 
-             // Test the remove function - should not throw error
-             if (cookiesConfig?.remove) {
-               expect(() => cookiesConfig.remove('test-cookie', {})).not.toThrow()
-             }
+            // Test the remove function - should not throw error
+            if (cookiesConfig?.remove) {
+              expect(() => cookiesConfig.remove('test-cookie', {})).not.toThrow()
+            }
 
              expect(result).toBe(mockClient)
            })
@@ -184,11 +184,15 @@ describe('Supabase Server Configuration', () => {
       const mockCookieStore = {
         get: vi.fn(),
         set: vi.fn(),
-        delete: vi.fn()
+        delete: vi.fn(),
+        getAll: vi.fn(() => []),
+        has: vi.fn(() => false),
+        [Symbol.iterator]: vi.fn(),
+        size: 0
       }
 
       // Should still work but with undefined values
-      const result = createClient(mockCookieStore)
+      const result = createClient(mockCookieStore as any)
 
       expect(mockCreateServerClient).toHaveBeenCalledTimes(1)
       expect(mockCreateServerClient).toHaveBeenCalledWith(
@@ -222,13 +226,13 @@ describe('Supabase Server Configuration', () => {
         delete: vi.fn()
       }
 
-      const result = createClient(mockCookieStore)
+      const result = createClient(mockCookieStore as any)
 
       // Verify createServerClient was called
       expect(mockCreateServerClient).toHaveBeenCalledTimes(1)
       
       // Get the cookies configuration that was passed
-      const cookiesConfig = mockCreateServerClient.mock.calls[0][2]?.cookies
+      const cookiesConfig = mockCreateServerClient.mock.calls[0][2]?.cookies as any
       expect(cookiesConfig).toBeDefined()
       expect(cookiesConfig?.get).toBeDefined()
       expect(cookiesConfig?.set).toBeDefined()
@@ -258,7 +262,11 @@ describe('Supabase Server Configuration', () => {
       const mockCookieStore = {
         get: vi.fn(),
         set: vi.fn(),
-        delete: vi.fn()
+        delete: vi.fn(),
+        getAll: vi.fn(() => []),
+        has: vi.fn(() => false),
+        [Symbol.iterator]: vi.fn(),
+        size: 0
       }
 
       // Should throw the error
@@ -377,17 +385,21 @@ describe('Supabase Server Configuration', () => {
       const mockCookieStore = {
         get: vi.fn(),
         set: vi.fn(),
-        delete: vi.fn()
+        delete: vi.fn(),
+        getAll: vi.fn(() => []),
+        has: vi.fn(() => false),
+        [Symbol.iterator]: vi.fn(),
+        size: 0
       }
       mockCookies.mockReturnValue(mockCookieStore as any)
 
-      const result = createClient(mockCookieStore)
+      const result = createClient(mockCookieStore as any)
 
       // Verify createServerClient was called
       expect(mockCreateServerClient).toHaveBeenCalledTimes(1)
 
       // Get the cookies configuration that was passed
-      const cookiesConfig = mockCreateServerClient.mock.calls[0][2]?.cookies
+      const cookiesConfig = mockCreateServerClient.mock.calls[0][2]?.cookies as any
       expect(cookiesConfig).toBeDefined()
 
       // Test the remove function - should call set with empty value
@@ -396,7 +408,10 @@ describe('Supabase Server Configuration', () => {
         expect(mockCookieStore.set).toHaveBeenCalledWith({
           name: 'test-cookie',
           value: '',
-          path: '/'
+          path: '/',
+          httpOnly: true,
+          secure: false, // NODE_ENV is not 'production' in tests
+          sameSite: 'lax'
         })
       }
 
