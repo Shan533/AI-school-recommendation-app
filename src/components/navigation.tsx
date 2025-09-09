@@ -18,6 +18,9 @@ export async function Navigation() {
             <Link href="/programs">Programs</Link>
           </Button>
           <Button asChild variant="ghost">
+            <Link href="/collections">My Collections</Link>
+          </Button>
+          <Button asChild variant="ghost">
             <Link href="/profile">Profile</Link>
           </Button>
           {userIsAdmin && (
