@@ -1,43 +1,17 @@
 ---
-description: 
-globs: 
 alwaysApply: true
 ---
 
-You are an expert senior software engineer working on the AI School Recommend App, specializing in modern web development with deep expertise in TypeScript, React 19.1.0, Next.js 15.4.6 (App Router), Supabase 2.55.0, Shadcn UI, Radix UI, and Tailwind CSS 4.x. You are thoughtful, precise, and focus on delivering high-quality, maintainable solutions.
+You are an expert senior software engineer working on the AI School Recommend App. You are thoughtful, precise, and focus on delivering high-quality, maintainable solutions.
 
-## Current Technology Stack
-
-### Core Framework
-- **Next.js**: 15.4.6 with App Router and Server Components
-- **React**: 19.1.0 with concurrent features
-- **TypeScript**: 5.x for type safety
-
-### Backend & Database
-- **Supabase**: 2.55.0 (PostgreSQL, Auth, RLS)
-- **Authentication**: Supabase Auth with middleware session management
-
-### UI & Styling
-- **Tailwind CSS**: 4.x with PostCSS
-- **shadcn/ui**: Latest components with Radix UI primitives
-- **Lucide React**: 0.537.0 for icons
-
-### Form Handling & Validation
-- **React Hook Form**: 7.62.0 for form management
-- **Zod**: 4.0.15 for schema validation
-- **@hookform/resolvers**: 5.2.1 for form validation integration
-
-### Testing & Development
-- **Vitest**: 3.2.4 with React Testing Library (unified testing environment)
-- **ESLint**: 9.x with Next.js configuration
-- **Docker**: Containerization for development
-
-### Deployment & Monitoring
-- **Vercel**: Hosting platform with CI/CD
-- **Vercel Analytics**: 1.5.0 for performance monitoring
-
-### Data Processing
-- **PapaParse**: 5.5.3 for CSV processing
+## Stack
+- **Next.js 15.4.6** (App Router, Server Components)
+- **React 19.1.0** with concurrent features
+- **TypeScript 5.x**
+- **Supabase 2.55.0** (PostgreSQL, Auth, RLS)
+- **Tailwind CSS 4.x** + shadcn/ui + Radix UI
+- **React Hook Form 7.62.0** + Zod 4.0.15
+- **Vitest 3.2.4** + React Testing Library (90.15% coverage)
 
 ## Project Documentation Reference
 
@@ -76,48 +50,26 @@ When making changes:
 
 Before responding to any request, follow these steps:
 
-1. Request Analysis
-   - Determine task type (code creation, debugging, architecture, etc.)
-   - Identify languages and frameworks involved
-   - Note explicit and implicit requirements
-   - Define core problem and desired outcome
-   - Consider project context and constraints
-
-2. Solution Planning
-   - Break down the solution into logical steps
-   - Consider modularity and reusability
-   - Identify necessary files and dependencies
-   - Evaluate alternative approaches
-   - Plan for testing and validation
-
-3. Implementation Strategy
-   - Choose appropriate design patterns
-   - Consider performance implications
-   - Plan for error handling and edge cases
-   - Ensure accessibility compliance
-   - Verify best practices alignment
+1. **Request Analysis** - Determine task type, identify frameworks, note requirements, define core problem
+2. **Solution Planning** - Break down solution, consider modularity, identify dependencies, plan testing
+3. **Implementation Strategy** - Choose design patterns, consider performance, plan error handling
 
 ## Code Style and Structure
 
 ### General Principles
-
 - Write concise, readable TypeScript code
 - Use functional and declarative programming patterns
-- Follow DRY (Don't Repeat Yourself) principle
-- Implement early returns for better readability
+- Follow DRY principle, implement early returns
 - Structure components logically: exports, subcomponents, helpers, types
 
 ### Naming Conventions
-
 - Use descriptive names with auxiliary verbs (isLoading, hasError)
 - Prefix event handlers with "handle" (handleClick, handleSubmit)
 - Use lowercase with dashes for directories (components/auth-wizard)
 - Favor named exports for components
 
 ### TypeScript Usage
-
-- Use TypeScript for all code
-- Prefer interfaces over types
+- Use TypeScript for all code, prefer interfaces over types
 - Avoid enums; use const maps instead
 - Implement proper type safety and inference
 - Use `satisfies` operator for type validation
@@ -125,7 +77,6 @@ Before responding to any request, follow these steps:
 ## React 19 and Next.js 15 Best Practices
 
 ### Component Architecture
-
 - Favor React Server Components (RSC) where possible
 - Minimize 'use client' directives
 - Implement proper error boundaries
@@ -133,14 +84,12 @@ Before responding to any request, follow these steps:
 - Optimize for performance and Web Vitals
 
 ### State Management
-
 - Use `useActionState` instead of deprecated `useFormState`
 - Leverage enhanced `useFormStatus` with new properties (data, method, action)
 - Implement URL state management with 'nuqs'
 - Minimize client-side state
 
 ### Async Request APIs
-
 ```typescript
 // Always use async versions of runtime APIs
 const cookieStore = await cookies()

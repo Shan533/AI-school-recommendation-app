@@ -2,66 +2,46 @@
 alwaysApply: true
 ---
 
-# Documentation Update Rules
+# Documentation Guidelines
 
-**Core Principle**: Documentation must always reflect the current state of the `main` branch. Update docs in the same PR as code changes.
+**Core Principle**: Update docs with code changes. Keep docs current with `main` branch.
 
-## 📁 Documentation Structure
+## Quick Update Guide
 
-- **`docs/`** - Root: README, QUICKSTART, setup-instructions, file-structure
-- **`docs/design/`** - Architecture: design-doc, schema-design, implementation-plan, search-system-design
-- **`docs/testing/`** - Testing: testing-guide, testing-plan, features/
+### Design Changes → `docs/design/`
+- New features → `design-doc.mdc`
+- Database changes → `schema-design.mdc` + migration
+- Architecture changes → `design-doc.mdc` + `implementation-plan.mdc`
 
-## ⚡ Quick Update Guide
+### Testing Changes → `docs/testing/`
+- New test tools → `testing-guide.md`
+- New features → `features/<feature>-testing.md`
 
-### 🎨 Design Changes → Update `docs/design/`
-- **New features** → `design-doc.mdc`
-- **Database changes** → `schema-design.mdc` + create migration
-- **Architecture changes** → `design-doc.mdc` + `implementation-plan.mdc`
-- **Search system changes** → `search-system-design.md`
+### Setup Changes → Root `docs/`
+- Environment variables → `setup-instructions.md`
+- File structure → `file-structure.mdc`
+- Major features → `README.md`
 
-### 🧪 Testing Changes → Update `docs/testing/`
-- **New test tools** → `testing-guide.md`
-- **New feature** → Create `features/<feature>-testing.md`
-- **Testing strategy changes** → `testing-plan.md`
-
-### ⚙️ Setup Changes → Update Root Docs
-- **Environment variables** → `setup-instructions.md`
-- **File structure changes** → `file-structure.mdc`
-- **Major new features** → `README.md`
-
-## 🔄 Database Change Workflow
+## Database Workflow
 ```bash
-# 1. Create migration file
+# 1. Create migration
 supabase migration new <description>
 
 # 2. Write SQL in migration file
-# Add schema changes, RLS policies, etc.
 
 # 3. User runs SQL on Supabase Dashboard
-# Copy SQL from migration file → Supabase Dashboard → SQL Editor → Run
 
 # 4. Update schema doc
 # Edit docs/design/schema-design.mdc
 
-# 5. Commit migration + docs together
+# 5. Commit together
 git add supabase/migrations/ docs/design/schema-design.mdc
 ```
 
-## ✅ Update Checklist
-
-**Before Committing:**
-- [ ] Code changes have corresponding doc updates
-- [ ] All file paths and examples are current
+## Update Checklist
+- [ ] Code changes have doc updates
+- [ ] File paths are current
 - [ ] New features have testing guides
-- [ ] Breaking changes are documented
+- [ ] Breaking changes documented
 
-**Quality Standards:**
-- Keep it concise but complete
-- Include working code examples
-- Update screenshots for UI changes
-- Maintain cross-references between docs
-
----
-
-**Remember**: Good docs save time for everyone. Update them as you code, not after.
+**Remember**: Update docs as you code, not after.
