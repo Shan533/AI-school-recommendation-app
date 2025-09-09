@@ -33,15 +33,30 @@ This guide covers the essential setup and basic functionality testing for the AI
 - [ ] **Programs Page**: Visit `/programs` - should load without errors (may be empty initially)
 - [ ] **Admin Dashboard**: Visit `/admin/dashboard` - should redirect to login if not authenticated
 
-### 3. Admin Authentication Testing
+### 3. Authentication System Testing
+
+#### User Registration & Login:
+1. **Register a User**: Go to `/register` and create an account
+2. **Email Verification**: Check email for verification link and click it
+3. **Login**: Test login at `/login` with the registered credentials
+4. **Password Reset Flow** (Basic Test):
+   - [ ] Go to `/forgot-password`
+   - [ ] Enter your email address and submit
+   - [ ] Check email for reset link
+   - [ ] Click the reset link (should redirect to `/auth/reset-password`)
+   - [ ] Enter new password (must be 8+ characters)
+   - [ ] Confirm password matches
+   - [ ] Submit and verify success message
+   - [ ] Test login with new password
+
+   > 📚 **For comprehensive authentication testing**, see **[Authentication Testing Guide](./authentication-testing.md)**
 
 #### Create an Admin User:
-1. **Register a User**: Go to `/register` and create an account
-2. **Make User Admin**: In Supabase dashboard:
+1. **Make User Admin**: In Supabase dashboard:
    - Go to **Table Editor** → **profiles**
    - Find your user record
    - Set `is_admin` to `true`
-3. **Test Admin Access**: 
+2. **Test Admin Access**: 
    - [ ] Visit `/admin/dashboard` - should now work
    - [ ] Verify all admin navigation works
 
