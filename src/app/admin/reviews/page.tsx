@@ -9,7 +9,7 @@ import { StarRating } from '@/components/ui/star-rating'
 
 import { DeleteReviewButton } from '@/components/admin/delete-review-button'
 import { AdminSearchCard } from '@/components/admin/admin-search-card'
-import { searchConfigs } from '@/lib/admin-search'
+import { filterItems, searchConfigs } from '@/lib/admin-search'
 
 interface ReviewWithDetails {
   id: string
@@ -34,6 +34,7 @@ interface ReviewWithDetails {
       initial?: string
     } | null
   } | null
+  [key: string]: unknown // Add index signature for SearchableItem compatibility
 }
 
 async function getAllReviews(searchTerm?: string) {
@@ -132,47 +133,11 @@ async function getAllReviews(searchTerm?: string) {
       return review as ReviewWithDetails
     }).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
-    // Apply search filter if searchTerm is provided
-    let filteredReviews = reviewsWithDetails
-    if (searchTerm && searchTerm.trim()) {
-      const searchLower = searchTerm.trim().toLowerCase()
-      
-      filteredReviews = reviewsWithDetails.filter(review => {
-        // Search in comment (handle null/undefined)
-        const commentMatch = review.comment && review.comment.toLowerCase().includes(searchLower)
-        
-        // Search in user name (handle null/undefined)
-        const userNameMatch = review.profiles?.name && review.profiles.name.toLowerCase().includes(searchLower)
-        
-        // Search in school name and initial (handle null/undefined)
-        const schoolNameMatch = review.schools?.name && review.schools.name.toLowerCase().includes(searchLower)
-        const schoolInitialMatch = review.schools?.initial && review.schools.initial.toLowerCase().includes(searchLower)
-        
-        // Search in program name and initial (handle null/undefined)
-        const programNameMatch = review.programs?.name && review.programs.name.toLowerCase().includes(searchLower)
-        const programInitialMatch = review.programs?.initial && review.programs.initial.toLowerCase().includes(searchLower)
-        
-        // Search in program's school name and initial (handle nested null/undefined)
-        const programSchoolNameMatch = review.programs?.schools && (
-          Array.isArray(review.programs.schools) 
-            ? review.programs.schools.some(s => s?.name && s.name.toLowerCase().includes(searchLower))
-            : review.programs.schools?.name && review.programs.schools.name.toLowerCase().includes(searchLower)
-        )
-        
-        const programSchoolInitialMatch = review.programs?.schools && (
-          Array.isArray(review.programs.schools) 
-            ? review.programs.schools.some(s => s?.initial && s.initial.toLowerCase().includes(searchLower))
-            : review.programs.schools?.initial && review.programs.schools.initial.toLowerCase().includes(searchLower)
-        )
-        
-        const matches = commentMatch || userNameMatch || schoolNameMatch || schoolInitialMatch || 
-                       programNameMatch || programInitialMatch || programSchoolNameMatch || programSchoolInitialMatch
-        
-
-        
-        return matches
-      })
-    }
+    // Apply search filter using the standardized filterItems function
+    const filteredReviews = filterItems(reviewsWithDetails, {
+      fields: searchConfigs.reviews.fields,
+      searchTerm: searchTerm || ''
+    })
 
 
     

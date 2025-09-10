@@ -2,6 +2,8 @@ import { getSupabaseClient } from '@/lib/supabase/helpers'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { PublicSearchCard } from '@/components/ui/public-search-card'
+import { filterItems, searchConfigs } from '@/lib/admin-search'
 import Link from 'next/link'
 
 async function getProgramsWithRatings() {
@@ -73,17 +75,36 @@ async function getProgramsWithRatings() {
   })
 }
 
-export default async function ProgramsPage() {
-  const programs = await getProgramsWithRatings()
+export default async function ProgramsPage(props: {
+  searchParams?: Promise<{ search?: string }>
+}) {
+  const searchParams = await props.searchParams
+  const search = searchParams?.search
+
+  const allPrograms = await getProgramsWithRatings()
+  
+  // Filter programs based on search
+  const programs = filterItems(allPrograms, {
+    fields: searchConfigs.programs.fields,
+    searchTerm: search || ''
+  })
 
   return (
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Programs</h1>
+        <h1 className="text-3xl font-bold">
+          {search ? `Search Results (${programs.length})` : `Programs (${programs.length})`}
+        </h1>
         <Button asChild>
           <Link href="/">Back to Home</Link>
         </Button>
       </div>
+
+      {/* Search Programs */}
+      <PublicSearchCard 
+        placeholder={searchConfigs.programs.placeholder}
+        helpText={searchConfigs.programs.helpText}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {programs.length > 0 ? (
