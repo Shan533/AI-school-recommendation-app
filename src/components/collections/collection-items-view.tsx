@@ -240,7 +240,7 @@ export default function CollectionItemsView({ collection }: CollectionItemsViewP
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex flex-col h-full">
                 {item.notes && (
                   <div className="mb-4 p-3 bg-gray-50 rounded-lg">
                     <p className="text-sm text-gray-700 leading-relaxed">
@@ -249,7 +249,7 @@ export default function CollectionItemsView({ collection }: CollectionItemsViewP
                   </div>
                 )}
                 
-                <div className="flex gap-2">
+                <div className="flex gap-2 mt-auto mb-3">
                   <Button asChild className="w-full">
                     <Link href={isProgram ? `/programs/${item.program_id}` : `/schools/${item.school_id}`}>
                       <ExternalLink className="h-4 w-4 mr-2" />
@@ -258,7 +258,7 @@ export default function CollectionItemsView({ collection }: CollectionItemsViewP
                   </Button>
                 </div>
                 
-                <p className="text-xs text-gray-500 mt-3">
+                <p className="text-xs text-gray-500">
                   Added {new Date(item.created_at).toLocaleDateString()}
                 </p>
               </CardContent>
