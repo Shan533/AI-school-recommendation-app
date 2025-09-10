@@ -105,7 +105,9 @@ export default function ProfileContent({ profile, user, schoolReviews, programRe
       </Card>
 
       {/* Collections Preview */}
-      <CollectionsPreview userId={user.id} />
+      <div className="mb-8">
+        <CollectionsPreview userId={user.id} />
+      </div>
 
       {/* Change Email Section */}
       <Card className="mb-8" id="email-update-section">
