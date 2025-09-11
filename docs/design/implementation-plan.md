@@ -1,7 +1,3 @@
----
-alwaysApply: false
----
-
 # Implementation Plan: AI School Recommend App
 
 This document outlines the step-by-step plan for building the AI School Recommend App, from initial setup to final deployment and testing.
@@ -28,14 +24,14 @@ We will follow a phased approach to build the application, ensuring that we deli
     1.  **Reviews and Ratings**: Implement the ability for authenticated users to rate and review both schools and programs.
     2.  **User Profile & My Reviews**: Create a user profile page where users can see and manage their own reviews.
     3.  **Dual Ranking System**: Display both official and user-generated rankings on school pages.
+    4.  **User Collections**: Implement comprehensive collection management system allowing users to create, organize, and manage custom collections of programs and schools.
 
 #### Phase 3: Personalization & AI
 
 *   **Objective**: Introduce advanced personalization and AI-driven features.
 *   **Tasks**:
-    1.  **Collections**: Implement the "like/save" functionality for schools and the ability to manage collections.
-    2.  **Recommendation Engine (Filtering)**: Build the filtering logic based on user preferences.
-    3.  **AI-Powered Explanations**: Integrate a lightweight AI model (e.g., using Vercel AI SDK with a provider like OpenAI or Groq) to generate recommendation reasons.
+    1.  **Recommendation Engine (Filtering)**: Build the filtering logic based on user preferences.
+    2.  **AI-Powered Explanations**: Integrate a lightweight AI model (e.g., using Vercel AI SDK with a provider like OpenAI or Groq) to generate recommendation reasons.
 
 ### 2. Frontend Strategy
 
