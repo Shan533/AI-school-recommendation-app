@@ -1,7 +1,3 @@
----
-description: schema change, database schema design
-alwaysApply: false
----
 ### Table Definitions
 
 #### `users` (Managed by Supabase Auth)
