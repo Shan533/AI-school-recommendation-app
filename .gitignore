@@ -51,3 +51,5 @@ next-env.d.ts
 
 # csv
 /csv
+
+.swc/
