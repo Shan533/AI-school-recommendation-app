@@ -123,68 +123,22 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Note**: Using fallback reporting due to Vitest Coverage Action issues" >> $GITHUB_STEP_SUMMARY
 
-  preview-deploy:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    needs: ci
-    environment:
-      name: Preview
-      url: ${{ steps.deploy.outputs.preview_url }}
-    permissions:
-      contents: read
-      deployments: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-
-      - name: Install deps
-        run: npm ci
-
-      - name: Build
+      # Build verification (no deployment)
+      - name: Build Verification
         run: npm run build
+        env:
+          # Set dummy env vars for build verification
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy-key' }}
 
-      - name: Vercel Deploy (Preview)
-        id: deploy
+      - name: CI Success Summary
+        if: success()
         run: |
-          npm i -g vercel
-          URL=$(vercel --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} --confirm --prod=false --cwd .)
-          echo "preview_url=${URL}" >> $GITHUB_OUTPUT
-
-  production-deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    needs: ci
-    environment:
-      name: Production
-      url: ${{ steps.deploy.outputs.prod_url }}
-    permissions:
-      contents: read
-      deployments: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-
-      - name: Install deps
-        run: npm ci
-
-      - name: Build
-        run: npm run build
-
-      - name: Vercel Deploy (Production)
-        id: deploy
-        run: |
-          npm i -g vercel
-          URL=$(vercel --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} --confirm --prod --cwd .)
-          echo "prod_url=${URL}" >> $GITHUB_OUTPUT
+          echo "✅ **CI Pipeline Completed Successfully!**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🧪 **Tests**: All tests passed" >> $GITHUB_STEP_SUMMARY
+          echo "📊 **Coverage**: Report generated" >> $GITHUB_STEP_SUMMARY
+          echo "🔧 **Linting**: Code style verified" >> $GITHUB_STEP_SUMMARY
+          echo "🏗️ **Build**: Application builds successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🚀 Ready for deployment via CD pipeline!"
