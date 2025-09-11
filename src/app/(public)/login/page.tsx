@@ -23,6 +23,13 @@ export default function LoginPage() {
         setError(result.error || 'Login failed')
       }
     } catch (error) {
+      // Check if this is a redirect error (which means login was successful)
+      if (error && typeof error === 'object' && 'message' in error && error.message === 'NEXT_REDIRECT') {
+        // This is a redirect error, which means login was successful
+        // Don't show error message, just let the redirect happen
+        return
+      }
+      
       setError('An unexpected error occurred')
       console.error('Login error:', error)
     } finally {
