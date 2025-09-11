@@ -22,6 +22,7 @@ vi.mock('@/lib/auth-actions', () => ({
 const mockSupabase = {
   auth: {
     exchangeCodeForSession: vi.fn(),
+    verifyOtp: vi.fn(),
     getSession: vi.fn(),
     updateUser: vi.fn(),
     signOut: vi.fn(),
@@ -54,6 +55,9 @@ describe('Password Reset Flow Integration', () => {
     mockSupabase.auth.getSession.mockResolvedValue({
       data: { session: { user: { id: 'test-user' } } },
     })
+    
+    // Mock verifyOtp for token verification
+    mockSupabase.auth.verifyOtp.mockResolvedValue({ error: null })
   })
 
   describe('Step 1: Request Password Reset', () => {
@@ -90,10 +94,11 @@ describe('Password Reset Flow Integration', () => {
       // Mock successful password update
       mockSupabase.auth.updateUser.mockResolvedValue({ error: null })
       mockSupabase.auth.signOut.mockResolvedValue({ error: null })
-      mockSupabase.auth.exchangeCodeForSession.mockResolvedValue({ error: null })
       
-      // Mock code parameter from email link
-      mockSearchParams.get.mockReturnValue('valid-reset-code')
+      // Mock token parameters from email link
+      mockSearchParams.get
+        .mockReturnValueOnce('valid-reset-token') // token_hash
+        .mockReturnValueOnce('recovery') // type
 
       render(<ResetPasswordClient />)
 
@@ -205,8 +210,9 @@ describe('Password Reset Flow Integration', () => {
       // Step 2: User clicks email link and lands on reset page
       mockSupabase.auth.updateUser.mockResolvedValue({ error: null })
       mockSupabase.auth.signOut.mockResolvedValue({ error: null })
-      mockSupabase.auth.exchangeCodeForSession.mockResolvedValue({ error: null })
-      mockSearchParams.get.mockReturnValue('email-link-code')
+      mockSearchParams.get
+        .mockReturnValueOnce('email-link-code') // token_hash
+        .mockReturnValueOnce('recovery') // type
 
       render(<ResetPasswordClient />)
 
@@ -224,7 +230,10 @@ describe('Password Reset Flow Integration', () => {
 
       // Step 4: Verify complete flow
       await waitFor(() => {
-        expect(mockSupabase.auth.exchangeCodeForSession).toHaveBeenCalledWith('email-link-code')
+        expect(mockSupabase.auth.verifyOtp).toHaveBeenCalledWith({
+          token_hash: 'email-link-code',
+          type: 'recovery'
+        })
       })
 
       await waitFor(() => {

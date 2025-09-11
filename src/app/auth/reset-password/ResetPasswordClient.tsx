@@ -23,31 +23,41 @@ export default function ResetPasswordClient() {
   const supabase = useMemo(() => createClient(), [])
 
   useEffect(() => {
-    // 1) Handle code/access_token from email link to establish session
-    //    - New version recommends code (?code=...)
-    //    - Old version might have access_token/refresh_token in hash
+    // Handle password reset token from email link
     const run = async () => {
       try {
-        const code = searchParams?.get('code')
-        if (code) {
-          const { error } = await supabase.auth.exchangeCodeForSession(code)
-          if (error) throw error
-        } else if (typeof window !== 'undefined' && window.location.hash.includes('access_token')) {
-          const hash = new URLSearchParams(window.location.hash.substring(1))
-          const access_token = hash.get('access_token')
-          const refresh_token = hash.get('refresh_token')
-          if (access_token && refresh_token) {
-            const { error } = await supabase.auth.setSession({ access_token, refresh_token })
-            if (error) throw error
+        // Get token_hash and type from URL parameters
+        const token_hash = searchParams?.get('token_hash')
+        const type = searchParams?.get('type')
+        
+        if (token_hash && type === 'recovery') {
+          // Use verifyOtp for password reset flow
+          const { error } = await supabase.auth.verifyOtp({
+            token_hash,
+            type: 'recovery'
+          })
+          
+          if (error) {
+            console.error('Token verification error:', error)
+            setError('Reset link is invalid or expired. Please request a new one.')
+            return
+          }
+        } else {
+          // Check if there's already a valid session
+          const { data: { session } } = await supabase.auth.getSession()
+          if (!session) {
+            setError('Reset link is invalid or expired. Please request a new one.')
+            return
           }
         }
 
-        // 2) Validate if there's already a recovery session (recovery type)
+        // Validate if there's a recovery session
         const { data: { session } } = await supabase.auth.getSession()
         if (!session) {
           setError('Reset link is invalid or expired. Please request a new one.')
         }
       } catch (e: unknown) {
+        console.error('Reset password validation error:', e)
         setError(getErrorMessage(e) ?? 'Failed to validate reset link.')
       }
     }
