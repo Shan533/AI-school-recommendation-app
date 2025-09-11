@@ -16,12 +16,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-dvh flex flex-col overflow-x-hidden bg-gradient-to-br from-blue-50 to-indigo-100`}>
-      <header className="shrink-0 border-b bg-white">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <h1 className="text-xl font-bold">AI School Recommend</h1>
-          <Navigation />
-        </div>
-      </header>
+        <header className="shrink-0 border-b bg-white">
+          <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+            <h1 className="text-xl font-bold">AI School Recommend</h1>
+            <Navigation />
+          </div>
+        </header>
 
         <main className="flex-1 flex flex-col">
           {children}
