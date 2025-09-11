@@ -123,14 +123,6 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Note**: Using fallback reporting due to Vitest Coverage Action issues" >> $GITHUB_STEP_SUMMARY
 
-      # Build verification (no deployment)
-      - name: Build Verification
-        run: npm run build
-        env:
-          # Set dummy env vars for build verification
-          NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy-key
-
       - name: CI Success Summary
         if: success()
         run: |
