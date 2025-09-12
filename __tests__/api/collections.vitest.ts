@@ -17,8 +17,12 @@ vi.mock('@/lib/validation', () => ({
 
 const mockUser = {
   id: 'test-user-id',
-  email: 'test@example.com'
-}
+  email: 'test@example.com',
+  app_metadata: {},
+  user_metadata: {},
+  aud: 'authenticated',
+  created_at: '2024-01-01T00:00:00Z'
+} as any
 
 const mockCollection = {
   id: 'test-collection-id',
@@ -60,7 +64,7 @@ describe('Collections API', () => {
       vi.mocked(getCurrentUser).mockResolvedValue(null)
 
       const request = new NextRequest('http://localhost:3000/api/collections')
-      const response = await getCollections(request)
+      const response = await getCollections()
       const data = await response.json()
 
       expect(response.status).toBe(401)
@@ -73,7 +77,7 @@ describe('Collections API', () => {
       vi.mocked(getSupabaseClient).mockResolvedValue(mockSupabaseClient as any)
 
       const request = new NextRequest('http://localhost:3000/api/collections')
-      const response = await getCollections(request)
+      const response = await getCollections()
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -93,7 +97,7 @@ describe('Collections API', () => {
       vi.mocked(getSupabaseClient).mockResolvedValue(mockErrorClient as any)
 
       const request = new NextRequest('http://localhost:3000/api/collections')
-      const response = await getCollections(request)
+      const response = await getCollections()
       const data = await response.json()
 
       expect(response.status).toBe(500)
@@ -107,7 +111,7 @@ describe('Collections API', () => {
       })
 
       const request = new NextRequest('http://localhost:3000/api/collections')
-      const response = await getCollections(request)
+      const response = await getCollections()
       const data = await response.json()
 
       expect(response.status).toBe(500)
@@ -182,7 +186,7 @@ describe('Collections API', () => {
       errorChain.single = vi.fn(() => Promise.resolve({ 
         data: null, 
         error: { message: 'Database constraint violation' } 
-      }))
+      })) as any
       const mockErrorClient = { from: vi.fn(() => errorChain) }
       vi.mocked(getSupabaseClient).mockResolvedValue(mockErrorClient as any)
 
@@ -251,7 +255,7 @@ describe('Collections API', () => {
       notFoundChain.single = vi.fn(() => Promise.resolve({ 
         data: null, 
         error: { code: 'PGRST116', message: 'Not found' } 
-      }))
+      })) as any
       const mockNotFoundClient = { from: vi.fn(() => notFoundChain) }
       vi.mocked(getSupabaseClient).mockResolvedValue(mockNotFoundClient as any)
 
@@ -272,7 +276,7 @@ describe('Collections API', () => {
       errorChain.single = vi.fn(() => Promise.resolve({ 
         data: null, 
         error: { message: 'Database connection failed' } 
-      }))
+      })) as any
       const mockErrorClient = { from: vi.fn(() => errorChain) }
       vi.mocked(getSupabaseClient).mockResolvedValue(mockErrorClient as any)
 
@@ -369,7 +373,7 @@ describe('Collections API', () => {
       notFoundChain.single = vi.fn(() => Promise.resolve({ 
         data: null, 
         error: { code: 'PGRST116', message: 'Not found' } 
-      }))
+      })) as any
       const mockNotFoundClient = { from: vi.fn(() => notFoundChain) }
       vi.mocked(getSupabaseClient).mockResolvedValue(mockNotFoundClient as any)
 
@@ -393,13 +397,13 @@ describe('Collections API', () => {
       vi.mocked(validateCollectionData).mockReturnValue([])
       
       // Mock successful check
-      const checkChain = createMockChain(mockCollection)
+      const checkChain = createMockChain()
       // Mock failed update
       const updateChain = createMockChain()
       updateChain.update = vi.fn(() => updateChain)
       updateChain.eq = vi.fn(() => updateChain)
       updateChain.select = vi.fn(() => updateChain)
-      updateChain.single = vi.fn(() => Promise.resolve({ 
+      updateChain.then = vi.fn((callback) => callback({ 
         data: null, 
         error: { message: 'Update failed' } 
       }))
@@ -482,7 +486,7 @@ describe('Collections API', () => {
       notFoundChain.single = vi.fn(() => Promise.resolve({ 
         data: null, 
         error: { code: 'PGRST116', message: 'Not found' } 
-      }))
+      })) as any
       const mockNotFoundClient = { from: vi.fn(() => notFoundChain) }
       vi.mocked(getSupabaseClient).mockResolvedValue(mockNotFoundClient as any)
 
@@ -502,7 +506,7 @@ describe('Collections API', () => {
       vi.mocked(getCurrentUser).mockResolvedValue(mockUser)
       
       // Mock successful check
-      const checkChain = createMockChain(mockCollection)
+      const checkChain = createMockChain()
       // Mock failed delete
       const deleteChain = createMockChain()
       deleteChain.delete = vi.fn(() => deleteChain)

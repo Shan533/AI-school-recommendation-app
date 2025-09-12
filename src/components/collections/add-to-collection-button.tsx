@@ -21,7 +21,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Plus, Heart, HeartOff, Loader2 } from 'lucide-react'
+import { Plus, Heart, Loader2 } from 'lucide-react'
 
 interface Collection {
   id: string
@@ -203,7 +203,7 @@ export default function AddToCollectionButton({
               ) : isInAnyCollection ? (
                 <Heart className="h-4 w-4 mr-2 fill-current flex-shrink-0" />
               ) : (
-                <HeartOff className="h-4 w-4 mr-2 flex-shrink-0" />
+                <Heart className="h-4 w-4 mr-2 flex-shrink-0" />
               )}
               <span className="truncate">
                 {isInAnyCollection ? 'In Collections' : 'Add to Collection'}
@@ -241,7 +241,7 @@ export default function AddToCollectionButton({
                     {isInCollection ? (
                       <Heart className="h-4 w-4 mr-2 fill-current text-red-500" />
                     ) : (
-                      <HeartOff className="h-4 w-4 mr-2" />
+                      <Heart className="h-4 w-4 mr-2" />
                     )}
                     {collection.name}
                   </span>

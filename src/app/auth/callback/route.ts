@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { createDefaultCollection } from '@/lib/supabase/helpers'
 
 export async function GET(request: Request) {
   try {
@@ -60,6 +61,14 @@ export async function GET(request: Request) {
             is_admin: isInvitedAdmin || false,
           },
         ])
+
+      // Create default "My Favorites" collection for new user
+      try {
+        await createDefaultCollection(data.user.id)
+      } catch (error) {
+        console.error('Error creating default collection:', error)
+        // Don't fail authentication if collection creation fails
+      }
 
       // Only require username setup for OAuth users, not invited users
       shouldSetupUsername = !data.user.user_metadata?.invited_by

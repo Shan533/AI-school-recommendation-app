@@ -23,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Edit, Trash2, ExternalLink, Loader2, FolderOpen } from 'lucide-react'
+import { Edit, Trash2, Loader2, FolderOpen, ChevronDown, ChevronUp } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -75,6 +75,19 @@ export default function CollectionItemsView({ collection }: CollectionItemsViewP
   const [editNotes, setEditNotes] = useState('')
   const [isUpdating, setIsUpdating] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [expandedNotes, setExpandedNotes] = useState<Set<string>>(new Set())
+
+  const toggleNoteExpansion = (itemId: string) => {
+    setExpandedNotes(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(itemId)) {
+        newSet.delete(itemId)
+      } else {
+        newSet.add(itemId)
+      }
+      return newSet
+    })
+  }
 
   const openEditNotes = (item: CollectionItem) => {
     setSelectedItem(item)
@@ -181,10 +194,15 @@ export default function CollectionItemsView({ collection }: CollectionItemsViewP
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {items.map((item) => {
           const isProgram = !!item.program_id
-          const isSchool = !!item.school_id
 
           return (
-            <Card key={item.id} className="hover:shadow-lg transition-shadow">
+            <Card 
+              key={item.id} 
+              className={`hover:shadow-lg transition-shadow cursor-pointer ${
+                isProgram ? 'bg-gray-50' : 'bg-white'
+              }`}
+              onClick={() => router.push(isProgram ? `/programs/${item.program_id}` : `/schools/${item.school_id}`)}
+            >
               <CardHeader>
                 {/* Mobile-first layout: stack vertically on small screens */}
                 <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start">
@@ -206,13 +224,8 @@ export default function CollectionItemsView({ collection }: CollectionItemsViewP
                       {isProgram && (
                         <Badge variant="outline" className="text-xs">
                           <span className="truncate max-w-[120px]">
-                            {item.programs?.schools?.name}
+                            {item.programs?.schools?.initial || item.programs?.schools?.name}
                           </span>
-                        </Badge>
-                      )}
-                      {isSchool && item.schools?.location && (
-                        <Badge variant="outline" className="text-xs">
-                          {item.schools.location}
                         </Badge>
                       )}
                     </div>
@@ -222,7 +235,10 @@ export default function CollectionItemsView({ collection }: CollectionItemsViewP
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      onClick={() => openEditNotes(item)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        openEditNotes(item)
+                      }}
                       className="flex-1 sm:flex-initial"
                     >
                       <Edit className="h-4 w-4 sm:mr-0 mr-2" />
@@ -231,7 +247,10 @@ export default function CollectionItemsView({ collection }: CollectionItemsViewP
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      onClick={() => openDeleteDialog(item)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        openDeleteDialog(item)
+                      }}
                       className="text-red-600 hover:text-red-700 flex-1 sm:flex-initial"
                     >
                       <Trash2 className="h-4 w-4 sm:mr-0 mr-2" />
@@ -242,23 +261,40 @@ export default function CollectionItemsView({ collection }: CollectionItemsViewP
               </CardHeader>
               <CardContent className="flex flex-col h-full">
                 {item.notes && (
-                  <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                    <p className="text-sm text-gray-700 leading-relaxed">
-                      {item.notes}
-                    </p>
+                  <div className="mb-2 p-2 bg-gray-50 rounded border-l-2 border-gray-300">
+                    <div className="flex items-start justify-between gap-1">
+                      <p className={`text-xs text-gray-600 leading-tight flex-1 ${
+                        expandedNotes.has(item.id) 
+                          ? '' 
+                          : 'overflow-hidden'
+                      }`} 
+                         style={expandedNotes.has(item.id) ? {} : {
+                           display: '-webkit-box',
+                           WebkitLineClamp: 1,
+                           WebkitBoxOrient: 'vertical'
+                         }}>
+                        {item.notes}
+                      </p>
+                      {item.notes.length > 50 && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            toggleNoteExpansion(item.id)
+                          }}
+                          className="text-gray-400 hover:text-gray-600 flex-shrink-0 p-0.5"
+                        >
+                          {expandedNotes.has(item.id) ? (
+                            <ChevronUp className="h-3 w-3" />
+                          ) : (
+                            <ChevronDown className="h-3 w-3" />
+                          )}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 )}
                 
-                <div className="flex gap-2 mt-auto mb-3">
-                  <Button asChild className="w-full">
-                    <Link href={isProgram ? `/programs/${item.program_id}` : `/schools/${item.school_id}`}>
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      View Details
-                    </Link>
-                  </Button>
-                </div>
-                
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 mt-auto">
                   Added {new Date(item.created_at).toLocaleDateString()}
                 </p>
               </CardContent>
