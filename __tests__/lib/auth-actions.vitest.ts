@@ -18,6 +18,10 @@ vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn()
 }))
 
+vi.mock('@/lib/supabase/helpers', () => ({
+  createDefaultCollection: vi.fn()
+}))
+
 vi.mock('next/headers', () => ({
   cookies: vi.fn(),
   headers: vi.fn()
@@ -40,11 +44,13 @@ import {
   updateUsernameAction
 } from '@/lib/auth-actions'
 import { createClient } from '@/lib/supabase/server'
+import { createDefaultCollection } from '@/lib/supabase/helpers'
 import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 // Create typed mocks
 const mockCreateClient = vi.mocked(createClient)
+const mockCreateDefaultCollection = vi.mocked(createDefaultCollection)
 const mockCookies = vi.mocked(cookies)
 const mockHeaders = vi.mocked(headers)
 const mockRedirect = vi.mocked(redirect)
@@ -69,6 +75,7 @@ describe('Authentication Actions', () => {
     mockCreateClient.mockReturnValue(mockSupabaseClient as any)
     mockCookies.mockResolvedValue({} as any)
     mockHeaders.mockResolvedValue(new Map() as any)
+    mockCreateDefaultCollection.mockResolvedValue({ id: 'default-collection-123' })
   })
 
   describe('loginAction', () => {
@@ -190,6 +197,7 @@ describe('Authentication Actions', () => {
         email: 'test@example.com',
         password: 'ValidPass123!'
       })
+      expect(mockCreateDefaultCollection).toHaveBeenCalledWith('user-123')
     })
 
     it('should create user profile after registration', async () => {

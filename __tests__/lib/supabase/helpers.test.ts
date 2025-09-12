@@ -26,6 +26,11 @@ const mockSupabaseClient = {
         })),
         single: vi.fn(() => Promise.resolve({ data: null, error: null }))
       }))
+    })),
+    insert: vi.fn(() => ({
+      select: vi.fn(() => ({
+        single: vi.fn(() => Promise.resolve({ data: null, error: null }))
+      }))
     }))
   }))
 }
@@ -441,6 +446,149 @@ describe('Supabase Helpers', () => {
       
       expect(collection).toBeNull()
       expect(consoleSpy).toHaveBeenCalledWith('Error fetching collection:', { message: 'Database error' })
+      
+      consoleSpy.mockRestore()
+    })
+  })
+
+  describe('createDefaultCollection', () => {
+    it('should return existing collection if user already has "My Favorites"', async () => {
+      const existingCollection = { id: 'existing-collection-1' }
+      
+      // Mock existing collection found
+      mockSupabaseClient.from.mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
+                data: existingCollection,
+                error: null
+              })
+            })
+          })
+        })
+      })
+
+      const { createDefaultCollection } = await import('@/lib/supabase/helpers')
+      const result = await createDefaultCollection('user-123')
+
+      expect(result).toEqual(existingCollection)
+      expect(mockSupabaseClient.from).toHaveBeenCalledWith('collections')
+    })
+
+    it('should create new collection if user does not have "My Favorites"', async () => {
+      const newCollection = { 
+        id: 'new-collection-1',
+        user_id: 'user-123',
+        name: 'My Favorites',
+        description: 'My favorite schools and programs'
+      }
+      
+      // Mock no existing collection
+      const selectChain = {
+        eq: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({
+              data: null,
+              error: null
+            })
+          })
+        })
+      }
+
+      // Mock successful creation
+      const insertChain = {
+        select: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({
+            data: newCollection,
+            error: null
+          })
+        })
+      }
+
+      mockSupabaseClient.from
+        .mockReturnValueOnce({ select: vi.fn().mockReturnValue(selectChain) })
+        .mockReturnValueOnce({ insert: vi.fn().mockReturnValue(insertChain) })
+
+      const { createDefaultCollection } = await import('@/lib/supabase/helpers')
+      const result = await createDefaultCollection('user-123')
+
+      expect(result).toEqual(newCollection)
+      expect(mockSupabaseClient.from).toHaveBeenCalledTimes(2)
+    })
+
+    it('should return null if collection creation fails', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      
+      // Mock no existing collection
+      const selectChain = {
+        eq: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({
+              data: null,
+              error: null
+            })
+          })
+        })
+      }
+
+      // Mock creation error
+      const insertChain = {
+        select: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({
+            data: null,
+            error: { message: 'Creation failed' }
+          })
+        })
+      }
+
+      mockSupabaseClient.from
+        .mockReturnValueOnce({ select: vi.fn().mockReturnValue(selectChain) })
+        .mockReturnValueOnce({ insert: vi.fn().mockReturnValue(insertChain) })
+
+      const { createDefaultCollection } = await import('@/lib/supabase/helpers')
+      const result = await createDefaultCollection('user-123')
+
+      expect(result).toBeNull()
+      expect(consoleSpy).toHaveBeenCalledWith('Error creating default collection:', { message: 'Creation failed' })
+      
+      consoleSpy.mockRestore()
+    })
+
+    it('should handle errors when checking for existing collection', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      
+      // Mock error when checking existing collection
+      const selectChain = {
+        eq: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({
+              data: null,
+              error: { message: 'Database error' }
+            })
+          })
+        })
+      }
+
+      // Mock successful creation
+      const insertChain = {
+        select: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({
+            data: { id: 'new-collection-1' },
+            error: null
+          })
+        })
+      }
+
+      mockSupabaseClient.from
+        .mockReturnValueOnce({ select: vi.fn().mockReturnValue(selectChain) })
+        .mockReturnValueOnce({ insert: vi.fn().mockReturnValue(insertChain) })
+
+      const { createDefaultCollection } = await import('@/lib/supabase/helpers')
+      const result = await createDefaultCollection('user-123')
+
+      // Should still try to create since we couldn't verify existing collection
+      expect(result).toBeDefined()
       
       consoleSpy.mockRestore()
     })
