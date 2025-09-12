@@ -28,6 +28,42 @@ export async function isAdmin(userId: string) {
   return profile?.is_admin || false
 }
 
+export async function createDefaultCollection(userId: string) {
+  const supabase = await getSupabaseClient()
+  
+  // Check if user already has a "My Favorites" collection
+  const { data: existingCollection } = await supabase
+    .from('collections')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('name', 'My Favorites')
+    .single()
+
+  if (existingCollection) {
+    return existingCollection // Already exists
+  }
+
+  // Create default "My Favorites" collection
+  const { data: newCollection, error } = await supabase
+    .from('collections')
+    .insert([
+      {
+        user_id: userId,
+        name: 'My Favorites',
+        description: 'My favorite schools and programs',
+      },
+    ])
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error creating default collection:', error)
+    return null
+  }
+
+  return newCollection
+}
+
 // Collection helper functions
 export async function getUserCollections(userId: string) {
   const supabase = await getSupabaseClient()

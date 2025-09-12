@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
+import { createDefaultCollection } from '@/lib/supabase/helpers'
 
 // Validation schemas
 const loginSchema = z.object({
@@ -131,6 +132,14 @@ export async function registerAction(formData: FormData): Promise<AuthResult> {
         console.error('Profile creation error:', profileError)
         // Don't return error here as the user is created successfully
         // The profile can be created later
+      } else {
+        // Create default "My Favorites" collection for new user
+        try {
+          await createDefaultCollection(data.user.id)
+        } catch (error) {
+          console.error('Error creating default collection:', error)
+          // Don't fail registration if collection creation fails
+        }
       }
     }
 
