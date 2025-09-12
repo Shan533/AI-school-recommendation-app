@@ -167,7 +167,7 @@ export default async function ProgramsManagementPage(props: {
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Programs Management</h1>
-        <Button asChild>
+        <Button asChild variant="outline" className="cursor-pointer">
           <a href="/admin/dashboard">Back to Dashboard</a>
         </Button>
       </div>

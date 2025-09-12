@@ -1,13 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { getCurrentUser } from '@/lib/supabase/helpers'
 
 export default async function Home() {
-  const user = await getCurrentUser()
-  const isAdmin = user
-    ? await import('@/lib/supabase/helpers').then(m => m.isAdmin(user.id))
-    : false
   return (
     <div className="bg-gradient-to-br from-blue-50 to-indigo-100">
 

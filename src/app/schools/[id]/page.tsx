@@ -170,8 +170,8 @@ export default async function SchoolDetailPage({ params }: { params: Promise<{ i
 
   return (
     <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <Button asChild variant="outline">
+      <div className="flex justify-end items-center mb-6">
+        <Button asChild variant="outline" className="cursor-pointer">
           <Link href="/schools">← Back to Schools</Link>
         </Button>
       </div>
