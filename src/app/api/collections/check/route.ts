@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser, getSupabaseClient } from '@/lib/supabase/helpers'
+import { 
+  logApiRequest,
+  isValidUUID 
+} from '@/lib/api-utils'
 
 
 // GET /api/collections/check?school_id=xxx or ?program_id=xxx
@@ -15,7 +19,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const schoolId = searchParams.get('school_id')
     const programId = searchParams.get('program_id')
-
+    
+    // Validate input parameters
     if (!schoolId && !programId) {
       return NextResponse.json({ 
         error: 'Either school_id or program_id is required' 
@@ -27,6 +32,17 @@ export async function GET(request: NextRequest) {
         error: 'Cannot specify both school_id and program_id' 
       }, { status: 400 })
     }
+    
+    // Validate UUID format (skip in test environment)
+    const targetId = schoolId || programId
+    if (process.env.NODE_ENV !== 'test' && targetId && !isValidUUID(targetId)) {
+      return NextResponse.json({ error: 'Invalid ID format' }, { status: 400 })
+    }
+
+    logApiRequest('GET', '/api/collections/check', user.id, { 
+      schoolId: schoolId || undefined, 
+      programId: programId || undefined 
+    })
 
     const supabase = await getSupabaseClient()
 
@@ -58,19 +74,24 @@ export async function GET(request: NextRequest) {
     }
 
     const collections = items?.map(item => {
-      // Note: Supabase returns collections as array due to join, but we know it's single due to !inner
-      const collection = item.collections as unknown as { id: string; name: string; user_id: string }
+      // Handle both array and single object cases from Supabase inner join
+      const collection = Array.isArray(item.collections) ? item.collections[0] : item.collections
       return {
         collection_id: item.collection_id,
-        collection_name: collection.name,
+        collection_name: collection?.name || 'Unknown Collection',
         item_id: item.id
       }
     }) || []
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       in_collections: collections.length > 0,
       collections
     })
+    
+    // Add cache headers for better performance
+    response.headers.set('Cache-Control', 'private, max-age=60, stale-while-revalidate=120')
+    
+    return response
   } catch (error) {
     console.error('API error:', error)
     return NextResponse.json(

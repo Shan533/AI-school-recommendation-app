@@ -309,16 +309,18 @@ describe('Collection Items API', () => {
       const checkChain = createMockChain(itemWithCollection)
       mockSupabaseClient.from.mockReturnValueOnce(checkChain)
 
-      // Mock update operation
+      // Mock update operation with complete data (optimized query)
       const updatedItem = { ...mockCollectionItem, notes: 'Updated notes' }
-      const updateChain = createMockChain(updatedItem)
-      updateChain.select = vi.fn(() => updateChain)
-      updateChain.then = vi.fn((callback) => callback({ data: [updatedItem], error: null }))
+      const updateChain = {
+        update: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              select: vi.fn(() => Promise.resolve({ data: [updatedItem], error: null }))
+            }))
+          }))
+        }))
+      }
       mockSupabaseClient.from.mockReturnValueOnce(updateChain)
-
-      // Mock fetch complete item data
-      const completeChain = createMockChain(updatedItem)
-      mockSupabaseClient.from.mockReturnValueOnce(completeChain)
 
       const request = new NextRequest('http://localhost:3000/api/collections/test-id/items/test-item-id', {
         method: 'PUT',
@@ -437,9 +439,13 @@ describe('Collection Items API', () => {
       mockSupabaseClient.from.mockReturnValueOnce(checkChain)
 
       // Mock delete operation
-      const deleteChain = createMockChain(null)
-      deleteChain.delete = vi.fn(() => deleteChain)
-      deleteChain.then = vi.fn((callback) => callback({ data: null, error: null }))
+      const deleteChain = {
+        delete: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => Promise.resolve({ data: null, error: null }))
+          }))
+        }))
+      }
       mockSupabaseClient.from.mockReturnValueOnce(deleteChain)
 
       const request = new NextRequest('http://localhost:3000/api/collections/test-id/items/test-item-id', {
@@ -518,6 +524,50 @@ describe('Collection Items API', () => {
 
       expect(response.status).toBe(500)
       expect(data.error).toBe('Internal server error')
+    })
+
+    it('should handle Supabase inner join returning array instead of single object', async () => {
+      const { getCurrentUser, getSupabaseClient } = await import('@/lib/supabase/helpers')
+      vi.mocked(getCurrentUser).mockResolvedValue(mockUser)
+
+      const mockDelete = vi.fn().mockReturnThis()
+      mockDelete.mockResolvedValue({ error: null })
+
+      const mockSupabase = {
+        from: vi.fn(() => ({
+          select: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              eq: vi.fn(() => ({
+                single: vi.fn().mockResolvedValue({
+                  data: {
+                    id: 'test-item-id',
+                    // Simulate Supabase returning collections as array instead of single object
+                    collections: [{ user_id: 'test-user-id' }]
+                  },
+                  error: null
+                })
+              }))
+            }))
+          })),
+          delete: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              eq: mockDelete
+            }))
+          }))
+        }))
+      }
+
+      vi.mocked(getSupabaseClient).mockResolvedValue(mockSupabase as any)
+
+      const request = new NextRequest('http://localhost:3000/api/collections/test-id/items/test-item-id', {
+        method: 'DELETE'
+      })
+      const params = Promise.resolve({ id: 'test-collection-id', itemId: 'test-item-id' })
+      const response = await deleteCollectionItem(request, { params })
+      const data = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(data.message).toBe('Item removed from collection successfully')
     })
   })
 })
