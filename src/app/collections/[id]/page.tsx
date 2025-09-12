@@ -28,7 +28,7 @@ export default async function CollectionDetailPage({
   return (
     <div className="container mx-auto p-6">
       <div className="flex justify-end items-center mb-6">
-        <Button asChild variant="outline">
+        <Button asChild variant="outline" className="cursor-pointer">
           <Link href="/collections">← Back to Collections</Link>
         </Button>
       </div>

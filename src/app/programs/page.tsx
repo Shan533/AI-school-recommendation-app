@@ -95,7 +95,7 @@ export default async function ProgramsPage(props: {
         <h1 className="text-3xl font-bold">
           {search ? `Search Results (${programs.length})` : `Programs (${programs.length})`}
         </h1>
-        <Button asChild>
+        <Button asChild variant="outline" className="cursor-pointer">
           <Link href="/">Back to Home</Link>
         </Button>
       </div>

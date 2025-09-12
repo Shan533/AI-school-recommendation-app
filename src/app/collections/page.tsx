@@ -15,7 +15,7 @@ export default async function CollectionsPage() {
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">My Collections</h1>
-        <Button asChild>
+        <Button asChild variant="outline" className="cursor-pointer">
           <Link href="/profile">Back to Profile</Link>
         </Button>
       </div>
