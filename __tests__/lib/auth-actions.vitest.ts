@@ -94,13 +94,9 @@ describe('Authentication Actions', () => {
 
       const formData = createFormData('test@example.com', 'ValidPass123!')
       
-      // The function should catch the redirect error and return an error result
-      const result = await loginAction(formData)
-      
-      expect(result).toEqual({
-        success: false,
-        error: 'An unexpected error occurred'
-      })
+      // The function should redirect on success, which throws an error
+      // We expect the redirect to be called and the function to throw
+      await expect(loginAction(formData)).rejects.toThrow()
       expect(mockRedirect).toHaveBeenCalledWith('/')
       expect(mockSupabaseClient.auth.signInWithPassword).toHaveBeenCalledWith({
         email: 'test@example.com',
@@ -545,12 +541,8 @@ describe('Authentication Validation Schemas', () => {
 
       const formData = createFormData('valid@example.com', 'ValidPass123!')
       
-      const result = await loginAction(formData)
-      
-      expect(result).toEqual({
-        success: false,
-        error: 'An unexpected error occurred'
-      })
+      // The function should redirect on success, which throws an error
+      await expect(loginAction(formData)).rejects.toThrow()
       expect(mockSupabaseClient.auth.signInWithPassword).toHaveBeenCalled()
     })
 

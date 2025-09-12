@@ -13,6 +13,7 @@ vi.mock('next/navigation', () => ({
 const mockSupabase = {
   auth: {
     exchangeCodeForSession: vi.fn(),
+    verifyOtp: vi.fn(),
     getSession: vi.fn(),
     updateUser: vi.fn(),
     signOut: vi.fn(),
@@ -117,14 +118,19 @@ describe('ResetPasswordClient', () => {
     })
   })
 
-  it('handles code exchange from email link', async () => {
-    mockSearchParams.get.mockReturnValue('test-code')
-    mockSupabase.auth.exchangeCodeForSession.mockResolvedValue({ error: null })
+  it('handles token verification from email link', async () => {
+    mockSearchParams.get
+      .mockReturnValueOnce('test-token-hash') // token_hash
+      .mockReturnValueOnce('recovery') // type
+    mockSupabase.auth.verifyOtp.mockResolvedValue({ error: null })
     
     render(<ResetPasswordClient />)
     
     await waitFor(() => {
-      expect(mockSupabase.auth.exchangeCodeForSession).toHaveBeenCalledWith('test-code')
+      expect(mockSupabase.auth.verifyOtp).toHaveBeenCalledWith({
+        token_hash: 'test-token-hash',
+        type: 'recovery'
+      })
     })
   })
 
