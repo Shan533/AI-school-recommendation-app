@@ -7,50 +7,50 @@ echo "========================================"
 echo
 
 # Check if Docker is running
-echo "🔍 Checking Docker status..."
+echo " Checking Docker status..."
 if ! docker info > /dev/null 2>&1; then
-    echo "❌ Docker is not running, please start Docker Desktop first"
+    echo " Docker is not running, please start Docker Desktop first"
     exit 1
 fi
-echo "✅ Docker is running"
+echo " Docker is running"
 
 # Stop and remove existing containers
 echo
-echo "🧹 Cleaning up existing containers..."
+echo " Cleaning up existing containers..."
 docker-compose -f docker/docker-compose.yml down --remove-orphans
-echo "✅ Cleanup completed"
+echo " Cleanup completed"
 
 # Start base services (Web + Redis)
 echo
-echo "🚀 Starting base services (Web + Redis)..."
+echo " Starting base services (Web + Redis)..."
 if ! docker-compose -f docker/docker-compose.yml up -d web redis; then
-    echo "❌ Failed to start base services"
+    echo " Failed to start base services"
     exit 1
 fi
-echo "✅ Base services started successfully"
+echo " Base services started successfully"
 
 # Wait for services to be ready
 echo
-echo "⏳ Waiting for services to be ready..."
+echo " Waiting for services to be ready..."
 sleep 10
 
 # Check service status
 echo
-echo "🔍 Checking service status..."
+echo " Checking service status..."
 docker-compose -f docker/docker-compose.yml ps
 
 echo
 echo "========================================"
-echo "🎉 Environment startup completed!"
+echo " Environment startup completed!"
 echo
-echo "📱 Web Application: http://localhost:3000"
-echo "🔴 Redis: localhost:6379"
+echo " Web Application: http://localhost:3000"
+echo " Redis: localhost:6379"
 echo
-echo "💡 Optional services:"
+echo " Optional services:"
 echo "   Start crawler: docker-compose -f docker/docker-compose.yml --profile crawler up -d crawler"
 echo "   Start monitoring: docker-compose -f docker/docker-compose.yml --profile monitoring up -d redis-commander"
 echo
-echo "🛑 Stop services: docker-compose -f docker/docker-compose.yml down"
+echo " Stop services: docker-compose -f docker/docker-compose.yml down"
 echo "========================================"
 echo
 
@@ -58,12 +58,12 @@ echo
 read -p "Do you want to start the crawler service? (y/n): " start_crawler
 if [[ $start_crawler =~ ^[Yy]$ ]]; then
     echo
-    echo "🕷️ Starting crawler service..."
+    echo " Starting crawler service..."
     if docker-compose -f docker/docker-compose.yml --profile crawler up -d crawler; then
-        echo "✅ Crawler service started successfully"
-        echo "📊 Crawler status: docker-compose -f docker/docker-compose.yml ps crawler"
+        echo " Crawler service started successfully"
+        echo " Crawler status: docker-compose -f docker/docker-compose.yml ps crawler"
     else
-        echo "❌ Failed to start crawler service"
+        echo " Failed to start crawler service"
     fi
 fi
 
