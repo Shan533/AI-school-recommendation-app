@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import Link from 'next/link'
 import ProfileActions from '@/components/profile/profile-actions'
 import ChangeUsernameForm from '@/components/profile/change-username-form'
+import ChangePasswordForm from '@/components/profile/change-password-form'
 import UpdateEmailForm from '@/components/auth/update-email-form'
 import CollectionsPreview from '@/components/collections/collections-preview'
 import { User } from '@supabase/supabase-js'
@@ -108,6 +109,16 @@ export default function ProfileContent({ profile, user, schoolReviews, programRe
       <div className="mb-8">
         <CollectionsPreview userId={user.id} />
       </div>
+
+      {/* Change Password Section */}
+      <Card className="mb-8" id="password-change-section">
+        <CardHeader>
+          <CardTitle>Password Settings</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ChangePasswordForm />
+        </CardContent>
+      </Card>
 
       {/* Change Email Section */}
       <Card className="mb-8" id="email-update-section">

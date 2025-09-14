@@ -477,3 +477,83 @@ export async function updateUsernameAction(formData: FormData): Promise<AuthResu
     }
   }
 }
+
+// Password change validation schema
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
+})
+
+export async function changePasswordAction(formData: FormData): Promise<AuthResult> {
+  try {
+    const rawFormData = {
+      currentPassword: formData.get('currentPassword') as string,
+      newPassword: formData.get('newPassword') as string,
+    }
+
+    // Validate form data
+    const validatedFields = changePasswordSchema.safeParse(rawFormData)
+    if (!validatedFields.success) {
+      return {
+        success: false,
+        error: validatedFields.error.issues[0]?.message || 'Invalid input',
+      }
+    }
+
+    const { currentPassword, newPassword } = validatedFields.data
+    const cookieStore = await cookies()
+    const supabase = createClient(cookieStore)
+
+    // Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) {
+      console.error('User authentication error:', userError)
+      return {
+        success: false,
+        error: 'User not authenticated',
+      }
+    }
+
+    // Verify current password by attempting to sign in
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user.email!,
+      password: currentPassword,
+    })
+
+    if (signInError) {
+      return {
+        success: false,
+        error: 'Current password is incorrect',
+      }
+    }
+
+    // Update password
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: newPassword
+    })
+
+    if (updateError) {
+      console.error('Password update error:', updateError)
+      return {
+        success: false,
+        error: updateError.message || 'Failed to update password',
+      }
+    }
+
+    return {
+      success: true,
+      error: 'Password updated successfully!',
+    }
+  } catch (error) {
+    console.error('Password change error:', error)
+    return {
+      success: false,
+      error: 'An unexpected error occurred',
+    }
+  }
+}
