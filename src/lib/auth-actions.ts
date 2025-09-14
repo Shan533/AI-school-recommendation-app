@@ -64,14 +64,12 @@ export async function loginAction(formData: FormData): Promise<AuthResult> {
       }
     }
 
-    // Redirect on success - this will throw an error internally but that's expected
+    // Redirect on success - this will refresh the page and update server components
     redirect('/')
   } catch (error) {
-    // Check if this is a redirect error (which is expected behavior)
+    // Don't catch redirect errors - let them bubble up
     if (error && typeof error === 'object' && 'message' in error && error.message === 'NEXT_REDIRECT') {
-      // This is a redirect error, which means login was successful
-      // We should not return an error in this case
-      throw error // Re-throw to let Next.js handle the redirect
+      throw error
     }
     
     console.error('Login error:', error)
