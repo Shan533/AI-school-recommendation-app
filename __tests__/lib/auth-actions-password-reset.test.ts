@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { resetPasswordAction, updateEmailAction } from '@/lib/auth-actions'
+import { resetPasswordAction, updateEmailAction, changePasswordAction } from '@/lib/auth-actions'
 
 // Mock Supabase client
 vi.mock('@/lib/supabase/server', () => ({
@@ -7,6 +7,8 @@ vi.mock('@/lib/supabase/server', () => ({
     auth: {
       resetPasswordForEmail: vi.fn(),
       updateUser: vi.fn(),
+      getUser: vi.fn(),
+      signInWithPassword: vi.fn(),
     },
   })),
 }))
@@ -146,6 +148,160 @@ describe('Password Reset and Email Update Actions', () => {
       const formData = new FormData()
       
       const result = await updateEmailAction(formData)
+      
+      expect(result.success).toBe(false)
+      expect(result.error).toContain('Invalid input')
+    })
+  })
+
+  describe('changePasswordAction', () => {
+    it('should successfully change password with valid credentials', async () => {
+      const mockSupabase = {
+        auth: {
+          getUser: vi.fn().mockResolvedValue({
+            data: { user: { id: 'user-123', email: 'test@example.com' } },
+            error: null
+          }),
+          signInWithPassword: vi.fn().mockResolvedValue({ error: null }),
+          updateUser: vi.fn().mockResolvedValue({ error: null }),
+        },
+      }
+      
+      const { createClient } = await import('@/lib/supabase/server')
+      vi.mocked(createClient).mockReturnValue(mockSupabase as any)
+      
+      const formData = new FormData()
+      formData.append('currentPassword', 'OldPassword123!')
+      formData.append('newPassword', 'NewPassword123!')
+      
+      const result = await changePasswordAction(formData)
+      
+      expect(result.success).toBe(true)
+      expect(mockSupabase.auth.signInWithPassword).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        password: 'OldPassword123!'
+      })
+      expect(mockSupabase.auth.updateUser).toHaveBeenCalledWith({
+        password: 'NewPassword123!'
+      })
+    })
+
+    it('should handle user without email address', async () => {
+      const mockSupabase = {
+        auth: {
+          getUser: vi.fn().mockResolvedValue({
+            data: { user: { id: 'user-123', email: null } },
+            error: null
+          }),
+        },
+      }
+      
+      const { createClient } = await import('@/lib/supabase/server')
+      vi.mocked(createClient).mockReturnValue(mockSupabase as any)
+      
+      const formData = new FormData()
+      formData.append('currentPassword', 'OldPassword123!')
+      formData.append('newPassword', 'NewPassword123!')
+      
+      const result = await changePasswordAction(formData)
+      
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Cannot change password: user account does not have an email address. Please contact support.')
+    })
+
+    it('should handle incorrect current password', async () => {
+      const mockSupabase = {
+        auth: {
+          getUser: vi.fn().mockResolvedValue({
+            data: { user: { id: 'user-123', email: 'test@example.com' } },
+            error: null
+          }),
+          signInWithPassword: vi.fn().mockResolvedValue({ 
+            error: { message: 'Invalid login credentials' } 
+          }),
+        },
+      }
+      
+      const { createClient } = await import('@/lib/supabase/server')
+      vi.mocked(createClient).mockReturnValue(mockSupabase as any)
+      
+      const formData = new FormData()
+      formData.append('currentPassword', 'WrongPassword123!')
+      formData.append('newPassword', 'NewPassword123!')
+      
+      const result = await changePasswordAction(formData)
+      
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Current password is incorrect')
+    })
+
+    it('should validate new password requirements', async () => {
+      const formData = new FormData()
+      formData.append('currentPassword', 'OldPassword123!')
+      formData.append('newPassword', 'weak') // Too weak
+      
+      const result = await changePasswordAction(formData)
+      
+      expect(result.success).toBe(false)
+      expect(result.error).toContain('Password must be at least 8 characters')
+    })
+
+    it('should handle user authentication error', async () => {
+      const mockSupabase = {
+        auth: {
+          getUser: vi.fn().mockResolvedValue({
+            data: { user: null },
+            error: { message: 'User not found' }
+          }),
+        },
+      }
+      
+      const { createClient } = await import('@/lib/supabase/server')
+      vi.mocked(createClient).mockReturnValue(mockSupabase as any)
+      
+      const formData = new FormData()
+      formData.append('currentPassword', 'OldPassword123!')
+      formData.append('newPassword', 'NewPassword123!')
+      
+      const result = await changePasswordAction(formData)
+      
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('User not authenticated')
+    })
+
+    it('should handle password update error', async () => {
+      const mockSupabase = {
+        auth: {
+          getUser: vi.fn().mockResolvedValue({
+            data: { user: { id: 'user-123', email: 'test@example.com' } },
+            error: null
+          }),
+          signInWithPassword: vi.fn().mockResolvedValue({ error: null }),
+          updateUser: vi.fn().mockResolvedValue({ 
+            error: { message: 'Password update failed' } 
+          }),
+        },
+      }
+      
+      const { createClient } = await import('@/lib/supabase/server')
+      vi.mocked(createClient).mockReturnValue(mockSupabase as any)
+      
+      const formData = new FormData()
+      formData.append('currentPassword', 'OldPassword123!')
+      formData.append('newPassword', 'NewPassword123!')
+      
+      const result = await changePasswordAction(formData)
+      
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Password update failed')
+    })
+
+    it('should require both password fields', async () => {
+      const formData = new FormData()
+      formData.append('currentPassword', 'OldPassword123!')
+      // Missing newPassword
+      
+      const result = await changePasswordAction(formData)
       
       expect(result.success).toBe(false)
       expect(result.error).toContain('Invalid input')
