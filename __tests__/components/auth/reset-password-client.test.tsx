@@ -64,12 +64,12 @@ describe('ResetPasswordClient', () => {
     fireEvent.click(submitButton)
     
     await waitFor(() => {
-      expect(screen.getByText('Password must be at least 8 characters long')).toBeInTheDocument()
+      expect(screen.getByText('Password must meet all requirements: at least 8 characters, uppercase, lowercase, number, and special character')).toBeInTheDocument()
     })
     
     // Test mismatched passwords
-    fireEvent.change(passwordInput, { target: { value: 'password123' } })
-    fireEvent.change(confirmPasswordInput, { target: { value: 'different123' } })
+    fireEvent.change(passwordInput, { target: { value: 'ValidPassword123!' } })
+    fireEvent.change(confirmPasswordInput, { target: { value: 'DifferentPassword123!' } })
     fireEvent.click(submitButton)
     
     await waitFor(() => {
@@ -87,12 +87,12 @@ describe('ResetPasswordClient', () => {
     const confirmPasswordInput = screen.getByLabelText('Confirm Password')
     const submitButton = screen.getByRole('button', { name: 'Update Password' })
     
-    fireEvent.change(passwordInput, { target: { value: 'newpassword123' } })
-    fireEvent.change(confirmPasswordInput, { target: { value: 'newpassword123' } })
+    fireEvent.change(passwordInput, { target: { value: 'NewPassword123!' } })
+    fireEvent.change(confirmPasswordInput, { target: { value: 'NewPassword123!' } })
     fireEvent.click(submitButton)
     
     await waitFor(() => {
-      expect(mockSupabase.auth.updateUser).toHaveBeenCalledWith({ password: 'newpassword123' })
+      expect(mockSupabase.auth.updateUser).toHaveBeenCalledWith({ password: 'NewPassword123!' })
     })
     
     await waitFor(() => {
@@ -145,8 +145,8 @@ describe('ResetPasswordClient', () => {
     const confirmPasswordInput = screen.getByLabelText('Confirm Password')
     const submitButton = screen.getByRole('button', { name: 'Update Password' })
     
-    fireEvent.change(passwordInput, { target: { value: 'newpassword123' } })
-    fireEvent.change(confirmPasswordInput, { target: { value: 'newpassword123' } })
+    fireEvent.change(passwordInput, { target: { value: 'NewPassword123!' } })
+    fireEvent.change(confirmPasswordInput, { target: { value: 'NewPassword123!' } })
     fireEvent.click(submitButton)
     
     await waitFor(() => {
