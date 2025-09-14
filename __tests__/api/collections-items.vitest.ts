@@ -386,6 +386,94 @@ describe('Collection Items API', () => {
       expect(data.error).toBe('Error checking item')
     })
 
+    it('should handle update errors gracefully', async () => {
+      const { getCurrentUser, getSupabaseClient } = await import('@/lib/supabase/helpers')
+      
+      vi.mocked(getCurrentUser).mockResolvedValue(mockUser)
+      vi.mocked(getSupabaseClient).mockResolvedValue(mockSupabaseClient as any)
+
+      // Mock item exists and belongs to user's collection
+      const itemWithCollection = {
+        id: mockCollectionItem.id,
+        collection_id: mockCollectionItem.collection_id,
+        school_id: mockCollectionItem.school_id,
+        program_id: mockCollectionItem.program_id,
+        collections: { user_id: mockUser.id }
+      }
+      const checkChain = createMockChain(itemWithCollection)
+      mockSupabaseClient.from.mockReturnValueOnce(checkChain)
+
+      // Mock update operation with error
+      const updateChain = {
+        update: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              select: vi.fn(() => Promise.resolve({ 
+                data: null, 
+                error: { message: 'Update failed' } 
+              }))
+            }))
+          }))
+        }))
+      }
+      mockSupabaseClient.from.mockReturnValueOnce(updateChain)
+
+      const request = new NextRequest('http://localhost:3000/api/collections/test-id/items/test-item-id', {
+        method: 'PUT',
+        body: JSON.stringify({ notes: 'Updated notes' })
+      })
+      const params = Promise.resolve({ id: 'test-collection-id', itemId: 'test-item-id' })
+      const response = await updateCollectionItem(request, { params })
+      const data = await response.json()
+
+      expect(response.status).toBe(500)
+      expect(data.error).toBe('Update failed')
+    })
+
+    it('should handle update with no rows affected', async () => {
+      const { getCurrentUser, getSupabaseClient } = await import('@/lib/supabase/helpers')
+      
+      vi.mocked(getCurrentUser).mockResolvedValue(mockUser)
+      vi.mocked(getSupabaseClient).mockResolvedValue(mockSupabaseClient as any)
+
+      // Mock item exists and belongs to user's collection
+      const itemWithCollection = {
+        id: mockCollectionItem.id,
+        collection_id: mockCollectionItem.collection_id,
+        school_id: mockCollectionItem.school_id,
+        program_id: mockCollectionItem.program_id,
+        collections: { user_id: mockUser.id }
+      }
+      const checkChain = createMockChain(itemWithCollection)
+      mockSupabaseClient.from.mockReturnValueOnce(checkChain)
+
+      // Mock update operation with no rows affected
+      const updateChain = {
+        update: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              select: vi.fn(() => Promise.resolve({ 
+                data: [], // No rows affected
+                error: null 
+              }))
+            }))
+          }))
+        }))
+      }
+      mockSupabaseClient.from.mockReturnValueOnce(updateChain)
+
+      const request = new NextRequest('http://localhost:3000/api/collections/test-id/items/test-item-id', {
+        method: 'PUT',
+        body: JSON.stringify({ notes: 'Updated notes' })
+      })
+      const params = Promise.resolve({ id: 'test-collection-id', itemId: 'test-item-id' })
+      const response = await updateCollectionItem(request, { params })
+      const data = await response.json()
+
+      expect(response.status).toBe(500)
+      expect(data.error).toBe('Update failed - no rows affected')
+    })
+
     it('should handle server errors gracefully', async () => {
       const { getCurrentUser } = await import('@/lib/supabase/helpers')
       vi.mocked(getCurrentUser).mockImplementation(() => {

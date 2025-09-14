@@ -41,7 +41,8 @@ import {
   signInWithGoogleAction,
   resendEmailVerification,
   type AuthResult,
-  updateUsernameAction
+  updateUsernameAction,
+  changePasswordAction
 } from '@/lib/auth-actions'
 import { createClient } from '@/lib/supabase/server'
 import { createDefaultCollection } from '@/lib/supabase/helpers'
@@ -62,12 +63,22 @@ const mockSupabaseClient = {
     signUp: vi.fn(),
     signOut: vi.fn(),
     signInWithOAuth: vi.fn(),
-    resend: vi.fn()
+    resend: vi.fn(),
+    getUser: vi.fn(),
+    updateUser: vi.fn()
   },
   from: vi.fn(() => ({
-    insert: vi.fn()
+    insert: vi.fn(),
+    select: vi.fn(),
+    eq: vi.fn(),
+    neq: vi.fn(),
+    single: vi.fn(),
+    update: vi.fn()
   }))
 }
+
+// Create alias for easier access
+const mockSupabase = mockSupabaseClient
 
 describe('Authentication Actions', () => {
   beforeEach(() => {
@@ -891,6 +902,93 @@ describe('Username Update Actions', () => {
       expect(result.error).toBe('Update failed')
     })
 
+    it('should handle profile not found when existingProfile is null', async () => {
+      const mockFormData = new FormData()
+      mockFormData.append('username', 'newusername')
+
+      const mockUser = { id: 'user-123', email: 'test@example.com' }
+      
+      // Clear all mocks first
+      vi.clearAllMocks()
+      
+      // Reset the createClient mock to return our mockSupabase
+      mockCreateClient.mockReturnValue(mockSupabase as any)
+      
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: mockUser },
+        error: null
+      })
+      
+      // Mock profile fetch to return null (profile not found)
+      const mockSelect = vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({
+            data: null, // Profile not found
+            error: null
+          })
+        })
+      })
+      
+      mockSupabase.from.mockReturnValue({
+        select: mockSelect
+      })
+
+      const result = await updateUsernameAction(mockFormData)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Profile not found')
+    })
+
+    it('should handle username availability check errors', async () => {
+      const mockFormData = new FormData()
+      mockFormData.append('username', 'newusername')
+
+      const mockUser = { id: 'user-123', email: 'test@example.com' }
+      const mockProfile = { id: 'user-123', name: 'oldusername', is_admin: false }
+      
+      // Clear all mocks first
+      vi.clearAllMocks()
+      
+      // Reset the createClient mock to return our mockSupabase
+      mockCreateClient.mockReturnValue(mockSupabase as any)
+      
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: mockUser },
+        error: null
+      })
+      
+      // Mock profile fetch success
+      const mockSelect1 = vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({
+            data: mockProfile,
+            error: null
+          })
+        })
+      })
+      
+      // Mock username check with error (not PGRST116)
+      const mockSelect2 = vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          neq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({
+              data: null,
+              error: { code: 'PGRST500', message: 'Database error' }
+            })
+          })
+        })
+      })
+      
+      mockSupabase.from
+        .mockReturnValueOnce({ select: mockSelect1 })
+        .mockReturnValueOnce({ select: mockSelect2 })
+
+      const result = await updateUsernameAction(mockFormData)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Failed to check username availability')
+    })
+
     it('should handle unexpected errors', async () => {
       const mockFormData = new FormData()
       mockFormData.append('username', 'newusername')
@@ -900,6 +998,224 @@ describe('Username Update Actions', () => {
       })
 
       const result = await updateUsernameAction(mockFormData)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('An unexpected error occurred')
+    })
+  })
+
+  describe('changePasswordAction', () => {
+    beforeEach(() => {
+      vi.clearAllMocks()
+    })
+
+    it('should change password successfully with valid data', async () => {
+      const mockFormData = new FormData()
+      mockFormData.append('currentPassword', 'OldPassword123!')
+      mockFormData.append('newPassword', 'NewPassword123!')
+
+      const mockUser = { id: 'user-123', email: 'test@example.com' }
+      
+      // Clear any existing mocks
+      vi.clearAllMocks()
+      
+      // Reset the createClient mock to return our mockSupabase
+      mockCreateClient.mockReturnValue(mockSupabase as any)
+      
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: mockUser },
+        error: null
+      })
+      
+      mockSupabase.auth.signInWithPassword.mockResolvedValue({
+        data: { user: mockUser, session: {} },
+        error: null
+      })
+      
+      mockSupabase.auth.updateUser.mockResolvedValue({
+        data: { user: mockUser },
+        error: null
+      })
+
+      const result = await changePasswordAction(mockFormData)
+
+      expect(result.success).toBe(true)
+      expect(result.error).toBe('Password updated successfully!')
+      expect(mockSupabase.auth.getUser).toHaveBeenCalled()
+      expect(mockSupabase.auth.signInWithPassword).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        password: 'OldPassword123!'
+      })
+      expect(mockSupabase.auth.updateUser).toHaveBeenCalledWith({
+        password: 'NewPassword123!'
+      })
+    })
+
+    it('should return validation error for missing current password', async () => {
+      const mockFormData = new FormData()
+      mockFormData.append('currentPassword', '')
+      mockFormData.append('newPassword', 'NewPassword123!')
+
+      const result = await changePasswordAction(mockFormData)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Current password is required')
+    })
+
+    it('should return validation error for weak new password', async () => {
+      const mockFormData = new FormData()
+      mockFormData.append('currentPassword', 'OldPassword123!')
+      mockFormData.append('newPassword', 'weak')
+
+      const result = await changePasswordAction(mockFormData)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Password must be at least 8 characters')
+    })
+
+    it('should return validation error for new password missing uppercase', async () => {
+      const mockFormData = new FormData()
+      mockFormData.append('currentPassword', 'OldPassword123!')
+      mockFormData.append('newPassword', 'newpassword123!')
+
+      const result = await changePasswordAction(mockFormData)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Password must contain at least one uppercase letter')
+    })
+
+    it('should return validation error for new password missing lowercase', async () => {
+      const mockFormData = new FormData()
+      mockFormData.append('currentPassword', 'OldPassword123!')
+      mockFormData.append('newPassword', 'NEWPASSWORD123!')
+
+      const result = await changePasswordAction(mockFormData)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Password must contain at least one lowercase letter')
+    })
+
+    it('should return validation error for new password missing number', async () => {
+      const mockFormData = new FormData()
+      mockFormData.append('currentPassword', 'OldPassword123!')
+      mockFormData.append('newPassword', 'NewPassword!')
+
+      const result = await changePasswordAction(mockFormData)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Password must contain at least one number')
+    })
+
+    it('should return validation error for new password missing special character', async () => {
+      const mockFormData = new FormData()
+      mockFormData.append('currentPassword', 'OldPassword123!')
+      mockFormData.append('newPassword', 'NewPassword123')
+
+      const result = await changePasswordAction(mockFormData)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Password must contain at least one special character')
+    })
+
+    it('should handle user authentication errors', async () => {
+      const mockFormData = new FormData()
+      mockFormData.append('currentPassword', 'OldPassword123!')
+      mockFormData.append('newPassword', 'NewPassword123!')
+
+      // Clear any existing mocks
+      vi.clearAllMocks()
+      
+      // Reset the createClient mock to return our mockSupabase
+      mockCreateClient.mockReturnValue(mockSupabase as any)
+      
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: null },
+        error: { message: 'Authentication failed' }
+      })
+
+      const result = await changePasswordAction(mockFormData)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('User not authenticated')
+    })
+
+    it('should handle incorrect current password', async () => {
+      const mockFormData = new FormData()
+      mockFormData.append('currentPassword', 'WrongPassword123!')
+      mockFormData.append('newPassword', 'NewPassword123!')
+
+      const mockUser = { id: 'user-123', email: 'test@example.com' }
+      
+      // Clear any existing mocks
+      vi.clearAllMocks()
+      
+      // Reset the createClient mock to return our mockSupabase
+      mockCreateClient.mockReturnValue(mockSupabase as any)
+      
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: mockUser },
+        error: null
+      })
+      
+      mockSupabase.auth.signInWithPassword.mockResolvedValue({
+        data: { user: null, session: null },
+        error: { message: 'Invalid credentials' }
+      })
+
+      const result = await changePasswordAction(mockFormData)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Current password is incorrect')
+    })
+
+    it('should handle password update errors', async () => {
+      const mockFormData = new FormData()
+      mockFormData.append('currentPassword', 'OldPassword123!')
+      mockFormData.append('newPassword', 'NewPassword123!')
+
+      const mockUser = { id: 'user-123', email: 'test@example.com' }
+      
+      // Clear any existing mocks
+      vi.clearAllMocks()
+      
+      // Reset the createClient mock to return our mockSupabase
+      mockCreateClient.mockReturnValue(mockSupabase as any)
+      
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: mockUser },
+        error: null
+      })
+      
+      mockSupabase.auth.signInWithPassword.mockResolvedValue({
+        data: { user: mockUser, session: {} },
+        error: null
+      })
+      
+      mockSupabase.auth.updateUser.mockResolvedValue({
+        data: { user: null },
+        error: { message: 'Password update failed' }
+      })
+
+      const result = await changePasswordAction(mockFormData)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Password update failed')
+    })
+
+    it('should handle unexpected errors', async () => {
+      const mockFormData = new FormData()
+      mockFormData.append('currentPassword', 'OldPassword123!')
+      mockFormData.append('newPassword', 'NewPassword123!')
+
+      // Clear any existing mocks
+      vi.clearAllMocks()
+      
+      // Reset the createClient mock to return our mockSupabase
+      mockCreateClient.mockReturnValue(mockSupabase as any)
+      
+      mockSupabase.auth.getUser.mockRejectedValue(new Error('Network error'))
+
+      const result = await changePasswordAction(mockFormData)
 
       expect(result.success).toBe(false)
       expect(result.error).toBe('An unexpected error occurred')
