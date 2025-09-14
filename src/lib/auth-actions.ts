@@ -519,9 +519,19 @@ export async function changePasswordAction(formData: FormData): Promise<AuthResu
       }
     }
 
+    // Check if user has an email address (required for password verification)
+    if (!user.email) {
+      return {
+        success: false,
+        error: 'Cannot change password: user account does not have an email address. Please contact support.',
+      }
+    }
+
     // Verify current password by attempting to sign in
+    // Note: This is the recommended approach for password verification in Supabase
+    // as reauthenticate() is not available in the current version
     const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: user.email!,
+      email: user.email,
       password: currentPassword,
     })
 
