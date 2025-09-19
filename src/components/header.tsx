@@ -2,12 +2,6 @@ import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { NavHoverMenu } from '@/components/nav-hover-menu'
 import { AccountHoverMenu } from '@/components/account-hover-menu'
 
