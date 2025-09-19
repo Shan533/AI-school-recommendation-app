@@ -1,10 +1,22 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { FloatingAlert } from '@/components/floating-alert'
 
-export default async function Home() {
+export default async function Home({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const params = await searchParams
+  const showLoginSuccess = params?.login === '1'
+  const showLogoutSuccess = params?.logout === '1'
   return (
     <div className="bg-gradient-to-br from-blue-50 to-indigo-100">
+
+      {/* Login Success Alert (floating, auto dismiss) */}
+      {showLoginSuccess && (
+        <FloatingAlert title="Welcome back! 🎉" description="You're now signed in." />
+      )}
+      {showLogoutSuccess && (
+        <FloatingAlert title="Signed out" description="You've been logged out successfully." />
+      )}
 
       {/* Hero */}
       <section className="container mx-auto px-6 py-[clamp(2rem,8vh,6rem)] text-center">

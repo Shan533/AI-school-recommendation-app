@@ -64,8 +64,8 @@ export async function loginAction(formData: FormData): Promise<AuthResult> {
       }
     }
 
-    // Redirect on success - this will throw an error internally but that's expected
-    redirect('/')
+    // Redirect on success with login success flag
+    redirect('/?login=1')
   } catch (error) {
     // Check if this is a redirect error (which is expected behavior)
     if (error && typeof error === 'object' && 'message' in error && error.message === 'NEXT_REDIRECT') {
@@ -253,7 +253,7 @@ export async function logoutAction(): Promise<void> {
   const supabase = createClient(cookieStore)
   
   await supabase.auth.signOut()
-  redirect('/')
+  redirect('/?logout=1')
 }
 
 // Password reset validation schema

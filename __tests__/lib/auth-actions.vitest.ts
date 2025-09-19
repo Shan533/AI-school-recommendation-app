@@ -108,7 +108,7 @@ describe('Authentication Actions', () => {
       // The function should redirect on success, which throws an error
       // We expect the redirect to be called and the function to throw
       await expect(loginAction(formData)).rejects.toThrow()
-      expect(mockRedirect).toHaveBeenCalledWith('/')
+      expect(mockRedirect).toHaveBeenCalledWith('/?login=1')
       expect(mockSupabaseClient.auth.signInWithPassword).toHaveBeenCalledWith({
         email: 'test@example.com',
         password: 'ValidPass123!'
@@ -346,7 +346,7 @@ describe('Authentication Actions', () => {
       // Should redirect after logout
       await expect(logoutAction()).rejects.toThrow('NEXT_REDIRECT')
       expect(mockSupabaseClient.auth.signOut).toHaveBeenCalled()
-      expect(mockRedirect).toHaveBeenCalledWith('/')
+      expect(mockRedirect).toHaveBeenCalledWith('/?logout=1')
     })
 
     it('should handle logout errors gracefully', async () => {
@@ -357,7 +357,7 @@ describe('Authentication Actions', () => {
       // Should still redirect even if logout has errors
       await expect(logoutAction()).rejects.toThrow('NEXT_REDIRECT')
       expect(mockSupabaseClient.auth.signOut).toHaveBeenCalled()
-      expect(mockRedirect).toHaveBeenCalledWith('/')
+      expect(mockRedirect).toHaveBeenCalledWith('/?logout=1')
     })
   })
 
