@@ -85,6 +85,8 @@ async function createProgram(formData: FormData) {
     delivery_method: formData.get('delivery_method') as string,
     schedule_type: formData.get('schedule_type') as string,
     location: formData.get('location') as string,
+    application_difficulty: (formData.get('application_difficulty') as string) || null,
+    difficulty_description: (formData.get('difficulty_description') as string) || null,
     add_ons: addOns,
     start_date: formData.get('start_date') as string || null,
     created_by: user.id,
@@ -207,7 +209,15 @@ export default async function ProgramsManagementPage(props: {
                 
                 <div>
                   <Label htmlFor="degree">Degree *</Label>
-                  <Input id="degree" name="degree" placeholder="e.g., MS, PhD, BS" required />
+                  <select id="degree" name="degree" required className="w-full p-2 border border-gray-300 rounded-md">
+                    <option value="">Select degree</option>
+                    <option value="Bachelor">Bachelor</option>
+                    <option value="Master">Master</option>
+                    <option value="PhD">PhD</option>
+                    <option value="Associate">Associate</option>
+                    <option value="Certificate">Certificate</option>
+                    <option value="Diploma">Diploma</option>
+                  </select>
                 </div>
                 
                 <div className="md:col-span-2">
@@ -256,6 +266,7 @@ export default async function ProgramsManagementPage(props: {
                     <option value="Onsite">Onsite</option>
                     <option value="Online">Online</option>
                     <option value="Hybrid">Hybrid</option>
+                    <option value="Flexible">Flexible</option>
                   </select>
                 </div>
                 
@@ -265,6 +276,7 @@ export default async function ProgramsManagementPage(props: {
                     <option value="">Select schedule type</option>
                     <option value="Full-time">Full-time</option>
                     <option value="Part-time">Part-time</option>
+                    <option value="Flexible">Flexible</option>
                   </select>
                 </div>
                 
@@ -421,6 +433,22 @@ export default async function ProgramsManagementPage(props: {
                   <Label htmlFor="other_tests">Other Tests</Label>
                   <Input id="other_tests" name="other_tests" placeholder="e.g., GMAT, SAT" />
                 </div>
+
+                  <div>
+                    <Label htmlFor="application_difficulty">Application Difficulty</Label>
+                    <select id="application_difficulty" name="application_difficulty" className="w-full p-2 border border-gray-300 rounded-md">
+                      <option value="">Select difficulty</option>
+                      <option value="SSR">SSR</option>
+                      <option value="SR">SR</option>
+                      <option value="R">R</option>
+                      <option value="N">N</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="difficulty_description">Difficulty Description</Label>
+                    <Textarea id="difficulty_description" name="difficulty_description" rows={2} />
+                  </div>
                 
                 <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="flex items-center space-x-2">

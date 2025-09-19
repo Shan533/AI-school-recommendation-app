@@ -103,6 +103,8 @@ export default function ProgramsManagement({ initialPrograms, schools }: Program
         delivery_method: formData.get('delivery_method') as string,
         schedule_type: formData.get('schedule_type') as string,
         location: formData.get('location') as string,
+        application_difficulty: (formData.get('application_difficulty') as string) || null,
+        difficulty_description: (formData.get('difficulty_description') as string) || null,
         add_ons: addOns,
         start_date: formData.get('start_date') as string || null,
         // Requirements
@@ -352,31 +354,6 @@ export default function ProgramsManagement({ initialPrograms, schools }: Program
               <div className="border rounded-lg p-4">
                 <h3 className="text-lg font-semibold mb-4">Program Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="edit-application_difficulty">Application Difficulty</Label>
-                    <select 
-                      id="edit-application_difficulty" 
-                      name="application_difficulty" 
-                      className="w-full p-2 border border-gray-300 rounded-md"
-                      defaultValue={editingProgram.application_difficulty || ''}
-                    >
-                      <option value="">Select difficulty</option>
-                      <option value="SSR">SSR</option>
-                      <option value="SR">SR</option>
-                      <option value="R">R</option>
-                      <option value="N">N</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="edit-difficulty_description">Difficulty Description</Label>
-                    <Textarea 
-                      id="edit-difficulty_description" 
-                      name="difficulty_description" 
-                      rows={2} 
-                      defaultValue={editingProgram.difficulty_description || ''}
-                    />
-                  </div>
                   <div>
                     <Label htmlFor="edit-duration_years">Duration (years)</Label>
                     <Input 
@@ -632,6 +609,32 @@ export default function ProgramsManagement({ initialPrograms, schools }: Program
                       name="other_tests" 
                       placeholder="e.g., GMAT, SAT" 
                       defaultValue={editingProgram.requirements?.other_tests || ''}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="edit-application_difficulty">Application Difficulty</Label>
+                    <select 
+                      id="edit-application_difficulty" 
+                      name="application_difficulty" 
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      defaultValue={editingProgram.application_difficulty || ''}
+                    >
+                      <option value="">Select difficulty</option>
+                      <option value="SSR">SSR</option>
+                      <option value="SR">SR</option>
+                      <option value="R">R</option>
+                      <option value="N">N</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="edit-difficulty_description">Difficulty Description</Label>
+                    <Textarea 
+                      id="edit-difficulty_description" 
+                      name="difficulty_description" 
+                      rows={2} 
+                      defaultValue={editingProgram.difficulty_description || ''}
                     />
                   </div>
                   
