@@ -21,7 +21,7 @@ VALUES ('00000000-0000-0000-0000-000000000001', 'Test Admin', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Insert a test school
-INSERT INTO schools (id, name, type, country, location, created_by)
+INSERT INTO schools (id, name, type, region, location, created_by)
 VALUES (
   '11111111-1111-1111-1111-111111111111',
   'Test University',

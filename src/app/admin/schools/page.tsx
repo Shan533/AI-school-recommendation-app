@@ -37,7 +37,7 @@ async function createSchool(formData: FormData) {
     name: formData.get('name') as string,
     initial: formData.get('initial') as string,
     type: formData.get('type') as string,
-    country: formData.get('country') as string,
+    region: formData.get('region') as string,
     location: formData.get('location') as string,
     year_founded: formData.get('year_founded') ? parseInt(formData.get('year_founded') as string) : null,
     qs_ranking: formData.get('qs_ranking') ? parseInt(formData.get('qs_ranking') as string) : null,
@@ -110,12 +110,26 @@ export default async function SchoolsManagementPage(props: {
             
             <div>
               <Label htmlFor="type">Type</Label>
-              <Input id="type" name="type" placeholder="e.g., University" />
+              <select id="type" name="type" className="w-full p-2 border border-gray-300 rounded-md">
+                <option value="">Select type</option>
+                <option value="Public">Public</option>
+                <option value="Private">Private</option>
+                <option value="Art & Design">Art & Design</option>
+                <option value="Community College">Community College</option>
+              </select>
             </div>
             
             <div>
-              <Label htmlFor="country">Country</Label>
-              <Input id="country" name="country" />
+              <Label htmlFor="region">Region</Label>
+              <select id="region" name="region" className="w-full p-2 border border-gray-300 rounded-md">
+                <option value="">Select region</option>
+                <option value="United States">United States</option>
+                <option value="United Kingdom">United Kingdom</option>
+                <option value="Canada">Canada</option>
+                <option value="Europe">Europe</option>
+                <option value="Asia">Asia</option>
+                <option value="Australia">Australia</option>
+              </select>
             </div>
             
             <div>

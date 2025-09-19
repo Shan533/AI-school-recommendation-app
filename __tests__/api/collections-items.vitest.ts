@@ -37,7 +37,7 @@ const mockCollectionItem = {
     name: 'Test School',
     initial: 'TS',
     location: 'Test City',
-    country: 'Test Country'
+    region: 'United States'
   }
 }
 

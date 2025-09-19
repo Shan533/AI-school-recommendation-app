@@ -47,6 +47,9 @@ interface Program {
   location?: string
   add_ons?: Record<string, unknown>
   start_date?: string
+  // New optional fields aligned with schema enhancements
+  application_difficulty?: 'SSR' | 'SR' | 'R' | 'N'
+  difficulty_description?: string
   schools?: School
   requirements?: Requirements
 }
@@ -316,13 +319,21 @@ export default function ProgramsManagement({ initialPrograms, schools }: Program
                   
                   <div>
                     <Label htmlFor="edit-degree">Degree *</Label>
-                    <Input 
+                    <select 
                       id="edit-degree" 
                       name="degree" 
-                      placeholder="e.g., MS, PhD, BS" 
+                      className="w-full p-2 border border-gray-300 rounded-md"
                       defaultValue={editingProgram.degree}
                       required 
-                    />
+                    >
+                      <option value="">Select degree</option>
+                      <option value="Bachelor">Bachelor</option>
+                      <option value="Master">Master</option>
+                      <option value="PhD">PhD</option>
+                      <option value="Associate">Associate</option>
+                      <option value="Certificate">Certificate</option>
+                      <option value="Diploma">Diploma</option>
+                    </select>
                   </div>
                   
                   <div className="md:col-span-2">
@@ -341,6 +352,31 @@ export default function ProgramsManagement({ initialPrograms, schools }: Program
               <div className="border rounded-lg p-4">
                 <h3 className="text-lg font-semibold mb-4">Program Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="edit-application_difficulty">Application Difficulty</Label>
+                    <select 
+                      id="edit-application_difficulty" 
+                      name="application_difficulty" 
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      defaultValue={editingProgram.application_difficulty || ''}
+                    >
+                      <option value="">Select difficulty</option>
+                      <option value="SSR">SSR</option>
+                      <option value="SR">SR</option>
+                      <option value="R">R</option>
+                      <option value="N">N</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="edit-difficulty_description">Difficulty Description</Label>
+                    <Textarea 
+                      id="edit-difficulty_description" 
+                      name="difficulty_description" 
+                      rows={2} 
+                      defaultValue={editingProgram.difficulty_description || ''}
+                    />
+                  </div>
                   <div>
                     <Label htmlFor="edit-duration_years">Duration (years)</Label>
                     <Input 
@@ -383,6 +419,7 @@ export default function ProgramsManagement({ initialPrograms, schools }: Program
                       <option value="Onsite">Onsite</option>
                       <option value="Online">Online</option>
                       <option value="Hybrid">Hybrid</option>
+                      <option value="Flexible">Flexible</option>
                     </select>
                   </div>
                   
@@ -397,6 +434,7 @@ export default function ProgramsManagement({ initialPrograms, schools }: Program
                       <option value="">Select schedule type</option>
                       <option value="Full-time">Full-time</option>
                       <option value="Part-time">Part-time</option>
+                      <option value="Flexible">Flexible</option>
                     </select>
                   </div>
                   

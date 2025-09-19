@@ -113,7 +113,7 @@ export async function POST(
           name,
           initial,
           location,
-          country
+          region
         ),
         programs (
           id,
