@@ -103,7 +103,7 @@ describe('Schools Admin API', () => {
             data: {
               id: 'school-123',
               name: 'Test University',
-              country: 'USA',
+              region: 'United States',
               created_by: 'admin-123'
             },
             error: null
@@ -119,7 +119,7 @@ describe('Schools Admin API', () => {
 
       const schoolData = {
         name: 'Test University',
-        country: 'USA',
+        region: 'United States',
         type: 'Public',
         location: 'New York'
       }
@@ -135,7 +135,7 @@ describe('Schools Admin API', () => {
         name: 'Test University',
         initial: null,
         type: 'Public',
-        country: 'USA',
+        region: 'United States',
         location: 'New York',
         year_founded: null,
         qs_ranking: null,
@@ -173,7 +173,7 @@ describe('Schools Admin API', () => {
       mockGetCurrentUser.mockResolvedValue({ id: 'admin-123' } as any)
       mockIsAdmin.mockResolvedValue(true)
 
-      const request = createRequest({ country: 'USA' }) // Missing name
+      const request = createRequest({ region: 'United States' }) // Missing name
       const response = await POST(request)
       const result = await response.json()
 
@@ -231,7 +231,7 @@ describe('Schools Admin API', () => {
           data: [{
             id: 'school-123',
             name: 'Test University',
-            country: 'USA',
+            region: 'United States',
             type: 'Public'
           }],
           error: null
@@ -369,7 +369,7 @@ describe('Schools Admin API', () => {
             data: [{
               id: 'school-123',
               name: 'Updated University',
-              country: 'Canada'
+              region: 'Canada'
             }],
             error: null
           })
@@ -382,7 +382,7 @@ describe('Schools Admin API', () => {
 
       const updateData = {
         name: 'Updated University',
-        country: 'Canada',
+        region: 'Canada',
         type: 'Private'
       }
 
@@ -443,7 +443,7 @@ describe('Schools Admin API', () => {
         delete: vi.fn()
       })
 
-      const request = createPutRequest({ country: 'USA' }) // Missing name
+      const request = createPutRequest({ region: 'United States' }) // Missing name
       const params = Promise.resolve({ id: 'school-123' })
       const response = await PUT(request, { params })
       const result = await response.json()

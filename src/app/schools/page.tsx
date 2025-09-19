@@ -129,7 +129,7 @@ export default async function SchoolsPage(props: {
                 <div className="space-y-2 text-sm text-gray-600 mb-4 flex-grow">
                   {school.type && <p><strong>Type:</strong> {school.type}</p>}
                   {school.location && <p><strong>Location:</strong> {school.location}</p>}
-                  {school.country && <p><strong>Country:</strong> {school.country}</p>}
+                  {school.region && <p><strong>Region:</strong> {school.region}</p>}
                   {school.year_founded && <p><strong>Founded:</strong> {school.year_founded}</p>}
                 </div>
                 

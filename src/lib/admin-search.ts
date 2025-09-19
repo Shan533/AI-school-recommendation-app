@@ -199,15 +199,15 @@ export function simpleFilterItems<T extends SearchableItem>(
  */
 export const searchConfigs = {
   schools: {
-    fields: ['name', 'initial', 'type', 'country', 'location'],
-    placeholder: 'Search schools by name, abbreviation, type, country, or location...',
-    helpText: 'Search works on: school names, abbreviations (e.g. "CMU"), type, country, and location'
+    fields: ['name', 'initial', 'type', 'region', 'location'],
+    placeholder: 'Search schools by name, abbreviation, type, region, or location...',
+    helpText: 'Search works on: school names, abbreviations (e.g. "CMU"), type, region, and location'
   },
   
   programs: {
-    fields: ['name', 'initial', 'degree', 'schools.name', 'schools.initial', 'description'],
-    placeholder: 'Search programs by name, abbreviation, degree, school, or description...',
-    helpText: 'Search works on: program names, abbreviations, degrees, school names/abbreviations, and descriptions'
+    fields: ['name', 'initial', 'degree', 'schools.name', 'schools.initial', 'schools.region', 'description'],
+    placeholder: 'Search programs by name, abbreviation, degree, school, region, or description...',
+    helpText: 'Search works on: program names, abbreviations, degrees, school names/abbreviations, regions, and descriptions'
   },
   
   users: {

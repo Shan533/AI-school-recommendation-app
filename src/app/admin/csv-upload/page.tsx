@@ -45,7 +45,7 @@ export default function CSVUpload() {
                   name: school.name,
                   initial: school.initial,
                   type: school.type,
-                  country: school.country,
+                  region: school.region ?? school.country,
                   location: school.location,
                   year_founded: school.year_founded ? parseInt(school.year_founded) : null,
                   qs_ranking: school.qs_ranking ? parseInt(school.qs_ranking) : null,
@@ -203,7 +203,7 @@ export default function CSVUpload() {
                 <li>name (required)</li>
                 <li>initial</li>
                 <li>type</li>
-                <li>country</li>
+                <li>region (enum: United States, United Kingdom, Canada, Europe, Asia, Australia, Other)</li>
                 <li>location</li>
                 <li>year_founded (number)</li>
                 <li>qs_ranking (number)</li>

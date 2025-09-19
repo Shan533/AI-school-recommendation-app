@@ -374,7 +374,7 @@ describe('Supabase Helpers', () => {
               name: 'Harvard University',
               initial: 'HU',
               location: 'Cambridge, MA',
-              country: 'USA'
+              region: 'United States'
             },
             programs: null
           }
