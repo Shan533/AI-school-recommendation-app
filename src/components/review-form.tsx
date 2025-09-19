@@ -505,7 +505,7 @@ export function ReviewForm({ type, itemId, itemName, userReviews = [], onSuccess
           </div>
         </div>
 
-        {rating > 0 && (
+        {rating > 0 && !showCommentForm && (
           <div className="flex gap-2 sm:gap-3">
             <Button 
               onClick={handleQuickRatingSubmit}
