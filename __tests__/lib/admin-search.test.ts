@@ -2,11 +2,11 @@ import { filterItems, searchConfigs, MatchType, getMatchInfo, simpleFilterItems 
 
 // Mock data for testing
 const mockSchools = [
-  { id: '1', name: 'Carnegie Mellon University', initial: 'CMU', country: 'USA', location: 'Pittsburgh' },
-  { id: '2', name: 'Massachusetts Institute of Technology', initial: 'MIT', country: 'USA', location: 'Cambridge' },
-  { id: '3', name: 'Stanford University', initial: 'Stanford', country: 'USA', location: 'Stanford' },
-  { id: '4', name: 'University of California Berkeley', initial: 'UC Berkeley', country: 'USA', location: 'Berkeley' },
-  { id: '5', name: 'Cornell University', initial: 'Cornell', country: 'USA', location: 'Ithaca' }
+  { id: '1', name: 'Carnegie Mellon University', initial: 'CMU', region: 'United States', location: 'Pittsburgh' },
+  { id: '2', name: 'Massachusetts Institute of Technology', initial: 'MIT', region: 'United States', location: 'Cambridge' },
+  { id: '3', name: 'Stanford University', initial: 'Stanford', region: 'United States', location: 'Stanford' },
+  { id: '4', name: 'University of California Berkeley', initial: 'UC Berkeley', region: 'United States', location: 'Berkeley' },
+  { id: '5', name: 'Cornell University', initial: 'Cornell', region: 'United States', location: 'Ithaca' }
 ]
 
 const mockPrograms = [
@@ -94,12 +94,12 @@ describe('Admin Search System', () => {
       expect(results.every(school => school.name.includes('University'))).toBe(true)
     })
 
-    test('should find schools by country', () => {
+    test('should find schools by region', () => {
       const results = filterItems(mockSchools, {
         fields: searchConfigs.schools.fields,
-        searchTerm: 'USA'
+        searchTerm: 'United States'
       })
-      expect(results).toHaveLength(5) // All mock schools are in USA
+      expect(results).toHaveLength(5) // All mock schools are in the United States
     })
 
     test('should find schools by location', () => {
@@ -265,13 +265,13 @@ describe('Admin Search System', () => {
         id: `${i}`,
         name: `School ${i}`,
         initial: `S${i}`,
-        country: i % 2 === 0 ? 'USA' : 'Canada'
+        region: i % 2 === 0 ? 'United States' : 'Canada'
       }))
 
       const startTime = performance.now()
       const results = filterItems(largeDataset, {
-        fields: ['name', 'initial', 'country'],
-        searchTerm: 'USA'
+        fields: ['name', 'initial', 'region'],
+        searchTerm: 'United States'
       })
       const endTime = performance.now()
 

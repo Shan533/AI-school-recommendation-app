@@ -32,7 +32,7 @@ async function getProgram(id: string) {
         initial,
         type,
         location,
-        country,
+        region,
         qs_ranking,
         website_url
       ),
@@ -334,10 +334,10 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
                   <p>{program.schools.location}</p>
                 </div>
               )}
-              {program.schools.country && (
+              {program.schools.region && (
                 <div>
                   <h4 className="font-semibold text-gray-700">Country</h4>
-                  <p>{program.schools.country}</p>
+                  <p>{program.schools.region}</p>
                 </div>
               )}
             </div>

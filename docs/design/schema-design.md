@@ -15,7 +15,7 @@ Supabase's `auth.users` table will handle user data. A `profiles` table will sto
 *   `name` (text, not null)
 *   `initial` (text)
 *   `type` (text)
-*   `country` (text)
+*   `region` (enum) - One of: 'United States', 'United Kingdom', 'Canada', 'Europe', 'Asia', 'Australia', 'Other'
 *   `location` (text)
 *   `year_founded` (integer)
 *   `qs_ranking` (integer)
@@ -41,6 +41,8 @@ Supabase's `auth.users` table will handle user data. A `profiles` table will sto
 *   `location` (text) - *ADD: Program-specific location, defaults to school location*
 *   `add_ons` (jsonb) - *ADD: For storing additional structured info like scholarships*
 *   `start_date` (date) - *ADD: Program start date*
+*   `application_difficulty` (varchar) - *One of 'SSR' | 'SR' | 'R' | 'N'; indexed*
+*   `difficulty_description` (text)
 *   `created_by` (uuid, foreign key to `auth.users.id`)
 *   `created_at` (timestamp with time zone)
 

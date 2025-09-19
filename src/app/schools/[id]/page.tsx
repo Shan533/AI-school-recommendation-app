@@ -226,10 +226,10 @@ export default async function SchoolDetailPage({ params }: { params: Promise<{ i
                 <p>{school.location}</p>
               </div>
             )}
-            {school.country && (
+            {school.region && (
               <div>
-                <h4 className="font-semibold text-gray-700">Country</h4>
-                <p>{school.country}</p>
+                <h4 className="font-semibold text-gray-700">Region</h4>
+                <p>{school.region}</p>
               </div>
             )}
             {school.year_founded && (
