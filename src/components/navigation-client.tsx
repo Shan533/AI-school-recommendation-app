@@ -92,7 +92,7 @@ export function NavigationClient() {
             </Button>
           )}
           <form action="/api/auth/logout" method="post">
-            <Button type="submit" variant="secondary" size="sm" className="cursor-pointer">
+            <Button type="submit" variant="secondary" size="sm" className="cursor-pointer bg-black text-white">
               Logout
             </Button>
           </form>
