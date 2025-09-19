@@ -394,13 +394,13 @@ describe('api-utils', () => {
       // User 1 should be allowed
       expect(checkRateLimit('user-1', endpoint, maxRequests, 60000)).toBe(true)
       
-      // User 2 should also be allowed (different user)
+      // User 2 should also be allowed (different user, separate rate limit)
       expect(checkRateLimit('user-2', endpoint, maxRequests, 60000)).toBe(true)
       
-      // User 1 should be blocked now
+      // User 1 should be blocked now (exceeded their limit)
       expect(checkRateLimit('user-1', endpoint, maxRequests, 60000)).toBe(false)
       
-      // User 2 should still be allowed
+      // User 2 should also be blocked now (exceeded their limit)
       expect(checkRateLimit('user-2', endpoint, maxRequests, 60000)).toBe(false)
     })
 
@@ -411,13 +411,13 @@ describe('api-utils', () => {
       // Endpoint 1 should be allowed
       expect(checkRateLimit(userId, 'endpoint-1', maxRequests, 60000)).toBe(true)
       
-      // Endpoint 2 should also be allowed (different endpoint)
+      // Endpoint 2 should also be allowed (different endpoint, separate rate limit)
       expect(checkRateLimit(userId, 'endpoint-2', maxRequests, 60000)).toBe(true)
       
-      // Endpoint 1 should be blocked now
+      // Endpoint 1 should be blocked now (exceeded limit for this endpoint)
       expect(checkRateLimit(userId, 'endpoint-1', maxRequests, 60000)).toBe(false)
       
-      // Endpoint 2 should still be allowed
+      // Endpoint 2 should also be blocked now (exceeded limit for this endpoint)
       expect(checkRateLimit(userId, 'endpoint-2', maxRequests, 60000)).toBe(false)
     })
 
