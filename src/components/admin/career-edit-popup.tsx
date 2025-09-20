@@ -235,7 +235,7 @@ export function CareerEditPopup({
             <div className="bg-background border rounded-lg p-6 max-w-md w-full mx-4">
               <h3 className="text-lg font-semibold mb-2">Delete Career</h3>
               <p className="text-muted-foreground mb-4">
-                Are you sure you want to delete "{career.name}"? This action cannot be undone.
+                Are you sure you want to delete &quot;{career.name}&quot;? This action cannot be undone.
               </p>
               <div className="flex justify-end gap-2">
                 <Button

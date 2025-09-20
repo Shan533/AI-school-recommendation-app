@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
-import { Career } from '@/lib/types'
 import { validateCareerData } from '@/lib/validation'
 
 export async function GET() {

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Plus, Edit, Trash2, Search, X, UserPlus } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { Plus, Edit, Trash2, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -33,7 +33,7 @@ export function CategoryManagement({ className }: CategoryManagementProps) {
   const [selectedCategoryForCareerManagement, setSelectedCategoryForCareerManagement] = useState<ProgramCategory | null>(null)
 
   // Load categories
-  const loadCategories = async () => {
+  const loadCategories = useCallback(async () => {
     try {
       setIsLoading(true)
       setError(null)
@@ -60,10 +60,10 @@ export function CategoryManagement({ className }: CategoryManagementProps) {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [selectedCategoryForCareerManagement])
 
   // Load careers
-  const loadCareers = async () => {
+  const loadCareers = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/careers')
       if (!response.ok) {
@@ -75,14 +75,14 @@ export function CategoryManagement({ className }: CategoryManagementProps) {
     } catch (err) {
       console.error('Failed to load careers:', err)
     }
-  }
+  }, [])
 
   useEffect(() => {
     const loadData = async () => {
       await Promise.all([loadCategories(), loadCareers()])
     }
     loadData()
-  }, [])
+  }, [loadCategories, loadCareers])
 
   // Filter categories based on search
   const filteredCategories = categories.filter(category =>
@@ -266,10 +266,10 @@ export function CategoryManagement({ className }: CategoryManagementProps) {
   }
 
   // Handle open career form for specific category
-  const handleOpenCareerForm = (categoryId: string) => {
-    setSelectedCategoryId(categoryId)
-    setShowCareerForm(true)
-  }
+  // const handleOpenCareerForm = (categoryId: string) => {
+  //   setSelectedCategoryId(categoryId)
+  //   setShowCareerForm(true)
+  // }
 
   // Handle open career management popup
   const handleOpenCareerManagement = (category: ProgramCategory) => {

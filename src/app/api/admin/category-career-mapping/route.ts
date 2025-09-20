@@ -37,18 +37,18 @@ export async function GET() {
     // Transform the data to a more useful format
     const categoryCareerMap: Record<string, Array<{ id: string; name: string; abbreviation: string }>> = {}
     
-    mappings?.forEach((mapping: any) => {
-      const categoryId = mapping.category_id
-      const career = mapping.careers
+    mappings?.forEach((mapping: Record<string, unknown>) => {
+      const categoryId = mapping.category_id as string
+      const career = mapping.careers as Record<string, unknown>
       
       if (career) {
         if (!categoryCareerMap[categoryId]) {
           categoryCareerMap[categoryId] = []
         }
         categoryCareerMap[categoryId].push({
-          id: career.id,
-          name: career.name,
-          abbreviation: career.abbreviation
+          id: career.id as string,
+          name: career.name as string,
+          abbreviation: career.abbreviation as string
         })
       }
     })
