@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
 import CollectionItemsView from '@/components/collections/collection-items-view'
-import type { Collection } from '@/lib/validation'
+import type { Collection } from '@/lib/types/collections'
 
 export default async function CollectionDetailPage({ 
   params 

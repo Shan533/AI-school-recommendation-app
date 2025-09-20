@@ -1,23 +1,19 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Search, Filter, Download, Upload, RefreshCw } from 'lucide-react'
+import { Search, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { BulkAssignmentPanel } from './bulk-assignment-panel'
-import { CategoryMultiSelector, ProgramCategory } from './category-multi-selector'
-import { CareerPathMultiSelector } from './career-path-multi-selector'
 import { 
   EnhancedProgram, 
   BulkAssignmentData, 
-  BulkAssignmentResult,
-  ProgramCategoryInfo,
-  ProgramCareerInfo,
-  ApplicationDifficulty 
+  BulkAssignmentResult
 } from '@/lib/types/schema-enhancements'
+import { ProgramCategory } from '@/lib/types'
 
 interface ProgramCategoriesAssignmentPageProps {
   className?: string

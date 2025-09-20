@@ -31,14 +31,14 @@ export type {
 // COMMON UTILITY TYPES
 // ============================================================================
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   data?: T
   error?: string
   message?: string
   success: boolean
 }
 
-export interface PaginatedApiResponse<T = any> extends ApiResponse<T[]> {
+export interface PaginatedApiResponse<T = unknown> extends ApiResponse<T[]> {
   pagination: {
     page: number
     limit: number

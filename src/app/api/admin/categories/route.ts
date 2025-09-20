@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/helpers'
-import { ProgramCategory, CategoryManagementForm } from '@/lib/types'
+import { CategoryManagementForm } from '@/lib/types'
 import { validateCategoryData } from '@/lib/validation'
 
 // GET /api/admin/categories - List all categories
@@ -48,10 +48,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform the data to include career_paths
-    const transformedCategories = (categories || []).map((category: any) => {
-      const careerPaths = category.category_career_mapping
-        ?.filter((mapping: any) => mapping.is_default)
-        ?.map((mapping: any) => mapping.careers?.name)
+    const transformedCategories = (categories || []).map((category: Record<string, unknown>) => {
+      const careerPaths = (category.category_career_mapping as Array<Record<string, unknown>>)
+        ?.filter((mapping: Record<string, unknown>) => mapping.is_default)
+        ?.map((mapping: Record<string, unknown>) => (mapping.careers as Record<string, unknown>)?.name)
         ?.filter(Boolean) || []
       
       return {
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
     const body: CategoryManagementForm = await request.json()
 
     // Validate category data
-    const validation = validateCategoryData(body)
+    const validation = validateCategoryData(body as unknown as Record<string, unknown>)
     if (!validation.valid) {
       return NextResponse.json(
         { 
