@@ -15,7 +15,7 @@ import {
 
 describe('schema-enhancements types/constants', () => {
   it('defines difficulty values and map coherently', () => {
-    expect(APPLICATION_DIFFICULTY_VALUES).toEqual(['SSR', 'SR', 'R', 'N'])
+    expect(APPLICATION_DIFFICULTY_VALUES).toEqual(['Easy', 'Medium', 'Hard', 'Very Hard'])
     for (const key of APPLICATION_DIFFICULTY_VALUES) {
       const info = DIFFICULTY_LEVELS[key]
       expect(info.level).toBe(key)
@@ -24,8 +24,8 @@ describe('schema-enhancements types/constants', () => {
     }
 
     // Type-level check
-    const sample: DifficultyInfo = DIFFICULTY_LEVELS.SR
-    expect(sample.level).toBe('SR')
+    const sample: DifficultyInfo = DIFFICULTY_LEVELS.Medium
+    expect(sample.level).toBe('Medium')
   })
 
   it('includes expected delivery, schedule and degree options', () => {
@@ -42,10 +42,10 @@ describe('schema-enhancements types/constants', () => {
     const filters: ProgramSearchFilters = {
       search: 'cs',
       region: ['United States', 'Asia'],
-      difficulty: ['SSR', 'R'] satisfies ApplicationDifficulty[]
+      difficulty: ['Easy', 'Medium'] satisfies ApplicationDifficulty[]
     }
     expect(filters.region?.length).toBe(2)
-    expect(filters.difficulty?.includes('SSR')).toBe(true)
+    expect(filters.difficulty?.includes('Easy')).toBe(true)
   })
 
   it('SchoolSearchFilters supports basic constraints', () => {
