@@ -1,19 +1,20 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Search, RefreshCw } from 'lucide-react'
+import { Search, RefreshCw, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { BulkAssignmentPanel } from './bulk-assignment-panel'
+import { CareerManagementPopup } from './career-management-popup'
 import { 
   EnhancedProgram, 
   BulkAssignmentData, 
   BulkAssignmentResult
 } from '@/lib/types/schema-enhancements'
-import { ProgramCategory } from '@/lib/types'
+import { ProgramCategory, Career } from '@/lib/types'
 
 interface ProgramCategoriesAssignmentPageProps {
   className?: string
@@ -29,6 +30,10 @@ export function ProgramCategoriesAssignmentPage({ className }: ProgramCategories
   const [showUnassignedOnly, setShowUnassignedOnly] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  
+  // Career management state
+  const [showCareerManagement, setShowCareerManagement] = useState(false)
+  const [selectedCategoryForCareerManagement, setSelectedCategoryForCareerManagement] = useState<ProgramCategory | null>(null)
 
   // Load initial data
   useEffect(() => {
@@ -111,6 +116,86 @@ export function ProgramCategoriesAssignmentPage({ className }: ProgramCategories
         ? prev.filter(id => id !== programId)
         : [...prev, programId]
     )
+  }
+
+  // Career management handlers
+  const handleOpenCareerManagement = (category: ProgramCategory) => {
+    setSelectedCategoryForCareerManagement(category)
+    setShowCareerManagement(true)
+  }
+
+  const handleAddCareer = async (categoryId: string, careerId: string) => {
+    try {
+      const response = await fetch('/api/admin/category-career-mapping', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          category_id: categoryId,
+          career_id: careerId,
+          is_default: true
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to add career to category')
+      }
+
+      // Reload categories to get updated data
+      await loadData()
+    } catch (err) {
+      console.error('Failed to add career:', err)
+      throw err
+    }
+  }
+
+  const handleRemoveCareer = async (categoryId: string, careerId: string) => {
+    try {
+      const response = await fetch('/api/admin/category-career-mapping', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          category_id: categoryId,
+          career_id: careerId
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to remove career from category')
+      }
+
+      // Reload categories to get updated data
+      await loadData()
+    } catch (err) {
+      console.error('Failed to remove career:', err)
+      throw err
+    }
+  }
+
+  const handleCreateCareer = async (careerData: Partial<Career>) => {
+    try {
+      const response = await fetch('/api/admin/careers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(careerData)
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to create career')
+      }
+
+      const newCareer = await response.json()
+      
+      // If a category is selected, automatically add the new career to it
+      if (selectedCategoryForCareerManagement) {
+        await handleAddCareer(selectedCategoryForCareerManagement.id, newCareer.id)
+      }
+
+      // Reload categories to get updated data
+      await loadData()
+    } catch (err) {
+      console.error('Failed to create career:', err)
+      throw err
+    }
   }
 
   // Filter programs based on search and filters
@@ -249,10 +334,26 @@ export function ProgramCategoriesAssignmentPage({ className }: ProgramCategories
                 `Showing ${filteredPrograms.length} of ${programs.length} programs`
               )}
             </div>
-            <Button onClick={loadData} variant="outline" size="sm">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                onClick={() => {
+                  // Open career management for the first category as a general career management
+                  if (categories.length > 0) {
+                    handleOpenCareerManagement(categories[0])
+                  }
+                }}
+                variant="outline" 
+                size="sm"
+                disabled={categories.length === 0}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Manage Careers
+              </Button>
+              <Button onClick={loadData} variant="outline" size="sm">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -317,13 +418,23 @@ export function ProgramCategoriesAssignmentPage({ className }: ProgramCategories
                     <div className="flex flex-wrap gap-1 mt-2">
                       <span className="text-xs text-muted-foreground mr-1">Categories:</span>
                       {program.categories.map(category => (
-                        <Badge 
-                          key={category.id} 
-                          variant="secondary" 
-                          className="text-xs"
-                        >
-                          {category.abbreviation}
-                        </Badge>
+                        <div key={category.id} className="flex items-center gap-1">
+                          <Badge 
+                            variant="secondary" 
+                            className="text-xs"
+                          >
+                            {category.abbreviation}
+                          </Badge>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-4 w-4 p-0 text-muted-foreground hover:text-primary"
+                            onClick={() => handleOpenCareerManagement(category)}
+                            title={`Manage careers for ${category.name}`}
+                          >
+                            <Plus className="h-3 w-3" />
+                          </Button>
+                        </div>
                       ))}
                     </div>
                   )}
@@ -366,6 +477,19 @@ export function ProgramCategoriesAssignmentPage({ className }: ProgramCategories
           className="mb-6"
         />
       )}
+
+      {/* Career Management Popup */}
+      <CareerManagementPopup
+        category={selectedCategoryForCareerManagement}
+        isOpen={showCareerManagement}
+        onClose={() => {
+          setShowCareerManagement(false)
+          setSelectedCategoryForCareerManagement(null)
+        }}
+        onAddCareer={handleAddCareer}
+        onRemoveCareer={handleRemoveCareer}
+        onCreateCareer={handleCreateCareer}
+      />
     </div>
   )
 }
