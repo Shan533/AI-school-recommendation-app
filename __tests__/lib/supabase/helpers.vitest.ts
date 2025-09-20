@@ -55,12 +55,21 @@ import {
 describe('Supabase Helpers', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockCreateClient.mockReturnValue(mockSupabaseClient)
+    mockCreateClient.mockReturnValue(mockSupabaseClient as any)
   })
 
   describe('getSupabaseClient', () => {
     it('should create Supabase client with cookie store', async () => {
-      const mockCookieStore = { get: vi.fn(), set: vi.fn() }
+      const mockCookieStore = {
+        get: vi.fn(),
+        set: vi.fn(),
+        getAll: vi.fn(),
+        has: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        [Symbol.iterator]: vi.fn(() => [][Symbol.iterator]()),
+        size: 0
+      }
       mockCookies.mockResolvedValue(mockCookieStore)
 
       const client = await getSupabaseClient()
@@ -71,7 +80,16 @@ describe('Supabase Helpers', () => {
     })
 
     it('should handle client creation errors', async () => {
-      const mockCookieStore = { get: vi.fn(), set: vi.fn() }
+      const mockCookieStore = {
+        get: vi.fn(),
+        set: vi.fn(),
+        getAll: vi.fn(),
+        has: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        [Symbol.iterator]: vi.fn(() => [][Symbol.iterator]()),
+        size: 0
+      }
       mockCookies.mockResolvedValue(mockCookieStore)
       mockCreateClient.mockImplementation(() => {
         throw new Error('Client creation failed')
@@ -90,7 +108,16 @@ describe('Supabase Helpers', () => {
         email: 'test@example.com',
         user_metadata: { name: 'Test User' }
       }
-      const mockCookieStore = { get: vi.fn(), set: vi.fn() }
+      const mockCookieStore = {
+        get: vi.fn(),
+        set: vi.fn(),
+        getAll: vi.fn(),
+        has: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        [Symbol.iterator]: vi.fn(() => [][Symbol.iterator]()),
+        size: 0
+      }
       
       mockCookies.mockResolvedValue(mockCookieStore)
       mockSupabaseClient.auth.getUser.mockResolvedValue({
@@ -105,7 +132,16 @@ describe('Supabase Helpers', () => {
     })
 
     it('should return null when not authenticated', async () => {
-      const mockCookieStore = { get: vi.fn(), set: vi.fn() }
+      const mockCookieStore = {
+        get: vi.fn(),
+        set: vi.fn(),
+        getAll: vi.fn(),
+        has: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        [Symbol.iterator]: vi.fn(() => [][Symbol.iterator]()),
+        size: 0
+      }
       
       mockCookies.mockResolvedValue(mockCookieStore)
       mockSupabaseClient.auth.getUser.mockResolvedValue({
@@ -120,7 +156,16 @@ describe('Supabase Helpers', () => {
     })
 
     it('should handle auth errors gracefully', async () => {
-      const mockCookieStore = { get: vi.fn(), set: vi.fn() }
+      const mockCookieStore = {
+        get: vi.fn(),
+        set: vi.fn(),
+        getAll: vi.fn(),
+        has: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        [Symbol.iterator]: vi.fn(() => [][Symbol.iterator]()),
+        size: 0
+      }
       
       mockCookies.mockResolvedValue(mockCookieStore)
       mockSupabaseClient.auth.getUser.mockResolvedValue({
@@ -135,7 +180,16 @@ describe('Supabase Helpers', () => {
     })
 
     it('should handle client creation errors', async () => {
-      mockCookies.mockResolvedValue({ get: vi.fn(), set: vi.fn() })
+      mockCookies.mockResolvedValue({
+        get: vi.fn(),
+        set: vi.fn(),
+        getAll: vi.fn(),
+        has: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        [Symbol.iterator]: vi.fn(() => [][Symbol.iterator]()),
+        size: 0
+      } as any)
       mockCreateClient.mockImplementation(() => {
         throw new Error('Client error')
       })
@@ -153,7 +207,16 @@ describe('Supabase Helpers', () => {
         is_admin: false,
         created_at: '2024-01-01T00:00:00Z'
       }
-      const mockCookieStore = { get: vi.fn(), set: vi.fn() }
+      const mockCookieStore = {
+        get: vi.fn(),
+        set: vi.fn(),
+        getAll: vi.fn(),
+        has: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        [Symbol.iterator]: vi.fn(() => [][Symbol.iterator]()),
+        size: 0
+      }
       
       mockCookies.mockResolvedValue(mockCookieStore)
       mockSupabaseClient.from().select().eq().single.mockResolvedValue({
@@ -171,7 +234,16 @@ describe('Supabase Helpers', () => {
     })
 
     it('should return null for non-existent user', async () => {
-      const mockCookieStore = { get: vi.fn(), set: vi.fn() }
+      const mockCookieStore = {
+        get: vi.fn(),
+        set: vi.fn(),
+        getAll: vi.fn(),
+        has: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        [Symbol.iterator]: vi.fn(() => [][Symbol.iterator]()),
+        size: 0
+      }
       
       mockCookies.mockResolvedValue(mockCookieStore)
       mockSupabaseClient.from().select().eq().single.mockResolvedValue({
@@ -187,7 +259,16 @@ describe('Supabase Helpers', () => {
     })
 
     it('should handle database errors', async () => {
-      const mockCookieStore = { get: vi.fn(), set: vi.fn() }
+      const mockCookieStore = {
+        get: vi.fn(),
+        set: vi.fn(),
+        getAll: vi.fn(),
+        has: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        [Symbol.iterator]: vi.fn(() => [][Symbol.iterator]()),
+        size: 0
+      }
       
       mockCookies.mockResolvedValue(mockCookieStore)
       mockSupabaseClient.from().select().eq().single.mockResolvedValue({
@@ -211,7 +292,16 @@ describe('Supabase Helpers', () => {
         updated_at: '2024-01-02T00:00:00Z',
         avatar_url: 'https://example.com/avatar.jpg'
       }
-      const mockCookieStore = { get: vi.fn(), set: vi.fn() }
+      const mockCookieStore = {
+        get: vi.fn(),
+        set: vi.fn(),
+        getAll: vi.fn(),
+        has: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        [Symbol.iterator]: vi.fn(() => [][Symbol.iterator]()),
+        size: 0
+      }
       
       mockCookies.mockResolvedValue(mockCookieStore)
       mockSupabaseClient.from().select().eq().single.mockResolvedValue({
@@ -229,7 +319,16 @@ describe('Supabase Helpers', () => {
     })
 
     it('should handle client creation errors', async () => {
-      mockCookies.mockResolvedValue({ get: vi.fn(), set: vi.fn() })
+      mockCookies.mockResolvedValue({
+        get: vi.fn(),
+        set: vi.fn(),
+        getAll: vi.fn(),
+        has: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        [Symbol.iterator]: vi.fn(() => [][Symbol.iterator]()),
+        size: 0
+      } as any)
       mockCreateClient.mockImplementation(() => {
         throw new Error('Client error')
       })
@@ -246,7 +345,16 @@ describe('Supabase Helpers', () => {
         email: 'admin@example.com',
         is_admin: true
       }
-      const mockCookieStore = { get: vi.fn(), set: vi.fn() }
+      const mockCookieStore = {
+        get: vi.fn(),
+        set: vi.fn(),
+        getAll: vi.fn(),
+        has: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        [Symbol.iterator]: vi.fn(() => [][Symbol.iterator]()),
+        size: 0
+      }
       
       mockCookies.mockResolvedValue(mockCookieStore)
       mockSupabaseClient.from().select().eq().single.mockResolvedValue({
@@ -268,7 +376,16 @@ describe('Supabase Helpers', () => {
         email: 'user@example.com',
         is_admin: false
       }
-      const mockCookieStore = { get: vi.fn(), set: vi.fn() }
+      const mockCookieStore = {
+        get: vi.fn(),
+        set: vi.fn(),
+        getAll: vi.fn(),
+        has: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        [Symbol.iterator]: vi.fn(() => [][Symbol.iterator]()),
+        size: 0
+      }
       
       mockCookies.mockResolvedValue(mockCookieStore)
       mockSupabaseClient.from().select().eq().single.mockResolvedValue({
@@ -284,7 +401,16 @@ describe('Supabase Helpers', () => {
     })
 
     it('should return false for non-existent users', async () => {
-      const mockCookieStore = { get: vi.fn(), set: vi.fn() }
+      const mockCookieStore = {
+        get: vi.fn(),
+        set: vi.fn(),
+        getAll: vi.fn(),
+        has: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        [Symbol.iterator]: vi.fn(() => [][Symbol.iterator]()),
+        size: 0
+      }
       
       mockCookies.mockResolvedValue(mockCookieStore)
       mockSupabaseClient.from().select().eq().single.mockResolvedValue({
@@ -300,7 +426,16 @@ describe('Supabase Helpers', () => {
     })
 
     it('should handle null profile gracefully', async () => {
-      const mockCookieStore = { get: vi.fn(), set: vi.fn() }
+      const mockCookieStore = {
+        get: vi.fn(),
+        set: vi.fn(),
+        getAll: vi.fn(),
+        has: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        [Symbol.iterator]: vi.fn(() => [][Symbol.iterator]()),
+        size: 0
+      }
       
       mockCookies.mockResolvedValue(mockCookieStore)
       mockSupabaseClient.from().select().eq().single.mockResolvedValue({
@@ -320,7 +455,16 @@ describe('Supabase Helpers', () => {
         email: 'user@example.com'
         // is_admin field is undefined
       }
-      const mockCookieStore = { get: vi.fn(), set: vi.fn() }
+      const mockCookieStore = {
+        get: vi.fn(),
+        set: vi.fn(),
+        getAll: vi.fn(),
+        has: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        [Symbol.iterator]: vi.fn(() => [][Symbol.iterator]()),
+        size: 0
+      }
       
       mockCookies.mockResolvedValue(mockCookieStore)
       mockSupabaseClient.from().select().eq().single.mockResolvedValue({
@@ -334,7 +478,16 @@ describe('Supabase Helpers', () => {
     })
 
     it('should handle database errors', async () => {
-      const mockCookieStore = { get: vi.fn(), set: vi.fn() }
+      const mockCookieStore = {
+        get: vi.fn(),
+        set: vi.fn(),
+        getAll: vi.fn(),
+        has: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        [Symbol.iterator]: vi.fn(() => [][Symbol.iterator]()),
+        size: 0
+      }
       
       mockCookies.mockResolvedValue(mockCookieStore)
       mockSupabaseClient.from().select().eq().single.mockResolvedValue({
@@ -348,7 +501,16 @@ describe('Supabase Helpers', () => {
     })
 
     it('should handle client creation errors', async () => {
-      mockCookies.mockResolvedValue({ get: vi.fn(), set: vi.fn() })
+      mockCookies.mockResolvedValue({
+        get: vi.fn(),
+        set: vi.fn(),
+        getAll: vi.fn(),
+        has: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        [Symbol.iterator]: vi.fn(() => [][Symbol.iterator]()),
+        size: 0
+      } as any)
       mockCreateClient.mockImplementation(() => {
         throw new Error('Client error')
       })
@@ -359,7 +521,16 @@ describe('Supabase Helpers', () => {
     it('should handle concurrent admin checks efficiently', async () => {
       const mockProfile1 = { id: 'user-1', is_admin: true }
       const mockProfile2 = { id: 'user-2', is_admin: false }
-      const mockCookieStore = { get: vi.fn(), set: vi.fn() }
+      const mockCookieStore = {
+        get: vi.fn(),
+        set: vi.fn(),
+        getAll: vi.fn(),
+        has: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        [Symbol.iterator]: vi.fn(() => [][Symbol.iterator]()),
+        size: 0
+      }
       
       mockCookies.mockResolvedValue(mockCookieStore)
       mockSupabaseClient.from().select().eq().single
@@ -378,7 +549,16 @@ describe('Supabase Helpers', () => {
 
     it('should handle mixed success and error responses in concurrent calls', async () => {
       const mockProfile = { id: 'user-1', is_admin: true }
-      const mockCookieStore = { get: vi.fn(), set: vi.fn() }
+      const mockCookieStore = {
+        get: vi.fn(),
+        set: vi.fn(),
+        getAll: vi.fn(),
+        has: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        [Symbol.iterator]: vi.fn(() => [][Symbol.iterator]()),
+        size: 0
+      }
       
       mockCookies.mockResolvedValue(mockCookieStore)
       mockSupabaseClient.from().select().eq().single
