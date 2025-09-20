@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { CareerManagementPopup } from '@/components/admin/career-management-popup'
 import { ProgramCategory, Career } from '@/lib/types'
 
@@ -106,7 +106,10 @@ describe('CareerManagementPopup', () => {
     
     // Click on the career tag to add it
     const careerTag = screen.getByText('UX').closest('div')
-    fireEvent.click(careerTag!)
+    
+    await act(async () => {
+      fireEvent.click(careerTag!)
+    })
     
     expect(mockProps.onAddCareer).toHaveBeenCalledWith('cat-1', 'career-3')
   })
@@ -127,7 +130,10 @@ describe('CareerManagementPopup', () => {
     )
     
     expect(removeButton).toBeInTheDocument()
-    fireEvent.click(removeButton!)
+    
+    await act(async () => {
+      fireEvent.click(removeButton!)
+    })
     
     expect(mockProps.onRemoveCareer).toHaveBeenCalledWith('cat-1', 'career-1')
   })

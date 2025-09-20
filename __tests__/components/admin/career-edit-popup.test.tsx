@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { CareerEditPopup } from '@/components/admin/career-edit-popup'
 import { Career } from '@/lib/types'
 
@@ -45,10 +45,16 @@ describe('CareerEditPopup', () => {
     render(<CareerEditPopup {...mockProps} />)
     
     const nameInput = screen.getByDisplayValue('Software Engineer')
-    fireEvent.change(nameInput, { target: { value: 'Senior Software Engineer' } })
+    
+    await act(async () => {
+      fireEvent.change(nameInput, { target: { value: 'Senior Software Engineer' } })
+    })
     
     const saveButton = screen.getByText('Save Changes')
-    fireEvent.click(saveButton)
+    
+    await act(async () => {
+      fireEvent.click(saveButton)
+    })
     
     expect(mockProps.onSave).toHaveBeenCalledWith({
       id: 'career-1',
