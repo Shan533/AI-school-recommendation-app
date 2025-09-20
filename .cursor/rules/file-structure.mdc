@@ -8,18 +8,21 @@ AI School Recommend App structure reference for development guidance.
 
 ## Key Directories
 - **`src/app/`**: Next.js App Router
-  - `(public)/`: login, register
-  - `admin/`: CRUD pages (dashboard, csv-upload, programs, reviews, schools, users)
-  - `api/admin/`: Admin API endpoints  
+  - `(public)/`: login, register, forgot-password
+  - `admin/`: CRUD pages (dashboard, csv-upload, programs, reviews, schools, users, categories, program-categories)
+  - `api/admin/`: Admin API endpoints (schools, programs, reviews, users, categories, careers, category-career-mapping, bulk-assign)
   - `api/reviews/`: Public review endpoints
+  - `api/collections/`: User collections management
   - `auth/`: Auth pages & callbacks
   - `programs/`, `schools/`: Public browsing
   - `profile/`: User profile
+  - `collections/`: User collections browsing
 
 - **`src/components/`**: React components
-  - `admin/`: Admin-specific components  
+  - `admin/`: Admin-specific components (CRUD management, category/career management, bulk assignment)
   - `auth/`: Auth forms
   - `profile/`: Profile management
+  - `collections/`: User collections components
   - `ui/`: shadcn/ui components
 
 - **`src/lib/`**: Utilities & helpers
@@ -27,6 +30,7 @@ AI School Recommend App structure reference for development guidance.
   - `auth-actions.ts`: Auth server actions
   - `validation.ts`: Zod schemas
   - `admin-search.ts`: Search functionality
+  - `types/`: TypeScript type definitions (collections, schema-enhancements)
 
 - **`__tests__/`**: Vitest tests (90.15% coverage)
 - **`crawler/`**: Python web crawler system
@@ -44,7 +48,10 @@ AI School Recommend App structure reference for development guidance.
 3. Advanced Search with intelligent ranking
 4. Authentication System (Supabase Auth + RLS)
 5. Public Pages (schools, programs browsing)
-6. Web Crawler (Python-based data collection)
-7. Responsive Design (Mobile-first Tailwind CSS)
-8. Testing Infrastructure (Vitest + React Testing Library)
-9. Docker Support & User Profile Management
+6. User Collections System (save and organize favorites)
+7. Categories & Careers Management (program classification)
+8. Bulk Assignment Operations (admin tools)
+9. Web Crawler (Python-based data collection)
+10. Responsive Design (Mobile-first Tailwind CSS)
+11. Testing Infrastructure (Vitest + React Testing Library)
+12. Docker Support & User Profile Management

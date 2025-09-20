@@ -9,7 +9,10 @@ vi.mock('next/headers', () => ({
     delete: vi.fn(),
     has: vi.fn(),
     getAll: vi.fn(),
-    toString: vi.fn()
+    clear: vi.fn(),
+    toString: vi.fn(),
+    [Symbol.iterator]: vi.fn(() => [][Symbol.iterator]()),
+    size: 0
   }))
 }))
 
@@ -36,7 +39,8 @@ const mockSupabaseClient = {
 }
 
 vi.mock('@/lib/supabase/server', () => ({
-  createClient: vi.fn(() => mockSupabaseClient)
+  createClient: vi.fn(() => mockSupabaseClient),
+  createAdminClient: vi.fn(() => mockSupabaseClient)
 }))
 
 describe('Supabase Helpers', () => {
@@ -105,9 +109,10 @@ describe('Supabase Helpers', () => {
           eq: vi.fn(() => ({
             single: vi.fn(() => Promise.resolve({ data: mockProfile, error: null }))
           }))
-        }))
+        })),
+        insert: vi.fn()
       }
-      mockSupabaseClient.from.mockReturnValue(mockChain)
+      mockSupabaseClient.from.mockReturnValue(mockChain as any)
 
       const { getUserProfile } = await import('@/lib/supabase/helpers')
       const profile = await getUserProfile('user-123')
@@ -125,9 +130,10 @@ describe('Supabase Helpers', () => {
               error: { code: 'PGRST116', message: 'Not found' } 
             }))
           }))
-        }))
+        })),
+        insert: vi.fn()
       }
-      mockSupabaseClient.from.mockReturnValue(mockChain)
+      mockSupabaseClient.from.mockReturnValue(mockChain as any)
 
       const { getUserProfile } = await import('@/lib/supabase/helpers')
       const profile = await getUserProfile('user-123')
@@ -144,9 +150,10 @@ describe('Supabase Helpers', () => {
               error: { message: 'Database error' } 
             }))
           }))
-        }))
+        })),
+        insert: vi.fn()
       }
-      mockSupabaseClient.from.mockReturnValue(mockChain)
+      mockSupabaseClient.from.mockReturnValue(mockChain as any)
 
       const { getUserProfile } = await import('@/lib/supabase/helpers')
       const profile = await getUserProfile('user-123')
@@ -168,9 +175,10 @@ describe('Supabase Helpers', () => {
           eq: vi.fn(() => ({
             single: vi.fn(() => Promise.resolve({ data: mockProfile, error: null }))
           }))
-        }))
+        })),
+        insert: vi.fn()
       }
-      mockSupabaseClient.from.mockReturnValue(mockChain)
+      mockSupabaseClient.from.mockReturnValue(mockChain as any)
 
       const { isAdmin } = await import('@/lib/supabase/helpers')
       const result = await isAdmin('user-123')
@@ -190,9 +198,10 @@ describe('Supabase Helpers', () => {
           eq: vi.fn(() => ({
             single: vi.fn(() => Promise.resolve({ data: mockProfile, error: null }))
           }))
-        }))
+        })),
+        insert: vi.fn()
       }
-      mockSupabaseClient.from.mockReturnValue(mockChain)
+      mockSupabaseClient.from.mockReturnValue(mockChain as any)
 
       const { isAdmin } = await import('@/lib/supabase/helpers')
       const result = await isAdmin('user-123')
@@ -209,9 +218,10 @@ describe('Supabase Helpers', () => {
               error: { code: 'PGRST116', message: 'Not found' } 
             }))
           }))
-        }))
+        })),
+        insert: vi.fn()
       }
-      mockSupabaseClient.from.mockReturnValue(mockChain)
+      mockSupabaseClient.from.mockReturnValue(mockChain as any)
 
       const { isAdmin } = await import('@/lib/supabase/helpers')
       const result = await isAdmin('user-123')
@@ -225,9 +235,10 @@ describe('Supabase Helpers', () => {
           eq: vi.fn(() => ({
             single: vi.fn(() => Promise.resolve({ data: null, error: null }))
           }))
-        }))
+        })),
+        insert: vi.fn()
       }
-      mockSupabaseClient.from.mockReturnValue(mockChain)
+      mockSupabaseClient.from.mockReturnValue(mockChain as any)
 
       const { isAdmin } = await import('@/lib/supabase/helpers')
       const result = await isAdmin('user-123')
@@ -264,9 +275,10 @@ describe('Supabase Helpers', () => {
               then: vi.fn((callback) => callback({ data: mockCollections, error: null }))
             }))
           }))
-        }))
+        })),
+        insert: vi.fn()
       }
-      mockSupabaseClient.from.mockReturnValue(mockChain)
+      mockSupabaseClient.from.mockReturnValue(mockChain as any)
 
       const { getUserCollections } = await import('@/lib/supabase/helpers')
       const collections = await getUserCollections('user-123')
@@ -302,9 +314,10 @@ describe('Supabase Helpers', () => {
               }))
             }))
           }))
-        }))
+        })),
+        insert: vi.fn()
       }
-      mockSupabaseClient.from.mockReturnValue(mockChain)
+      mockSupabaseClient.from.mockReturnValue(mockChain as any)
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
@@ -325,9 +338,10 @@ describe('Supabase Helpers', () => {
               then: vi.fn((callback) => callback({ data: [], error: null }))
             }))
           }))
-        }))
+        })),
+        insert: vi.fn()
       }
-      mockSupabaseClient.from.mockReturnValue(mockChain)
+      mockSupabaseClient.from.mockReturnValue(mockChain as any)
 
       const { getUserCollections } = await import('@/lib/supabase/helpers')
       const collections = await getUserCollections('user-123')
@@ -343,9 +357,10 @@ describe('Supabase Helpers', () => {
               then: vi.fn((callback) => callback({ data: null, error: null }))
             }))
           }))
-        }))
+        })),
+        insert: vi.fn()
       }
-      mockSupabaseClient.from.mockReturnValue(mockChain)
+      mockSupabaseClient.from.mockReturnValue(mockChain as any)
 
       const { getUserCollections } = await import('@/lib/supabase/helpers')
       const collections = await getUserCollections('user-123')
@@ -388,9 +403,10 @@ describe('Supabase Helpers', () => {
               single: vi.fn(() => Promise.resolve({ data: mockCollection, error: null }))
             }))
           }))
-        }))
+        })),
+        insert: vi.fn()
       }
-      mockSupabaseClient.from.mockReturnValue(mockChain)
+      mockSupabaseClient.from.mockReturnValue(mockChain as any)
 
       const { getCollectionWithItems } = await import('@/lib/supabase/helpers')
       const collection = await getCollectionWithItems('collection-1', 'user-123')
@@ -409,9 +425,10 @@ describe('Supabase Helpers', () => {
               }))
             }))
           }))
-        }))
+        })),
+        insert: vi.fn()
       }
-      mockSupabaseClient.from.mockReturnValue(mockChain)
+      mockSupabaseClient.from.mockReturnValue(mockChain as any)
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
@@ -435,9 +452,10 @@ describe('Supabase Helpers', () => {
               }))
             }))
           }))
-        }))
+        })),
+        insert: vi.fn()
       }
-      mockSupabaseClient.from.mockReturnValue(mockChain)
+      mockSupabaseClient.from.mockReturnValue(mockChain as any)
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
@@ -466,8 +484,9 @@ describe('Supabase Helpers', () => {
               })
             })
           })
-        })
-      })
+        }),
+        insert: vi.fn()
+      } as any)
 
       const { createDefaultCollection } = await import('@/lib/supabase/helpers')
       const result = await createDefaultCollection('user-123')
@@ -507,8 +526,8 @@ describe('Supabase Helpers', () => {
       }
 
       mockSupabaseClient.from
-        .mockReturnValueOnce({ select: vi.fn().mockReturnValue(selectChain) })
-        .mockReturnValueOnce({ insert: vi.fn().mockReturnValue(insertChain) })
+        .mockReturnValueOnce({ select: vi.fn().mockReturnValue(selectChain), insert: vi.fn() } as any)
+        .mockReturnValueOnce({ select: vi.fn(), insert: vi.fn().mockReturnValue(insertChain) } as any)
 
       const { createDefaultCollection } = await import('@/lib/supabase/helpers')
       const result = await createDefaultCollection('user-123')
@@ -543,8 +562,8 @@ describe('Supabase Helpers', () => {
       }
 
       mockSupabaseClient.from
-        .mockReturnValueOnce({ select: vi.fn().mockReturnValue(selectChain) })
-        .mockReturnValueOnce({ insert: vi.fn().mockReturnValue(insertChain) })
+        .mockReturnValueOnce({ select: vi.fn().mockReturnValue(selectChain), insert: vi.fn() } as any)
+        .mockReturnValueOnce({ select: vi.fn(), insert: vi.fn().mockReturnValue(insertChain) } as any)
 
       const { createDefaultCollection } = await import('@/lib/supabase/helpers')
       const result = await createDefaultCollection('user-123')
@@ -581,8 +600,8 @@ describe('Supabase Helpers', () => {
       }
 
       mockSupabaseClient.from
-        .mockReturnValueOnce({ select: vi.fn().mockReturnValue(selectChain) })
-        .mockReturnValueOnce({ insert: vi.fn().mockReturnValue(insertChain) })
+        .mockReturnValueOnce({ select: vi.fn().mockReturnValue(selectChain), insert: vi.fn() } as any)
+        .mockReturnValueOnce({ select: vi.fn(), insert: vi.fn().mockReturnValue(insertChain) } as any)
 
       const { createDefaultCollection } = await import('@/lib/supabase/helpers')
       const result = await createDefaultCollection('user-123')
@@ -591,6 +610,17 @@ describe('Supabase Helpers', () => {
       expect(result).toBeDefined()
       
       consoleSpy.mockRestore()
+    })
+  })
+
+  describe('createAdminClient', () => {
+    it('should create and return an admin client', async () => {
+      const { createAdminClient } = await import('@/lib/supabase/helpers')
+      
+      const result = createAdminClient()
+      
+      // Should return a client object (mocked in the test setup)
+      expect(result).toBeDefined()
     })
   })
 })

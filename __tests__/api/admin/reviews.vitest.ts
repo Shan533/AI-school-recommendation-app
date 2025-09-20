@@ -118,41 +118,36 @@ describe('Admin Reviews API', () => {
       let callCount = 0
       mockSupabaseAdmin.from.mockImplementation(() => {
         callCount++
-        if (callCount === 1) {
-          // First call: school_reviews table (not found)
-          return {
-            select: vi.fn().mockReturnValue({
-              eq: vi.fn().mockReturnValue({
-                single: vi.fn().mockResolvedValue({
-                  data: null,
-                  error: { message: 'Not found' }
-                })
-              })
-            })
-          }
-        } else if (callCount === 2) {
-          // Second call: program_reviews table (found)
-          return {
-            select: vi.fn().mockReturnValue({
-              eq: vi.fn().mockReturnValue({
-                single: vi.fn().mockResolvedValue({
-                  data: { id: 'review-456' },
-                  error: null
-                })
-              })
-            })
-          }
-        } else {
-          // Third call: delete operation
-          return {
-            delete: vi.fn().mockReturnValue({
-              eq: vi.fn().mockResolvedValue({
+        const baseReturn = {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
                 data: null,
+                error: { message: 'Not found' }
+              })
+            })
+          }),
+          delete: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({
+              data: null,
+              error: null
+            })
+          })
+        }
+        
+        if (callCount === 2) {
+          // Second call: program_reviews table (found)
+          baseReturn.select.mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
+                data: { id: 'review-456' },
                 error: null
               })
             })
-          }
+          })
         }
+        
+        return baseReturn
       })
 
       const request = createRequest()

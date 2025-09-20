@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient as createServerAdminClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 
 export async function getSupabaseClient() {
@@ -10,6 +11,10 @@ export async function getCurrentUser() {
   const supabase = await getSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
   return user
+}
+
+export function createAdminClient() {
+  return createServerAdminClient()
 }
 
 export async function getUserProfile(userId: string) {

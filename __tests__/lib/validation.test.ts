@@ -13,7 +13,11 @@ import {
   validateRange, 
   validateProgramData, 
   validateRequirementsData,
-  validateSchoolData 
+  validateSchoolData,
+  validateCollectionData,
+  validateCollectionItemData,
+  validateCareerData,
+  validateCategoryData
 } from '@/lib/validation'
 
 describe('validateRange', () => {
@@ -369,5 +373,385 @@ describe('validateSchoolData', () => {
     
     expect(errors).toHaveLength(1)
     expect(errors).toContain('QS ranking must be between 1 and 2000')
+  })
+})
+
+describe('validateCollectionData', () => {
+  it('should return empty array for valid collection data', () => {
+    const validData = {
+      name: 'My Collection',
+      description: 'A test collection'
+    }
+    expect(validateCollectionData(validData)).toEqual([])
+  })
+  
+  it('should return empty array when description is missing', () => {
+    const dataWithoutDescription = {
+      name: 'My Collection'
+    }
+    expect(validateCollectionData(dataWithoutDescription)).toEqual([])
+  })
+  
+  it('should validate required name field', () => {
+    // Missing name
+    const noName = { description: 'Test' }
+    expect(validateCollectionData(noName)).toContain('Collection name is required')
+    
+    // Empty name
+    const emptyName = { name: '' }
+    expect(validateCollectionData(emptyName)).toContain('Collection name is required')
+    
+    // Whitespace only name
+    const whitespaceName = { name: '   ' }
+    expect(validateCollectionData(whitespaceName)).toContain('Collection name is required')
+    
+    // Non-string name
+    const nonStringName = { name: 123 }
+    expect(validateCollectionData(nonStringName)).toContain('Collection name is required')
+  })
+  
+  it('should validate name length limit', () => {
+    const longName = { name: 'a'.repeat(101) }
+    expect(validateCollectionData(longName)).toContain('Collection name must be less than 100 characters')
+    
+    // Exactly 100 characters should be valid
+    const exactLimit = { name: 'a'.repeat(100) }
+    expect(validateCollectionData(exactLimit)).toEqual([])
+  })
+  
+  it('should validate description length limit', () => {
+    const longDescription = { 
+      name: 'Test Collection',
+      description: 'a'.repeat(501)
+    }
+    expect(validateCollectionData(longDescription)).toContain('Collection description must be less than 500 characters')
+    
+    // Exactly 500 characters should be valid
+    const exactLimit = { 
+      name: 'Test Collection',
+      description: 'a'.repeat(500)
+    }
+    expect(validateCollectionData(exactLimit)).toEqual([])
+  })
+  
+  it('should handle non-string description', () => {
+    const nonStringDesc = { 
+      name: 'Test Collection',
+      description: 123
+    }
+    expect(validateCollectionData(nonStringDesc)).toEqual([])
+  })
+})
+
+describe('validateCollectionItemData', () => {
+  it('should return empty array for valid school item data', () => {
+    const validSchoolItem = {
+      school_id: 'school-123',
+      notes: 'Interesting school'
+    }
+    expect(validateCollectionItemData(validSchoolItem)).toEqual([])
+  })
+  
+  it('should return empty array for valid program item data', () => {
+    const validProgramItem = {
+      program_id: 'program-123',
+      notes: 'Great program'
+    }
+    expect(validateCollectionItemData(validProgramItem)).toEqual([])
+  })
+  
+  it('should return empty array when notes are missing', () => {
+    const itemWithoutNotes = {
+      school_id: 'school-123'
+    }
+    expect(validateCollectionItemData(itemWithoutNotes)).toEqual([])
+  })
+  
+  it('should require either school_id or program_id', () => {
+    // Neither provided
+    const neitherProvided = { notes: 'Test' }
+    expect(validateCollectionItemData(neitherProvided)).toContain('Either school_id or program_id is required')
+    
+    // Both provided
+    const bothProvided = { 
+      school_id: 'school-123',
+      program_id: 'program-123'
+    }
+    expect(validateCollectionItemData(bothProvided)).toContain('Cannot specify both school_id and program_id')
+  })
+  
+  it('should validate school_id and program_id as strings', () => {
+    // Non-string school_id
+    const nonStringSchoolId = { school_id: 123 }
+    expect(validateCollectionItemData(nonStringSchoolId)).toContain('Either school_id or program_id is required')
+    
+    // Non-string program_id
+    const nonStringProgramId = { program_id: 456 }
+    expect(validateCollectionItemData(nonStringProgramId)).toContain('Either school_id or program_id is required')
+  })
+  
+  it('should validate notes length limit', () => {
+    const longNotes = {
+      school_id: 'school-123',
+      notes: 'a'.repeat(501)
+    }
+    expect(validateCollectionItemData(longNotes)).toContain('Notes must be less than 500 characters')
+    
+    // Exactly 500 characters should be valid
+    const exactLimit = {
+      school_id: 'school-123',
+      notes: 'a'.repeat(500)
+    }
+    expect(validateCollectionItemData(exactLimit)).toEqual([])
+  })
+  
+  it('should handle non-string notes', () => {
+    const nonStringNotes = {
+      school_id: 'school-123',
+      notes: 123
+    }
+    expect(validateCollectionItemData(nonStringNotes)).toEqual([])
+  })
+})
+
+describe('validateCareerData', () => {
+  it('should return valid result for correct career data', () => {
+    const validData = {
+      name: 'Software Engineer',
+      abbreviation: 'SWE',
+      career_type: 'Software',
+      industry: 'Technology',
+      description: 'Develops software applications'
+    }
+    const result = validateCareerData(validData)
+    expect(result.valid).toBe(true)
+    expect(result.errors).toEqual([])
+  })
+  
+  it('should return valid result when optional fields are missing', () => {
+    const minimalData = {
+      name: 'Data Scientist',
+      abbreviation: 'DS',
+      career_type: 'Data'
+    }
+    const result = validateCareerData(minimalData)
+    expect(result.valid).toBe(true)
+    expect(result.errors).toEqual([])
+  })
+  
+  it('should validate required name field', () => {
+    // Missing name
+    const noName = { abbreviation: 'TEST', career_type: 'Software' }
+    const result = validateCareerData(noName)
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContainEqual({ field: 'name', message: 'Career name is required' })
+    
+    // Empty name
+    const emptyName = { name: '', abbreviation: 'TEST', career_type: 'Software' }
+    const result2 = validateCareerData(emptyName)
+    expect(result2.valid).toBe(false)
+    expect(result2.errors).toContainEqual({ field: 'name', message: 'Career name is required' })
+    
+    // Non-string name
+    const nonStringName = { name: 123, abbreviation: 'TEST', career_type: 'Software' }
+    const result3 = validateCareerData(nonStringName)
+    expect(result3.valid).toBe(false)
+    expect(result3.errors).toContainEqual({ field: 'name', message: 'Career name is required' })
+  })
+  
+  it('should validate name length limit', () => {
+    const longName = { 
+      name: 'a'.repeat(51), 
+      abbreviation: 'TEST', 
+      career_type: 'Software' 
+    }
+    const result = validateCareerData(longName)
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContainEqual({ field: 'name', message: 'Career name must be less than 50 characters' })
+  })
+  
+  it('should validate required abbreviation field', () => {
+    // Missing abbreviation
+    const noAbbr = { name: 'Test Career', career_type: 'Software' }
+    const result = validateCareerData(noAbbr)
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContainEqual({ field: 'abbreviation', message: 'Abbreviation is required' })
+    
+    // Empty abbreviation
+    const emptyAbbr = { name: 'Test Career', abbreviation: '', career_type: 'Software' }
+    const result2 = validateCareerData(emptyAbbr)
+    expect(result2.valid).toBe(false)
+    expect(result2.errors).toContainEqual({ field: 'abbreviation', message: 'Abbreviation is required' })
+  })
+  
+  it('should validate abbreviation length limit', () => {
+    const longAbbr = { 
+      name: 'Test Career', 
+      abbreviation: 'a'.repeat(11), 
+      career_type: 'Software' 
+    }
+    const result = validateCareerData(longAbbr)
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContainEqual({ field: 'abbreviation', message: 'Abbreviation must be less than 10 characters' })
+  })
+  
+  it('should validate career type', () => {
+    // Invalid career type
+    const invalidType = { name: 'Test Career', abbreviation: 'TEST', career_type: 'Invalid' }
+    const result = validateCareerData(invalidType)
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContainEqual({ field: 'career_type', message: 'Valid career type is required' })
+    
+    // Missing career type
+    const noType = { name: 'Test Career', abbreviation: 'TEST' }
+    const result2 = validateCareerData(noType)
+    expect(result2.valid).toBe(false)
+    expect(result2.errors).toContainEqual({ field: 'career_type', message: 'Valid career type is required' })
+  })
+  
+  it('should validate all valid career types', () => {
+    const validTypes = ['Software', 'Data', 'AI', 'Hardware', 'Product', 'Design', 'Security', 'Infrastructure', 'Management', 'Finance', 'Healthcare', 'Research']
+    
+    validTypes.forEach(type => {
+      const data = { name: 'Test Career', abbreviation: 'TEST', career_type: type }
+      const result = validateCareerData(data)
+      expect(result.valid).toBe(true)
+    })
+  })
+  
+  it('should validate industry length limit', () => {
+    const longIndustry = { 
+      name: 'Test Career', 
+      abbreviation: 'TEST', 
+      career_type: 'Software',
+      industry: 'a'.repeat(51)
+    }
+    const result = validateCareerData(longIndustry)
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContainEqual({ field: 'industry', message: 'Industry must be less than 50 characters' })
+  })
+  
+  it('should validate description length limit', () => {
+    const longDescription = { 
+      name: 'Test Career', 
+      abbreviation: 'TEST', 
+      career_type: 'Software',
+      description: 'a'.repeat(501)
+    }
+    const result = validateCareerData(longDescription)
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContainEqual({ field: 'description', message: 'Description must be less than 500 characters' })
+  })
+  
+  it('should return multiple validation errors', () => {
+    const invalidData = {
+      name: 'a'.repeat(51),  // Too long
+      abbreviation: 'a'.repeat(11),  // Too long
+      career_type: 'Invalid',  // Invalid type
+      industry: 'a'.repeat(51),  // Too long
+      description: 'a'.repeat(501)  // Too long
+    }
+    const result = validateCareerData(invalidData)
+    expect(result.valid).toBe(false)
+    expect(result.errors).toHaveLength(5)
+  })
+})
+
+describe('validateCategoryData', () => {
+  it('should return valid result for correct category data', () => {
+    const validData = {
+      name: 'Computer Science',
+      abbreviation: 'CS',
+      description: 'Computer science programs'
+    }
+    const result = validateCategoryData(validData)
+    expect(result.valid).toBe(true)
+    expect(result.errors).toEqual([])
+  })
+  
+  it('should return valid result when optional description is missing', () => {
+    const minimalData = {
+      name: 'Engineering',
+      abbreviation: 'ENG'
+    }
+    const result = validateCategoryData(minimalData)
+    expect(result.valid).toBe(true)
+    expect(result.errors).toEqual([])
+  })
+  
+  it('should validate required name field', () => {
+    // Missing name
+    const noName = { abbreviation: 'TEST' }
+    const result = validateCategoryData(noName)
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContainEqual({ field: 'name', message: 'Category name is required' })
+    
+    // Empty name
+    const emptyName = { name: '', abbreviation: 'TEST' }
+    const result2 = validateCategoryData(emptyName)
+    expect(result2.valid).toBe(false)
+    expect(result2.errors).toContainEqual({ field: 'name', message: 'Category name is required' })
+    
+    // Non-string name
+    const nonStringName = { name: 123, abbreviation: 'TEST' }
+    const result3 = validateCategoryData(nonStringName)
+    expect(result3.valid).toBe(false)
+    expect(result3.errors).toContainEqual({ field: 'name', message: 'Category name is required' })
+  })
+  
+  it('should validate name length limit', () => {
+    const longName = { 
+      name: 'a'.repeat(51), 
+      abbreviation: 'TEST'
+    }
+    const result = validateCategoryData(longName)
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContainEqual({ field: 'name', message: 'Category name must be less than 50 characters' })
+  })
+  
+  it('should validate required abbreviation field', () => {
+    // Missing abbreviation
+    const noAbbr = { name: 'Test Category' }
+    const result = validateCategoryData(noAbbr)
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContainEqual({ field: 'abbreviation', message: 'Abbreviation is required' })
+    
+    // Empty abbreviation
+    const emptyAbbr = { name: 'Test Category', abbreviation: '' }
+    const result2 = validateCategoryData(emptyAbbr)
+    expect(result2.valid).toBe(false)
+    expect(result2.errors).toContainEqual({ field: 'abbreviation', message: 'Abbreviation is required' })
+  })
+  
+  it('should validate abbreviation length limit', () => {
+    const longAbbr = { 
+      name: 'Test Category', 
+      abbreviation: 'a'.repeat(11)
+    }
+    const result = validateCategoryData(longAbbr)
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContainEqual({ field: 'abbreviation', message: 'Abbreviation must be less than 10 characters' })
+  })
+  
+  it('should validate description length limit', () => {
+    const longDescription = { 
+      name: 'Test Category', 
+      abbreviation: 'TEST',
+      description: 'a'.repeat(501)
+    }
+    const result = validateCategoryData(longDescription)
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContainEqual({ field: 'description', message: 'Description must be less than 500 characters' })
+  })
+  
+  it('should return multiple validation errors', () => {
+    const invalidData = {
+      name: 'a'.repeat(51),  // Too long
+      abbreviation: 'a'.repeat(11),  // Too long
+      description: 'a'.repeat(501)  // Too long
+    }
+    const result = validateCategoryData(invalidData)
+    expect(result.valid).toBe(false)
+    expect(result.errors).toHaveLength(3)
   })
 })

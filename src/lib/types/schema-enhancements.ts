@@ -1,52 +1,70 @@
 /**
- * TypeScript types and interfaces
- * Includes program categories, multiple rankings, and application difficulty
+ * TypeScript type definitions for Issue #69 schema enhancements
+ * Program categories, careers, and application difficulty system
  */
 
-
 // ============================================================================
-// APPLICATION DIFFICULTY
+// PROGRAM CATEGORIES
 // ============================================================================
 
-export type ApplicationDifficulty = 'SSR' | 'SR' | 'R' | 'N'
-
-export interface DifficultyInfo {
-  level: ApplicationDifficulty
-  label: string
-  description: string
-  color: string
-  acceptanceRate: string
+export interface ProgramCategory {
+  id: string
+  name: string
+  abbreviation: string
+  description?: string
+  created_at: string
+  updated_at: string
+  career_paths?: string[] // Optional field for UI display
 }
 
-export const DIFFICULTY_LEVELS: Record<ApplicationDifficulty, DifficultyInfo> = {
-  SSR: {
-    level: 'SSR',
-    label: 'Super Super Rare',
-    description: 'Extremely competitive programs with < 5% acceptance rate',
-    color: '#FF6B6B',
-    acceptanceRate: '< 5%'
-  },
-  SR: {
-    level: 'SR',
-    label: 'Super Rare',
-    description: 'Highly competitive programs with 5-15% acceptance rate',
-    color: '#4ECDC4',
-    acceptanceRate: '5-15%'
-  },
-  R: {
-    level: 'R',
-    label: 'Rare',
-    description: 'Competitive programs with 15-30% acceptance rate',
-    color: '#45B7D1',
-    acceptanceRate: '15-30%'
-  },
-  N: {
-    level: 'N',
-    label: 'Normal',
-    description: 'Standard programs with > 30% acceptance rate',
-    color: '#96CEB4',
-    acceptanceRate: '> 30%'
-  }
+export interface ProgramCategoryMapping {
+  program_id: string
+  category_id: string
+  is_primary: boolean
+  created_at: string
+}
+
+// ============================================================================
+// CAREERS
+// ============================================================================
+
+export type CareerType = 
+  | 'Software' 
+  | 'Data' 
+  | 'AI' 
+  | 'Hardware' 
+  | 'Product' 
+  | 'Design' 
+  | 'Security' 
+  | 'Infrastructure' 
+  | 'Management' 
+  | 'Finance' 
+  | 'Healthcare' 
+  | 'Research'
+
+export interface Career {
+  id: string
+  name: string
+  abbreviation: string
+  description?: string
+  industry?: string
+  career_type: CareerType
+  created_at: string
+  updated_at: string
+}
+
+export interface CategoryCareerMapping {
+  category_id: string
+  career_id: string
+  is_default: boolean
+  created_at: string
+}
+
+export interface ProgramCareerMapping {
+  program_id: string
+  career_id: string
+  is_custom: boolean
+  created_at: string
 }
 
 // ============================================================================
@@ -56,108 +74,189 @@ export const DIFFICULTY_LEVELS: Record<ApplicationDifficulty, DifficultyInfo> = 
 export interface EnhancedProgram {
   id: string
   name: string
-  initial?: string
   school_id: string
-  degree: string
-  website_url?: string
-  duration_years?: number
-  currency?: string
-  total_tuition?: number
-  is_stem: boolean
+  school_name?: string
   description?: string
-  credits?: number
-  delivery_method?: string
-  schedule_type?: string
-  location?: string
-  add_ons?: Record<string, unknown>
+  degree?: string
+  degree_type?: string
+  duration_months?: number
+  tuition_fee?: number
+  application_deadline?: string
   start_date?: string
-  
-  // New fields for Issue #69
-  application_difficulty?: ApplicationDifficulty
-  difficulty_description?: string
-  
-  // Related data
-  school?: {
-    id: string
-    name: string
-    initial?: string
-    location?: string
-    country?: string
-  }
-  requirements?: {
-    id: string
-    ielts_score?: number
-    toefl_score?: number
-    gre_score?: number
-    min_gpa?: number
-    other_tests?: string
-    requires_personal_statement?: boolean
-    requires_portfolio?: boolean
-    requires_cv?: boolean
-    letters_of_recommendation?: number
-    application_fee?: number
-    application_deadline?: string
-  }
-  
-  created_by?: string
-  created_at: string
-}
-
-// ============================================================================
-// ENHANCED SCHOOL INTERFACE
-// ============================================================================
-
-export interface EnhancedSchool {
-  id: string
-  name: string
-  initial?: string
-  type?: string
-  region?: string
   location?: string
-  year_founded?: number
-  qs_ranking?: number // Keep for backward compatibility
-  website_url?: string
-  
-  created_by?: string
+  language?: string
+  online_available?: boolean
+  is_stem?: boolean
   created_at: string
-}
-
-// ============================================================================
-// FORM DATA TYPES
-// ============================================================================
-
-export interface ProgramCategoryFormData {
-  name: string
-  description?: string
-  career_path?: string
-  icon?: string
-  color?: string
-}
-
-export interface ProgramFormData {
-  name: string
-  initial?: string
-  school_id: string
-  degree: string
-  website_url?: string
-  duration_years?: number
-  currency?: string
-  total_tuition?: number
-  is_stem: boolean
-  description?: string
-  credits?: number
-  delivery_method?: string
-  schedule_type?: string
-  location?: string
-  add_ons?: Record<string, unknown>
-  start_date?: string
+  updated_at: string
   
-  // New fields for Issue #69
-  application_difficulty?: ApplicationDifficulty
-  difficulty_description?: string
+  // New fields from Issue #69
+  category_ids?: string[]
+  primary_category_id?: string
+  difficulty_level?: ApplicationDifficulty
+  career_paths?: string[]
+  
+  // Related data for display
+  categories?: ProgramCategory[]
+  careers?: Career[]
 }
 
-// 暂时不实现多排名源系统
+// ============================================================================
+// APPLICATION DIFFICULTY
+// ============================================================================
+
+export type ApplicationDifficulty = 'Easy' | 'Medium' | 'Hard' | 'Very Hard'
+
+export interface ApplicationDifficultyInfo {
+  level: ApplicationDifficulty
+  description: string
+  acceptance_rate_range: string
+  requirements: string[]
+}
+
+// ============================================================================
+// CONSTANTS AND ENUMS
+// ============================================================================
+
+export const APPLICATION_DIFFICULTY_VALUES: ApplicationDifficulty[] = ['Easy', 'Medium', 'Hard', 'Very Hard']
+
+export const DIFFICULTY_LEVELS = {
+  Easy: {
+    level: 'Easy' as ApplicationDifficulty,
+    label: 'Easy',
+    acceptanceRate: '80-100%',
+    description: 'High acceptance rate, minimal requirements'
+  },
+  Medium: {
+    level: 'Medium' as ApplicationDifficulty,
+    label: 'Medium',
+    acceptanceRate: '50-80%',
+    description: 'Moderate requirements and competition'
+  },
+  Hard: {
+    level: 'Hard' as ApplicationDifficulty,
+    label: 'Hard',
+    acceptanceRate: '20-50%',
+    description: 'Competitive with high requirements'
+  },
+  'Very Hard': {
+    level: 'Very Hard' as ApplicationDifficulty,
+    label: 'Very Hard',
+    acceptanceRate: '5-20%',
+    description: 'Extremely competitive, top-tier requirements'
+  }
+}
+
+export const DELIVERY_METHODS = ['Onsite', 'Online', 'Hybrid'] as const
+export const SCHEDULE_TYPES = ['Full-time', 'Part-time', 'Flexible'] as const
+export const DEGREE_TYPES = ['Bachelor', 'Master', 'PhD', 'Certificate', 'Diploma'] as const
+
+export type DeliveryMethod = typeof DELIVERY_METHODS[number]
+export type ScheduleType = typeof SCHEDULE_TYPES[number]
+export type DegreeType = typeof DEGREE_TYPES[number]
+
+export interface DifficultyInfo {
+  level: ApplicationDifficulty
+  label: string
+  acceptanceRate: string
+  description: string
+}
+
+// ============================================================================
+// BULK ASSIGNMENT TYPES
+// ============================================================================
+
+export interface BulkAssignmentData {
+  programIds: string[]
+  categoryIds: string[]
+  primaryCategoryId?: string
+  careerPaths: string[]
+}
+
+export interface BulkAssignmentResult {
+  success: boolean
+  updatedCount: number
+  errors: string[]
+  message?: string
+}
+
+// ============================================================================
+// API RESPONSE TYPES
+// ============================================================================
+
+export interface ProgramCategoriesResponse {
+  categories: ProgramCategory[]
+  total: number
+}
+
+export interface CareersResponse {
+  careers: Career[]
+  total: number
+}
+
+export interface ProgramsWithCategoriesResponse {
+  programs: EnhancedProgram[]
+  categories: ProgramCategory[]
+  total: number
+}
+
+// ============================================================================
+// HELPER FUNCTION RETURN TYPES
+// ============================================================================
+
+export interface ProgramCategoryInfo {
+  category_id: string
+  category_name: string
+  category_description?: string
+  is_primary: boolean
+}
+
+export interface ProgramCareerInfo {
+  career_id: string
+  career_name: string
+  career_abbreviation: string
+  career_description?: string
+  industry?: string
+  career_type: CareerType
+  is_custom: boolean
+}
+
+export interface ProgramsByCareerInfo {
+  program_id: string
+  program_name: string
+  school_name: string
+  primary_category_name?: string
+}
+
+// ============================================================================
+// FORM TYPES
+// ============================================================================
+
+export interface CategoryAssignmentForm {
+  selectedPrograms: string[]
+  categories: {
+    selected: string[]
+    primary?: string
+  }
+  careers: {
+    selected: string[]
+    custom: string[]
+  }
+}
+
+export interface CategoryManagementForm {
+  name: string
+  abbreviation: string
+  description?: string
+}
+
+export interface CareerManagementForm {
+  name: string
+  abbreviation: string
+  description?: string
+  industry?: string
+  career_type: CareerType
+}
 
 // ============================================================================
 // SEARCH AND FILTER TYPES
@@ -165,83 +264,59 @@ export interface ProgramFormData {
 
 export interface ProgramSearchFilters {
   search?: string
+  categories?: string[]
+  careers?: string[]
   difficulty?: ApplicationDifficulty[]
-  degree?: string[]
-  delivery_method?: string[]
-  schedule_type?: string[]
-  is_stem?: boolean
-  min_tuition?: number
-  max_tuition?: number
-  min_duration?: number
-  max_duration?: number
+  schools?: string[]
+  online_only?: boolean
+  degree_types?: string[]
   region?: string[]
 }
 
 export interface SchoolSearchFilters {
   search?: string
-  country?: string[]
   type?: string[]
   year_founded_min?: number
   year_founded_max?: number
 }
 
-// ============================================================================
-// API RESPONSE TYPES
-// ============================================================================
-
-// (Phase 2 categories response removed)
-
-// 暂时不实现多排名源系统
-
-export interface EnhancedProgramsResponse {
-  programs: EnhancedProgram[]
-  total: number
-  filters: ProgramSearchFilters
+export interface EnhancedSchool {
+  id: string
+  name: string
+  created_at: string
+  updated_at?: string
 }
 
-export interface EnhancedSchoolsResponse {
-  schools: EnhancedSchool[]
-  total: number
-  filters: SchoolSearchFilters
+export interface CategorySearchFilters {
+  search?: string
+  career_types?: CareerType[]
 }
 
-// ============================================================================
-// UTILITY TYPES
-// ============================================================================
-
-// (Phase 2 category stats removed)
-
-export interface DifficultyStats {
-  difficulty: ApplicationDifficulty
-  count: number
-  percentage: number
+export interface CareerSearchFilters {
+  search?: string
+  career_types?: CareerType[]
+  industries?: string[]
 }
 
 // ============================================================================
-// VALIDATION SCHEMAS (for use with Zod)
+// PAGINATION TYPES
 // ============================================================================
 
-export const APPLICATION_DIFFICULTY_VALUES = ['SSR', 'SR', 'R', 'N'] as const
+export interface PaginationParams {
+  page: number
+  limit: number
+  sort_by?: string
+  sort_order?: 'asc' | 'desc'
+}
 
-// (Phase 2 career paths constants removed)
-
-export const DELIVERY_METHODS = [
-  'Onsite',
-  'Online', 
-  'Hybrid'
-] as const
-
-export const SCHEDULE_TYPES = [
-  'Full-time',
-  'Part-time',
-  'Flexible'
-] as const
-
-export const DEGREE_TYPES = [
-  'Bachelor',
-  'Master',
-  'PhD',
-  'Associate',
-  'Certificate',
-  'Diploma'
-] as const
+export interface PaginatedResponse<T> {
+  data: T[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    total_pages: number
+    has_next: boolean
+    has_prev: boolean
+  }
+}

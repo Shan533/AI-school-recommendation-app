@@ -114,45 +114,76 @@ export function validateCollectionItemData(data: Record<string, unknown>): strin
   return errors
 }
 
-// TypeScript interfaces for collections
-export interface Collection {
-  id: string
-  user_id: string
-  name: string
-  description?: string
-  created_at: string
-  updated_at: string
-}
+// Import types from centralized location
+import type { ValidationError, ValidationResult } from './types'
 
-export interface CollectionItem {
-  id: string
-  collection_id: string
-  school_id?: string
-  program_id?: string
-  notes?: string
-  created_at: string
-}
+// ============================================================================
+// ENHANCED VALIDATION FUNCTIONS
+// ============================================================================
 
-export interface CollectionWithItems extends Collection {
-  items: CollectionItemWithDetails[]
-}
-
-export interface CollectionItemWithDetails extends CollectionItem {
-  school?: {
-    id: string
-    name: string
-    initial?: string
-    location?: string
-    country?: string
+export function validateCareerData(data: Record<string, unknown>): ValidationResult {
+  const errors: ValidationError[] = []
+  
+  // Name validation
+  if (!data.name || typeof data.name !== 'string' || data.name.trim().length === 0) {
+    errors.push({ field: 'name', message: 'Career name is required' })
+  } else if (data.name.length > 50) {
+    errors.push({ field: 'name', message: 'Career name must be less than 50 characters' })
   }
-  program?: {
-    id: string
-    name: string
-    initial?: string
-    degree: string
-    school: {
-      name: string
-      initial?: string
-    }
+  
+  // Abbreviation validation
+  if (!data.abbreviation || typeof data.abbreviation !== 'string' || data.abbreviation.trim().length === 0) {
+    errors.push({ field: 'abbreviation', message: 'Abbreviation is required' })
+  } else if (data.abbreviation.length > 10) {
+    errors.push({ field: 'abbreviation', message: 'Abbreviation must be less than 10 characters' })
+  }
+  
+  // Career type validation
+  const validCareerTypes = ['Software', 'Data', 'AI', 'Hardware', 'Product', 'Design', 'Security', 'Infrastructure', 'Management', 'Finance', 'Healthcare', 'Research']
+  if (!data.career_type || !validCareerTypes.includes(data.career_type as string)) {
+    errors.push({ field: 'career_type', message: 'Valid career type is required' })
+  }
+  
+  // Industry validation (optional)
+  if (data.industry && typeof data.industry === 'string' && data.industry.length > 50) {
+    errors.push({ field: 'industry', message: 'Industry must be less than 50 characters' })
+  }
+  
+  // Description validation (optional)
+  if (data.description && typeof data.description === 'string' && data.description.length > 500) {
+    errors.push({ field: 'description', message: 'Description must be less than 500 characters' })
+  }
+  
+  return {
+    valid: errors.length === 0,
+    errors
+  }
+}
+
+export function validateCategoryData(data: Record<string, unknown>): ValidationResult {
+  const errors: ValidationError[] = []
+  
+  // Name validation
+  if (!data.name || typeof data.name !== 'string' || data.name.trim().length === 0) {
+    errors.push({ field: 'name', message: 'Category name is required' })
+  } else if (data.name.length > 50) {
+    errors.push({ field: 'name', message: 'Category name must be less than 50 characters' })
+  }
+  
+  // Abbreviation validation
+  if (!data.abbreviation || typeof data.abbreviation !== 'string' || data.abbreviation.trim().length === 0) {
+    errors.push({ field: 'abbreviation', message: 'Abbreviation is required' })
+  } else if (data.abbreviation.length > 10) {
+    errors.push({ field: 'abbreviation', message: 'Abbreviation must be less than 10 characters' })
+  }
+  
+  // Description validation (optional)
+  if (data.description && typeof data.description === 'string' && data.description.length > 500) {
+    errors.push({ field: 'description', message: 'Description must be less than 500 characters' })
+  }
+  
+  return {
+    valid: errors.length === 0,
+    errors
   }
 }
