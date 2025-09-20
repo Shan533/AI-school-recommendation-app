@@ -7,6 +7,7 @@ This directory contains comprehensive testing documentation for the AI School Re
 ### 🧪 Current Testing (Phase 1)
 - **[Testing Plan](./testing-plan.md)** - Main testing overview and index
 - **[Testing Implementation Plan](./testing-implementation-plan.md)** - ⭐ **NEW**: Unit test implementation roadmap and priorities
+- **[Vitest Mock Best Practices](./vitest-mock-best-practices.md)** - ⭐ **NEW**: Common mocking solutions and patterns
 - **[Core Setup Testing](./core-setup-testing.md)** - Environment setup and basic functionality
 - **[Admin CRUD Testing](./admin-crud-testing.md)** - Complete CRUD operations for schools and programs
 - **[CSV Upload Testing](./csv-upload-testing.md)** - Bulk data import functionality
@@ -24,8 +25,9 @@ This directory contains comprehensive testing documentation for the AI School Re
    - All functions: Pure functions, Server Components, API routes
    - 100% coverage for core modules, 90.15% overall coverage
 2. **Review Implementation Plan**: Start with [Testing Implementation Plan](./testing-implementation-plan.md) to understand priorities
-3. **Check Current Status**: 278 tests passing (all using Vitest)
-4. **Run Coverage**: `npm run test:coverage` (Vitest)
+3. **Mock Best Practices**: Check [Vitest Mock Best Practices](./vitest-mock-best-practices.md) for common solutions
+4. **Check Current Status**: 278 tests passing (all using Vitest)
+5. **Run Coverage**: `npm run test:coverage` (Vitest)
 
 ### For Manual Testing
 1. **Start with Core Setup**: Begin with [Core Setup Testing](./core-setup-testing.md) to verify your environment
