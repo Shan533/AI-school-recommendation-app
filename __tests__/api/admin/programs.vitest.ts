@@ -12,7 +12,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { NextRequest } from 'next/server'
-import { POST } from '@/app/api/admin/programs/route'
+import { GET as GETPrograms, POST } from '@/app/api/admin/programs/route'
 import { GET, PUT, DELETE } from '@/app/api/admin/programs/[id]/route'
 
 // Add this at the top of the file after imports
@@ -28,7 +28,8 @@ vi.mock('next/headers', () => ({
 vi.mock('@/lib/supabase/helpers', () => ({
   getCurrentUser: vi.fn(),
   isAdmin: vi.fn(),
-  getSupabaseClient: vi.fn()
+  getSupabaseClient: vi.fn(),
+  createAdminClient: vi.fn()
 }))
 
 vi.mock('@/lib/supabase/server', () => ({
@@ -40,14 +41,15 @@ vi.mock('@/lib/validation', () => ({
   validateRequirementsData: vi.fn()
 }))
 
-import { getCurrentUser, isAdmin, getSupabaseClient } from '@/lib/supabase/helpers'
-import { createAdminClient } from '@/lib/supabase/server'
+import { getCurrentUser, isAdmin, getSupabaseClient, createAdminClient } from '@/lib/supabase/helpers'
+import { createAdminClient as createAdminClientFromServer } from '@/lib/supabase/server'
 import { validateProgramData, validateRequirementsData } from '@/lib/validation'
 
 const mockGetCurrentUser = vi.mocked(getCurrentUser)
 const mockIsAdmin = vi.mocked(isAdmin)
 const mockGetSupabaseClient = vi.mocked(getSupabaseClient)
 const mockCreateAdminClient = vi.mocked(createAdminClient)
+const mockCreateAdminClientFromServer = vi.mocked(createAdminClientFromServer)
 const mockValidateProgramData = vi.mocked(validateProgramData)
 const mockValidateRequirementsData = vi.mocked(validateRequirementsData)
 
@@ -76,10 +78,147 @@ describe('/api/admin/programs', () => {
     mockIsAdmin.mockResolvedValue(true)
     mockGetSupabaseClient.mockResolvedValue(mockSupabaseClient as any)
     mockCreateAdminClient.mockReturnValue(mockAdminClient as any)
+    mockCreateAdminClientFromServer.mockReturnValue(mockAdminClient as any)
     
     // Default validation success
     mockValidateProgramData.mockReturnValue([])
     mockValidateRequirementsData.mockReturnValue([])
+  })
+
+  describe('GET', () => {
+    it('should return programs list for admin users', async () => {
+      const mockPrograms = [
+        { id: 'program-1', name: 'Computer Science', schools: { name: 'MIT' } },
+        { id: 'program-2', name: 'Data Science', schools: { name: 'Stanford' } }
+      ]
+
+      mockAdminClient.from.mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          order: vi.fn().mockReturnValue({
+            range: vi.fn().mockResolvedValue({
+              data: mockPrograms,
+              error: null,
+              count: 2
+            })
+          })
+        })
+      })
+
+      const request = new NextRequest('http://localhost:3000/api/admin/programs')
+      const response = await GETPrograms(request)
+      const result = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(result.programs).toHaveLength(2)
+      expect(result.total).toBe(2)
+      expect(result.programs[0].school_name).toBe('MIT')
+    })
+
+    it('should handle search query', async () => {
+      const mockPrograms = [
+        { id: 'program-1', name: 'Computer Science', schools: { name: 'MIT' } }
+      ]
+
+      mockAdminClient.from.mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          order: vi.fn().mockReturnValue({
+            range: vi.fn().mockReturnValue({
+              or: vi.fn().mockResolvedValue({
+                data: mockPrograms,
+                error: null,
+                count: 1
+              })
+            })
+          })
+        })
+      })
+
+      const request = new NextRequest('http://localhost:3000/api/admin/programs?search=computer')
+      const response = await GETPrograms(request)
+      const result = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(result.programs).toHaveLength(1)
+    })
+
+    it('should handle pagination parameters', async () => {
+      const mockPrograms = [
+        { id: 'program-1', name: 'Computer Science', schools: { name: 'MIT' } }
+      ]
+
+      mockAdminClient.from.mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          order: vi.fn().mockReturnValue({
+            range: vi.fn().mockResolvedValue({
+              data: mockPrograms,
+              error: null,
+              count: 1
+            })
+          })
+        })
+      })
+
+      const request = new NextRequest('http://localhost:3000/api/admin/programs?limit=10&offset=20')
+      const response = await GETPrograms(request)
+      const result = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(result.programs).toHaveLength(1)
+    })
+
+    it('should return 401 for unauthenticated users', async () => {
+      mockGetCurrentUser.mockResolvedValue(null)
+
+      const request = new NextRequest('http://localhost:3000/api/admin/programs')
+      const response = await GETPrograms(request)
+      const result = await response.json()
+
+      expect(response.status).toBe(401)
+      expect(result.error).toBe('Unauthorized')
+    })
+
+    it('should return 403 for non-admin users', async () => {
+      mockIsAdmin.mockResolvedValue(false)
+
+      const request = new NextRequest('http://localhost:3000/api/admin/programs')
+      const response = await GETPrograms(request)
+      const result = await response.json()
+
+      expect(response.status).toBe(403)
+      expect(result.error).toBe('Forbidden')
+    })
+
+    it('should handle database errors', async () => {
+      mockAdminClient.from.mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          order: vi.fn().mockReturnValue({
+            range: vi.fn().mockResolvedValue({
+              data: null,
+              error: { message: 'Database connection failed' },
+              count: null
+            })
+          })
+        })
+      })
+
+      const request = new NextRequest('http://localhost:3000/api/admin/programs')
+      const response = await GETPrograms(request)
+      const result = await response.json()
+
+      expect(response.status).toBe(500)
+      expect(result.error).toBe('Failed to fetch programs')
+    })
+
+    it('should handle server errors gracefully', async () => {
+      mockGetCurrentUser.mockRejectedValue(new Error('Server error'))
+
+      const request = new NextRequest('http://localhost:3000/api/admin/programs')
+      const response = await GETPrograms(request)
+      const result = await response.json()
+
+      expect(response.status).toBe(500)
+      expect(result.error).toBe('Internal server error')
+    })
   })
 
   describe('POST', () => {
@@ -493,6 +632,69 @@ describe('/api/admin/programs', () => {
       expect(result.add_ons).toBeNull()
     })
 
+    it('should handle requirements creation failure gracefully', async () => {
+      const programData = {
+        name: 'Computer Science',
+        school_id: 'school-123',
+        degree: 'Master',
+        ielts_score: 7.0,
+        toefl_score: 100,
+        min_gpa: 3.5
+      }
+
+      // Mock school verification
+      let fromCallCount = 0
+      mockSupabaseClient.from.mockImplementation((table) => {
+        fromCallCount++
+        if (fromCallCount === 1) {
+          // First call: school verification
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                single: vi.fn().mockResolvedValue({
+                  data: { id: 'school-123' },
+                  error: null
+                })
+              })
+            })
+          }
+        } else if (fromCallCount === 2) {
+          // Second call: program creation
+          return {
+            insert: vi.fn().mockReturnValue({
+              select: vi.fn().mockReturnValue({
+                single: vi.fn().mockResolvedValue({
+                  data: { id: 'program-123', ...programData },
+                  error: null
+                })
+              })
+            })
+          }
+        } else if (fromCallCount === 3) {
+          // Third call: requirements creation (failure)
+          return {
+            insert: vi.fn().mockResolvedValue({
+              data: null,
+              error: { message: 'Requirements creation failed' }
+            })
+          }
+        }
+        return {} as any
+      })
+
+      const request = new NextRequest('http://localhost:3000/api/admin/programs', {
+        method: 'POST',
+        body: JSON.stringify(programData)
+      })
+
+      const response = await POST(request)
+      const result = await response.json()
+
+      // Should still succeed even if requirements fail
+      expect(response.status).toBe(201)
+      expect(result.id).toBe('program-123')
+    })
+
     
   })
 })
@@ -522,6 +724,7 @@ describe('/api/admin/programs/[id]', () => {
     mockIsAdmin.mockResolvedValue(true)
     mockGetSupabaseClient.mockResolvedValue(mockSupabaseClient as any)
     mockCreateAdminClient.mockReturnValue(mockAdminClient as any)
+    mockCreateAdminClientFromServer.mockReturnValue(mockAdminClient as any)
     
     // Default validation success
     mockValidateProgramData.mockReturnValue([])
@@ -943,7 +1146,7 @@ describe('/api/admin/programs/[id]', () => {
 
 
     it('should handle requirements update errors during PUT', async () => {
-      mockGetCurrentUser.mockResolvedValue({ id: 'admin-123', is_admin: true })
+      mockGetCurrentUser.mockResolvedValue(mockUser)
 
       const updateData = {
         name: 'Updated Program',

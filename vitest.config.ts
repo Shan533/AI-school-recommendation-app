@@ -33,6 +33,7 @@ export default defineConfig({
         'src/app/**/error.tsx',                  // Exclude Next.js error pages
         'src/app/globals.css',                   // Exclude global CSS
         'src/middleware.ts',                     // Middleware is hard to test in isolation
+        'src/lib/types/collections.ts',          // Exclude pure type definitions
       ],
       reporter: ['text', 'json', 'json-summary', 'html'],
       reportsDirectory: 'coverage',
