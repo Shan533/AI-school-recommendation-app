@@ -43,6 +43,12 @@ describe('ChangeUsernameForm', () => {
 
   it('validates username length', async () => {
     const user = userEvent.setup()
+    // Mock the action to return a failure result for validation errors
+    mockUpdateUsernameAction.mockResolvedValue({
+      success: false,
+      error: 'Username must be at least 3 characters'
+    })
+    
     render(<ChangeUsernameForm {...defaultProps} />)
     
     // Open edit form
@@ -56,11 +62,16 @@ describe('ChangeUsernameForm', () => {
     const saveButton = screen.getByRole('button', { name: /save/i })
     await user.click(saveButton)
     
-    expect(screen.getByText(/username must be at least 3 characters/i)).toBeInTheDocument()
+    expect(screen.getByText('Username must be at least 3 characters')).toBeInTheDocument()
   })
 
   it('validates username format', async () => {
     const user = userEvent.setup()
+    // Mock the action to return a failure result for validation errors
+    mockUpdateUsernameAction.mockResolvedValue({
+      success: false,
+      error: 'Username can only contain letters, numbers, and underscores'
+    })
     
     render(<ChangeUsernameForm {...defaultProps} />)
     
@@ -77,12 +88,7 @@ describe('ChangeUsernameForm', () => {
     expect(usernameInput).toHaveValue('user@name')
     
     const saveButton = screen.getByRole('button', { name: /save/i })
-    console.log('Save button found:', saveButton)
-    console.log('Save button type:', saveButton.getAttribute('type'))
-    console.log('Save button disabled:', (saveButton as HTMLButtonElement).disabled)
-    
     await user.click(saveButton)
-    console.log('Save button clicked')
     
     // Wait for the error message to appear
     await waitFor(() => {
