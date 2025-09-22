@@ -45,7 +45,7 @@ export default function CSVUpload() {
                   name: school.name,
                   initial: school.initial,
                   type: school.type,
-                  country: school.country,
+                  region: school.region ?? school.country,
                   location: school.location,
                   year_founded: school.year_founded ? parseInt(school.year_founded) : null,
                   qs_ranking: school.qs_ranking ? parseInt(school.qs_ranking) : null,
@@ -118,6 +118,8 @@ export default function CSVUpload() {
                   delivery_method: program.delivery_method,
                   schedule_type: program.schedule_type,
                   location: program.location,
+                  application_difficulty: program.application_difficulty || null,
+                  difficulty_description: program.difficulty_description || null,
                   add_ons: program.add_ons ? (() => {
                     try {
                       return JSON.parse(program.add_ons)
@@ -203,7 +205,7 @@ export default function CSVUpload() {
                 <li>name (required)</li>
                 <li>initial</li>
                 <li>type</li>
-                <li>country</li>
+                <li>region (enum: United States, United Kingdom, Canada, Europe, Asia, Australia, Other)</li>
                 <li>location</li>
                 <li>year_founded (number)</li>
                 <li>qs_ranking (number)</li>
@@ -239,7 +241,7 @@ export default function CSVUpload() {
                     <li>name (required)</li>
                     <li>initial</li>
                     <li>school_id (required - UUID of existing school)</li>
-                    <li>degree (required)</li>
+                  <li>degree (required; normalized to Bachelor/Master/PhD/Associate/Certificate/Diploma)</li>
                     <li>description</li>
                     <li>website_url</li>
                   </ul>
@@ -256,6 +258,8 @@ export default function CSVUpload() {
                     <li>start_date (YYYY-MM-DD)</li>
                     <li>is_stem (true/false or 1/0)</li>
                     <li>add_ons (JSON string)</li>
+                    <li>application_difficulty (SSR/SR/R/N)</li>
+                    <li>difficulty_description</li>
                   </ul>
                 </div>
                 

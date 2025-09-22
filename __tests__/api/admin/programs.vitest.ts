@@ -942,6 +942,79 @@ describe('/api/admin/programs/[id]', () => {
 
 
 
+    it('should handle requirements update errors during PUT', async () => {
+      mockGetCurrentUser.mockResolvedValue({ id: 'admin-123', is_admin: true })
+
+      const updateData = {
+        name: 'Updated Program',
+        school_id: 'school-123', // Add required field
+        degree: 'Bachelor', // Add required field
+        requirements: {
+          gpa: 3.5,
+          gre_score: 320
+        }
+      }
+
+      // Mock school verification
+      mockSupabaseClient.from.mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({
+            data: [{ id: 'school-123' }],
+            error: null
+          })
+        })
+      })
+
+      // Mock program update success
+      const mockProgramUpdate = vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          select: vi.fn().mockResolvedValue({
+            data: [{ id: 'program-123', name: 'Updated Program' }],
+            error: null
+          })
+        })
+      })
+
+      // Mock requirements check
+      const mockRequirementsSelect = vi.fn().mockReturnValue({
+        eq: vi.fn().mockResolvedValue({
+          data: [{ id: 'req-123' }], // Existing requirements
+          error: null
+        })
+      })
+
+      // Mock requirements update error
+      const mockRequirementsUpdate = vi.fn().mockReturnValue({
+        eq: vi.fn().mockResolvedValue({
+          error: { message: 'Requirements update failed' }
+        })
+      })
+
+      // Set up the mock chain properly
+      mockAdminClient.from
+        .mockReturnValueOnce({
+          update: mockProgramUpdate
+        })
+        .mockReturnValueOnce({
+          select: mockRequirementsSelect
+        })
+        .mockReturnValueOnce({
+          update: mockRequirementsUpdate
+        })
+
+      const request = new NextRequest('http://localhost:3000/api/admin/programs/program-123', {
+        method: 'PUT',
+        body: JSON.stringify(updateData)
+      })
+
+      const response = await PUT(request, { params: Promise.resolve({ id: 'program-123' }) })
+      const result = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(result.name).toBe('Updated Program')
+      expect(mockRequirementsUpdate).toHaveBeenCalled()
+    })
+
     it('should handle PUT server errors gracefully', async () => {
       mockGetCurrentUser.mockRejectedValue(new Error('Server error'))
 
@@ -1128,5 +1201,6 @@ describe('/api/admin/programs/[id]', () => {
       expect(response.status).toBe(500)
       expect(result.error).toBe('Internal server error')
     })
+
   })
 })

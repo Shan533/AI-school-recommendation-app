@@ -169,7 +169,7 @@ describe('Password Reset Flow Integration', () => {
       fireEvent.click(submitButton)
 
       await waitFor(() => {
-        expect(screen.getByText('Password must be at least 8 characters long')).toBeInTheDocument()
+        expect(screen.getByText('Password must meet all requirements: at least 8 characters, uppercase, lowercase, number, and special character')).toBeInTheDocument()
       })
 
       // Test mismatched passwords

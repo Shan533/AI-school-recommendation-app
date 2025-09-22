@@ -87,7 +87,7 @@ export async function PUT(
       name: body.name,
       initial: body.initial || null,
       type: body.type || null,
-      country: body.country || null,
+      region: body.region || (body.country ?? null),
       location: body.location || null,
       year_founded: body.year_founded || null,
       qs_ranking: body.qs_ranking || null,

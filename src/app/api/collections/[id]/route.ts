@@ -38,7 +38,7 @@ export async function GET(
             name,
             initial,
             location,
-            country
+            region
           ),
           programs (
             id,

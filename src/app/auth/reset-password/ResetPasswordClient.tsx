@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { PasswordInput } from '@/components/ui/password-input'
+import { PasswordRequirements } from '@/components/ui/password-requirements'
 import { createClient } from '@/lib/supabase/client'
 import { getErrorMessage } from '@/lib/utils'
 
@@ -18,9 +19,18 @@ export default function ResetPasswordClient() {
   const [success, setSuccess] = useState<string | null>(null)
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPasswordRequirements, setShowPasswordRequirements] = useState(false)
 
   // Lazy initialization to avoid triggering env validation during module import
   const supabase = useMemo(() => createClient(), [])
+
+  // Check if password meets all requirements
+  const isPasswordValid = () => {
+    return password.length >= 8 && 
+           /[A-Z]/.test(password) && /[a-z]/.test(password) && 
+           /[0-9]/.test(password) && 
+           /[^A-Za-z0-9]/.test(password)
+  }
 
   useEffect(() => {
     // Handle password reset token from email link
@@ -72,8 +82,9 @@ export default function ResetPasswordClient() {
     setError(null)
     setSuccess(null)
 
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters long')
+    // Validate password strength
+    if (!isPasswordValid()) {
+      setError('Password must meet all requirements: at least 8 characters, uppercase, lowercase, number, and special character')
       setIsLoading(false)
       return
     }
@@ -116,11 +127,42 @@ export default function ResetPasswordClient() {
                 id="password"
                 name="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  const newPassword = e.target.value
+                  setPassword(newPassword)
+                  
+                  // Show requirements if user starts typing
+                  if (newPassword.length > 0) {
+                    setShowPasswordRequirements(true)
+                  } else {
+                    // Hide requirements if password is empty
+                    setShowPasswordRequirements(false)
+                  }
+                }}
+                onFocus={() => {
+                  // Show requirements on focus if password has content
+                  if (password.length > 0) {
+                    setShowPasswordRequirements(true)
+                  }
+                }}
+                onBlur={() => {
+                  // Hide requirements on blur if password is valid or empty
+                  if (password === '' || isPasswordValid()) {
+                    setShowPasswordRequirements(false)
+                  }
+                }}
                 placeholder="Enter new password"
                 required
                 disabled={isLoading}
               />
+              {showPasswordRequirements && (
+                <div className="mt-2">
+                  <PasswordRequirements 
+                    password={password} 
+                    showOnlyUnmet={true}
+                  />
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">

@@ -165,7 +165,7 @@ export async function PUT(
           name,
           initial,
           location,
-          country
+          region
         ),
         programs (
           id,

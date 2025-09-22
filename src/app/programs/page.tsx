@@ -18,7 +18,7 @@ async function getProgramsWithRatings() {
         name,
         initial,
         location,
-        country
+        region
       )
     `)
     .order('name')
