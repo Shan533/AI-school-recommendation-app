@@ -1,8 +1,7 @@
 -- Create unreviewed_schools table for crawler data
 -- Exact same structure as schools table + crawler fields
 CREATE TABLE unreviewed_schools (
-    -- Exact same columns as schools table
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    id UUID NOT NULL DEFAULT extensions.uuid_generate_v4() PRIMARY KEY,
     name TEXT NOT NULL,
     initial TEXT,
     type TEXT,
@@ -11,18 +10,36 @@ CREATE TABLE unreviewed_schools (
     year_founded INTEGER,
     qs_ranking INTEGER,
     website_url TEXT,
-    created_by UUID REFERENCES auth.users,
+    created_by UUID REFERENCES auth.users(id),
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    
-    -- Crawler-specific fields (additional to main table)
+
+    -- Crawler-specific fields
     crawled_at TIMESTAMPTZ DEFAULT NOW(),
-    status VARCHAR DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'merged')),
+    status VARCHAR DEFAULT 'pending',
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    source_url VARCHAR, -- crawler source url
-    confidence_score DECIMAL(3,2) DEFAULT 0.0, -- data quality confidence (0.0-1.0)
-    raw_data JSONB, -- raw crawler data, for debugging and extension
-    matched_school_id UUID REFERENCES schools(id), -- if matched to existing school, record ID
-    diff_notes TEXT -- admin recorded diff notes
+    source_url VARCHAR,
+    confidence_score DECIMAL(3,2) DEFAULT 0.0,
+    raw_data JSONB,
+    matched_school_id UUID REFERENCES schools(id),
+    diff_notes TEXT,
+
+    -- Ranking columns (wide)
+    qs_2025 INTEGER,
+    qs_2024 INTEGER,
+    times_2016 INTEGER,
+    times_2017 INTEGER,
+    times_2018 INTEGER,
+    times_2019 INTEGER,
+    times_2020 INTEGER,
+    times_2021 INTEGER,
+    times_2022 INTEGER,
+    times_2023 INTEGER,
+    times_2024 INTEGER,
+    times_2025 INTEGER,
+
+    CONSTRAINT unreviewed_schools_created_by_fkey FOREIGN KEY (created_by) REFERENCES auth.users(id),
+    CONSTRAINT unreviewed_schools_matched_school_id_fkey FOREIGN KEY (matched_school_id) REFERENCES schools(id),
+    CONSTRAINT unreviewed_schools_status_check CHECK ((status)::text = ANY (ARRAY['pending','approved','rejected','merged']))
 );
 
 -- Create unreviewed_programs table for program crawler data
@@ -130,6 +147,10 @@ CREATE INDEX idx_unreviewed_schools_crawled_at ON unreviewed_schools(crawled_at)
 CREATE INDEX idx_unreviewed_schools_matched_school_id ON unreviewed_schools(matched_school_id);
 CREATE INDEX idx_unreviewed_schools_name ON unreviewed_schools(name);
 CREATE INDEX idx_unreviewed_schools_country ON unreviewed_schools(country);
+
+-- Additional ranking indexes for quick filters
+CREATE INDEX IF NOT EXISTS idx_unr_qs2025 ON public.unreviewed_schools USING btree (qs_2025);
+CREATE INDEX IF NOT EXISTS idx_unr_qs2024 ON public.unreviewed_schools USING btree (qs_2024);
 
 CREATE INDEX idx_unreviewed_programs_status ON unreviewed_programs(status);
 CREATE INDEX idx_unreviewed_programs_crawled_at ON unreviewed_programs(crawled_at);

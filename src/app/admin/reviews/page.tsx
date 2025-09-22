@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getCurrentUser, isAdmin } from '@/lib/supabase/helpers'
-import { createAdminClient } from '@/lib/supabase/server'
+import { getServerSupabaseAdmin } from '@/lib/supabase/server'
 import { getSupabaseClient } from '@/lib/supabase/helpers'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -196,7 +196,7 @@ async function deleteReview(formData: FormData) {
       throw new Error('Missing review ID or type')
     }
     
-    const supabaseAdmin = createAdminClient()
+    const supabaseAdmin = getServerSupabaseAdmin()
     const tableName = reviewType === 'school' ? 'school_reviews' : 'program_reviews'
     
     // First check if review exists
