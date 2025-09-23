@@ -34,6 +34,7 @@ export default defineConfig({
         'src/app/globals.css',                   // Exclude global CSS
         'src/middleware.ts',                     // Middleware is hard to test in isolation
         'src/lib/types/collections.ts',          // Exclude pure type definitions
+        'src/lib/types/**/*.ts',                 // Exclude all type-only files
       ],
       reporter: ['text', 'json', 'json-summary', 'html'],
       reportsDirectory: 'coverage',
