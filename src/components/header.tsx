@@ -24,7 +24,7 @@ export async function Header() {
     <header className={`shrink-0 border-b bg-gray-50`}>
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link href="/" className="text-xl font-bold">
-          AI School Recommend
+          Top Tech Schools
         </Link>
         <nav className="flex items-center gap-4">
           <NavHoverMenu label="Schools" baseHref="/schools" regions={['United States','United Kingdom','Canada','Europe','Asia','Australia'] as const} />

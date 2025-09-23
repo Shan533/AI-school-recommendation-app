@@ -9,8 +9,8 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "AI School Recommend App",
-  description: "Find the perfect school and program for your educational journey",
+  title: "Top Tech Schools",
+  description: "Find, rate, and review top CS, AI/ML, Data, Cybersecurity & more—matched to your profile",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

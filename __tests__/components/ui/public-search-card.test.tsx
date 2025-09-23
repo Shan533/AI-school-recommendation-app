@@ -212,7 +212,8 @@ describe('PublicSearchCard', () => {
       
       const input = screen.getByRole('textbox')
       expect(input).toHaveAttribute('id', 'search')
-      expect(screen.getByLabelText('Search')).toBeInTheDocument()
+      expect(input).toHaveAttribute('placeholder', 'Search...')
+      expect(input).toHaveAttribute('title', 'Enter search terms to filter results')
     })
 
     test('should have proper form structure', () => {
@@ -253,7 +254,7 @@ describe('PublicSearchCard', () => {
       render(<PublicSearchCard />)
       
       const form = screen.getByRole('textbox').closest('form')
-      expect(form).toHaveClass('flex', 'gap-4', 'items-end')
+      expect(form).toHaveClass('flex', 'gap-3', 'items-end')
     })
   })
 

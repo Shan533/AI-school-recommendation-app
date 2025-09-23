@@ -11,12 +11,14 @@ interface PublicSearchCardProps {
   placeholder?: string
   helpText?: string
   searchParam?: string // URL parameter name, defaults to 'search'
+  onSearch?: (searchTerm: string) => void // Callback for search term changes
 }
 
 export function PublicSearchCard({ 
   placeholder = "Search...", 
   helpText = "Enter search terms to filter results",
-  searchParam = 'search'
+  searchParam = 'search',
+  onSearch
 }: PublicSearchCardProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -26,33 +28,41 @@ export function PublicSearchCard({
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const params = new URLSearchParams(searchParams.toString())
-      
-      if (searchValue.trim()) {
-        params.set(searchParam, searchValue.trim())
+      if (onSearch) {
+        onSearch(searchValue.trim())
       } else {
-        params.delete(searchParam)
+        const params = new URLSearchParams(searchParams.toString())
+        
+        if (searchValue.trim()) {
+          params.set(searchParam, searchValue.trim())
+        } else {
+          params.delete(searchParam)
+        }
+        
+        router.push(`?${params.toString()}`)
       }
-      
-      router.push(`?${params.toString()}`)
     } catch (error) {
       console.error('Search navigation error:', error)
     }
   }
 
   const handleClear = () => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.delete(searchParam)
-    setSearchValue('')
-    router.push(`?${params.toString()}`)
+    if (onSearch) {
+      onSearch('')
+    } else {
+      const params = new URLSearchParams(searchParams.toString())
+      params.delete(searchParam)
+      setSearchValue('')
+      router.push(`?${params.toString()}`)
+    }
   }
 
   return (
-    <Card className="mb-6">
-      <CardContent className="p-4">
-        <form onSubmit={handleSearch} className="flex gap-4 items-end">
+    <Card className="mb-6 border-0 shadow-none">
+      <CardContent className="px-0 py-0">
+        <form onSubmit={handleSearch} className="flex gap-3 items-end">
           <div className="flex-1">
-            <Label htmlFor="search">Search</Label>
+            <Label htmlFor="search"></Label>
             <Input
               id="search"
               name="search"

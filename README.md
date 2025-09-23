@@ -1,6 +1,6 @@
-# 🎓 AI School Recommendation App
+# 🎓 Top Tech Schools
 
-A modern web application for discovering and reviewing university programs, built with Next.js 15, React 19, and Supabase.
+A modern web application for finding, rating, and reviewing top CS, AI/ML, Data, Cybersecurity & more programs, built with Next.js 15, React 19, and Supabase.
 
 ![Next.js](https://img.shields.io/badge/Next.js-15.4.6-black)
 ![React](https://img.shields.io/badge/React-19.1.0-blue)

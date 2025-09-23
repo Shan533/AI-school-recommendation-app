@@ -4,7 +4,7 @@ alwaysApply: true
 
 # Project File Structure
 
-AI School Recommend App structure reference for development guidance.
+Top Tech Schools (formerly AI School Recommend App) structure reference for development guidance.
 
 ## Key Directories
 - **`src/app/`**: Next.js App Router
@@ -14,44 +14,68 @@ AI School Recommend App structure reference for development guidance.
   - `api/reviews/`: Public review endpoints
   - `api/collections/`: User collections management
   - `auth/`: Auth pages & callbacks
-  - `programs/`, `schools/`: Public browsing
-  - `profile/`: User profile
+  - `programs/`, `schools/`: Public browsing with table/card views
+  - `profile/`: User profile management
   - `collections/`: User collections browsing
+  - `page.tsx`: Homepage with hero, top schools, popular programs, career explorer
 
 - **`src/components/`**: React components
   - `admin/`: Admin-specific components (CRUD management, category/career management, bulk assignment)
-  - `auth/`: Auth forms
-  - `profile/`: Profile management
+  - `auth/`: Authentication forms
+  - `profile/`: Profile management components
   - `collections/`: User collections components
-  - `ui/`: shadcn/ui components
+  - `programs/`: Programs list with table/card view toggle
+  - `schools/`: Schools list with table/card view toggle
+  - `ui/`: shadcn/ui components + custom components
+    - `table-view.tsx`: Generic table with filtering and pagination
+    - `view-toggle.tsx`: Card/table view toggle with localStorage
+    - `public-search-card.tsx`: Search component for public pages
+    - `pagination.tsx`: Pagination controls
+    - Core shadcn/ui components (card, table, button, etc.)
 
 - **`src/lib/`**: Utilities & helpers
-  - `supabase/`: DB clients (client.ts, server.ts, helpers.ts)
-  - `auth-actions.ts`: Auth server actions
-  - `validation.ts`: Zod schemas
+  - `supabase/`: Database clients
+    - `client.ts`: Client-side Supabase client
+    - `server.ts`: Server-side Supabase client
+    - `helpers.ts`: Common database operations
+  - `auth-actions.ts`: Authentication server actions
+  - `validation.ts`: Zod validation schemas
   - `admin-search.ts`: Search functionality
-  - `types/`: TypeScript type definitions (collections, schema-enhancements)
+  - `types/`: TypeScript type definitions
+    - `collections.ts`: Collections type definitions
+    - `schema-enhancements.ts`: Database schema enhancements
 
-- **`__tests__/`**: Vitest tests (90.15% coverage)
+- **`__tests__/`**: Vitest test suite (94.15% coverage)
+  - `app/`: Page component tests (including homepage comprehensive tests)
+  - `components/`: Component tests (admin, auth, profile, collections, ui)
+  - `api/`: API endpoint tests (admin, auth, collections, reviews)
+  - `lib/`: Library/utility tests
+  - `integration/`: Integration tests
+  - `schema/`: Database schema tests
 - **`crawler/`**: Python web crawler system
 - **`supabase/migrations/`**: DB schema & RLS policies
 - **`docker/`**: Development containers
 
 ## File Conventions
 - Admin routes: `src/app/admin/[feature]/page.tsx`
+- Public routes: `src/app/[resource]/page.tsx`
 - API routes: `src/app/api/admin/[resource]/route.ts`
 - Components: `src/components/[category]/[name].tsx`
+- Tests: `__tests__/[category]/[name].test.tsx`
 
-## Key Features
-1. Admin Dashboard (CRUD operations)
-2. Review Management & CSV Upload
-3. Advanced Search with intelligent ranking
-4. Authentication System (Supabase Auth + RLS)
-5. Public Pages (schools, programs browsing)
-6. User Collections System (save and organize favorites)
-7. Categories & Careers Management (program classification)
-8. Bulk Assignment Operations (admin tools)
-9. Web Crawler (Python-based data collection)
-10. Responsive Design (Mobile-first Tailwind CSS)
-11. Testing Infrastructure (Vitest + React Testing Library)
-12. Docker Support & User Profile Management
+## Key Features (Current Implementation)
+1. **Table/Card View System** - Toggle between table and card layouts with localStorage persistence
+2. **Homepage Redesign** - Hero section, top schools, popular programs, career explorer with animated marquee
+3. **Advanced Filtering** - Column-based filters in table headers (Excel-like experience)
+4. **Brand Identity** - "Top Tech Schools" with tech-focused messaging
+5. **Admin Dashboard** - CRUD operations for all resources
+6. **Review Management** - CSV upload and review system
+7. **Advanced Search** - Intelligent ranking and search functionality
+8. **Authentication System** - Supabase Auth with RLS policies
+9. **User Collections** - Save and organize favorites
+10. **Categories & Careers** - Program classification system
+11. **Bulk Operations** - Admin bulk assignment tools
+12. **Web Crawler** - Python-based data collection
+13. **Responsive Design** - Mobile-first Tailwind CSS
+14. **Comprehensive Testing** - Vitest + React Testing Library (94.15% coverage)
+15. **Docker Support** - Containerized development environment
