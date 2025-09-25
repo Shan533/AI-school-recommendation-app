@@ -65,11 +65,30 @@ async function getCategories() {
   return (categories || []) as Category[]
 }
 
-export default async function ProgramsPage() {
+export default async function ProgramsPage({ 
+  searchParams 
+}: { 
+  searchParams: Promise<Record<string, string | string[] | undefined>> 
+}) {
+  const params = await searchParams
+  const search = typeof params.search === 'string' ? params.search : undefined
+  const region = typeof params.region === 'string' ? params.region : undefined
+  const category = typeof params.category === 'string' ? params.category : undefined
+  const career = typeof params.career === 'string' ? params.career : undefined
+
   const [programs, categories] = await Promise.all([
     getProgramsWithRatings(),
     getCategories()
   ])
 
-  return <ProgramsPageClient initialPrograms={programs} categories={categories} />
+  return (
+    <ProgramsPageClient 
+      initialPrograms={programs} 
+      categories={categories}
+      search={search}
+      region={region}
+      category={category}
+      career={career}
+    />
+  )
 }

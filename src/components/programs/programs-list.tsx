@@ -25,55 +25,98 @@ export default function ProgramsList({ programs }: ProgramsListProps) {
   // Build filter option lists
   const unique = <T,>(arr: (T | null | undefined)[]) => Array.from(new Set(arr.filter(Boolean) as T[]))
   const degreeOptions = unique(programs.map(p => p.degree)).sort().map(d => ({ label: String(d), value: String(d) }))
-  const schoolOptions = unique(programs.map(p => p.schools?.[0]?.name)).sort().map(n => ({ label: String(n), value: String(n) }))
+  const schoolOptions = unique(programs.map(p => p.schools?.name)).sort().map(n => ({ label: String(n), value: String(n) }))
   const categoryOptions = unique(programs.map(p => getPrimaryCategory(p))).sort().map(c => ({ label: String(c), value: String(c) }))
   const stemOptions = [
     { label: "Yes", value: "true" },
     { label: "No", value: "false" },
   ]
+  const difficultyOptions = unique(programs.map(p => p.application_difficulty)).filter(Boolean).sort().map(d => ({ 
+    label: String(d), 
+    value: String(d) 
+  }))
+  // Region abbreviation mapping
+  const getRegionAbbr = (region: string | null | undefined): string => {
+    if (!region) return "-"
+    const regionMap: Record<string, string> = {
+      'United States': 'US',
+      'United Kingdom': 'UK', 
+      'Canada': 'CA',
+      'Europe': 'EU',
+      'Asia': 'AS',
+      'Australia': 'AU'
+    }
+    return regionMap[region] || region.substring(0, 2).toUpperCase()
+  }
 
   const columns: ColumnDef<Program>[] = [
-    { key: "name", header: "Program Name", sortable: true, widthClassName: "w-[28%]",
+    { key: "name", header: "Program", sortable: true, widthClassName: "w-[25%]",
       render: (v, row) => (
         <div className="truncate" title={`${row.name}${row.initial ? ` (${row.initial})` : ""}`}>
-          {row.name}{row.initial ? ` (${row.initial})` : ""}
+          <div className="font-medium">{row.name}</div>
+          {row.initial && <div className="text-xs text-gray-500">({row.initial})</div>}
         </div>
       )
     },
-    { key: "schools", header: "School", sortable: true, widthClassName: "w-[20%]",
+    { key: "schools", header: "School", widthClassName: "w-[20%]",
       filterType: "select",
-      filterAccessor: (row) => row.schools?.[0]?.name ?? "",
+      filterAccessor: (row) => row.schools?.name ?? "",
       filterOptions: schoolOptions,
-      sortAccessor: (row) => row.schools?.[0]?.name ?? "",
       render: (v, row) => (
-        <div className="truncate" title={`${row.schools?.[0]?.name ?? ""}`}>
-          {row.schools?.[0]?.name ?? ""}
+        <div className="truncate" title={`${row.schools?.name ?? ""}`}>
+          {row.schools?.name ?? ""}
         </div>
       )
     },
-    { key: "degree", header: "Degree", sortable: true, widthClassName: "w-[10%]",
+    { key: "region", header: "Region", widthClassName: "w-[8%]",
       filterType: "select",
-      filterOptions: degreeOptions
+      filterAccessor: (row) => row.schools?.region ?? "",
+      filterOptions: unique(programs.map(p => p.schools?.region)).sort().map(r => ({ label: r || "", value: r || "" })),
+      render: (v, row) => (
+        <div className="text-center font-mono text-sm" title={row.schools?.region ?? ""}>
+          {getRegionAbbr(row.schools?.region)}
+        </div>
+      )
     },
-    { key: "category", header: "Category", sortable: true, widthClassName: "w-[10%]",
+    { key: "degree", header: "Degree", widthClassName: "w-[8%]",
+      filterType: "select",
+      filterOptions: degreeOptions,
+      render: (v) => <div className="text-center">{String(v) || "-"}</div>
+    },
+    { key: "category", header: "Category", widthClassName: "w-[8%]",
       filterType: "select",
       filterOptions: categoryOptions,
       filterAccessor: (row) => getPrimaryCategory(row) ?? "",
-      sortAccessor: (row) => getPrimaryCategory(row) ?? "",
-      render: (v, row) => getPrimaryCategory(row) ?? "-"
+      render: (v, row) => (
+        <div className="text-center font-mono text-sm">
+          {getPrimaryCategory(row) ?? "-"}
+        </div>
+      )
     },
-    { key: "is_stem", header: "STEM", sortable: true, widthClassName: "w-[10%]",
+    { key: "is_stem", header: "STEM", sortable: true, widthClassName: "w-[8%]",
       filterType: "select",
       filterAccessor: (row) => (row.is_stem === true ? "true" : row.is_stem === false ? "false" : ""),
       filterOptions: stemOptions,
-      render: (v, row) => (row.is_stem === true ? "Yes" : row.is_stem === false ? "No" : "-")
+      render: (v, row) => (
+        <div className="text-center">
+          {row.is_stem === true ? "✓" : row.is_stem === false ? "✗" : "-"}
+        </div>
+      )
     },
-    { key: "duration_years", header: "Duration", sortable: true, widthClassName: "w-[10%]",
-      render: (v) => (v ? `${v} years` : "-")
+    { key: "duration_years", header: "Duration", sortable: true, widthClassName: "w-[8%]",
+      render: (v) => (
+        <div className="text-center text-sm">
+          {v ? `${v}y` : "-"}
+        </div>
+      )
     },
-    { key: "application_difficulty", header: "Difficulty", sortable: true, widthClassName: "w-[10%]",
-      filterType: "text"
-    },
+    {key: "difficulty", header: "Difficulty", widthClassName: "w-[8%]",
+      filterType: "select",
+      filterOptions: difficultyOptions,
+      render: (v) => (
+        <div className="text-center">{String(v) || "-"}</div>
+      )
+    }
   ]
 
 
@@ -100,7 +143,8 @@ export default function ProgramsList({ programs }: ProgramsListProps) {
               </CardHeader>
               <CardContent className="flex flex-col flex-grow">
                 <div className="space-y-2 text-sm text-gray-600 mb-4">
-                  <p><strong>School:</strong> {program.schools?.[0]?.name}</p>
+                  <p><strong>School:</strong> {program.schools?.name}</p>
+                  <p><strong>Region:</strong> {getRegionAbbr(program.schools?.region)} ({program.schools?.region})</p>
                   {program.duration_years && (
                     <p><strong>Duration:</strong> {program.duration_years} years</p>
                   )}
@@ -113,6 +157,7 @@ export default function ProgramsList({ programs }: ProgramsListProps) {
                   {getPrimaryCategory(program) && (
                     <p><strong>Category:</strong> {getPrimaryCategory(program)}</p>
                   )}
+                  <p><strong>STEM:</strong> {program.is_stem === true ? "Yes" : program.is_stem === false ? "No" : "-"}</p>
                 </div>
                 <div className="flex gap-2 mt-auto">
                   <Link href={`/programs/${program.id}`} className="text-blue-600 hover:underline">Details</Link>

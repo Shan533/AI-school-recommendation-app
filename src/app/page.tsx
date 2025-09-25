@@ -185,12 +185,12 @@ export default function Home({ searchParams }: { searchParams: Promise<Record<st
           <div className="relative overflow-hidden">
             <div className="flex animate-marquee gap-4">
               {(() => {
-                const colorClasses = [
-                  'bg-blue-50 text-blue-900 border-blue-200',
-                  'bg-green-50 text-green-900 border-green-200',
-                  'bg-purple-50 text-purple-900 border-purple-200',
-                  'bg-amber-50 text-amber-900 border-amber-200',
-                ] as const
+                // const colorClasses = [
+                //   'bg-blue-50 text-blue-900 border-blue-200',
+                //   'bg-green-50 text-green-900 border-green-200',
+                //   'bg-purple-50 text-purple-900 border-purple-200',
+                //   'bg-amber-50 text-amber-900 border-amber-200',
+                // ] as const
                 return null
               })()}
               {/* First set */}
