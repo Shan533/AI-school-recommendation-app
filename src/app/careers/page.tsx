@@ -44,11 +44,11 @@ export default async function CareersPage({
   const careers = await getCareers()
   
   // Map dropdown type parameter to actual career_type values and display names
-  const typeMapping: Record<string, { careerType: string, displayName: string }> = {
-    'software engineering': { careerType: 'Software', displayName: 'Software Engineering' },
-    'data & analytics': { careerType: 'Data', displayName: 'Data & Analytics' },
-    'ai & machine learning': { careerType: 'AI', displayName: 'AI & Machine Learning' },
-    'product & design': { careerType: 'Product', displayName: 'Product & Design' }
+  const typeMapping: Record<string, { careerTypes: string[], displayName: string }> = {
+    'software engineering': { careerTypes: ['Software'], displayName: 'Software Engineering' },
+    'data & analytics': { careerTypes: ['Data'], displayName: 'Data & Analytics' },
+    'ai & machine learning': { careerTypes: ['AI'], displayName: 'AI & Machine Learning' },
+    'product & design': { careerTypes: ['Product', 'Design'], displayName: 'Product & Design' }
   }
   
   // Filter careers based on search or type
@@ -59,7 +59,7 @@ export default async function CareersPage({
     : type
     ? careers.filter(career => {
         const mapping = typeMapping[type]
-        return mapping ? career.career_type === mapping.careerType : false
+        return mapping ? mapping.careerTypes.includes(career.career_type) : false
       })
     : careers
 
@@ -82,7 +82,14 @@ export default async function CareersPage({
   const groupedCareers = search 
     ? null 
     : filteredCareers.reduce((groups, career) => {
-        const careerType = career.career_type || 'Other'
+        let careerType = career.career_type || 'Other'
+        
+        // Only group Product and Design together when coming from navigator (type parameter exists)
+        // Keep them separate in the all careers view
+        if (type && (careerType === 'Product' || careerType === 'Design')) {
+          careerType = 'Product & Design'
+        }
+        
         if (!groups[careerType]) {
           groups[careerType] = []
         }
@@ -91,18 +98,30 @@ export default async function CareersPage({
       }, {} as Record<string, Career[]>)
 
   // Define type display order and names
-  const typeOrder = [
-    'Software',
-    'Data', 
-    'AI',
-    'Product',
-    'Design',
-    'Security',
-    'Infrastructure',
-    'Management',
-    'Research',
-    'Other'
-  ]
+  const typeOrder = type 
+    ? [
+        'Software',
+        'Data', 
+        'AI',
+        'Product & Design',
+        'Security',
+        'Infrastructure',
+        'Management',
+        'Research',
+        'Other'
+      ]
+    : [
+        'Software',
+        'Data', 
+        'AI',
+        'Product',
+        'Design',
+        'Security',
+        'Infrastructure',
+        'Management',
+        'Research',
+        'Other'
+      ]
 
   const typeDisplayNames: Record<string, string> = {
     'Software': 'Software Engineering',
@@ -110,6 +129,7 @@ export default async function CareersPage({
     'AI': 'Artificial Intelligence',
     'Product': 'Product Management',
     'Design': 'Design & UX',
+    'Product & Design': 'Product & Design',
     'Security': 'Cybersecurity',
     'Infrastructure': 'Infrastructure & DevOps',
     'Management': 'Management & Leadership',
