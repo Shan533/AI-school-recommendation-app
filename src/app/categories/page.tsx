@@ -20,7 +20,9 @@ interface ProgramCategory {
 
 async function getCategories(): Promise<ProgramCategory[]> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    // Use absolute URL for server-side fetch in production
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
     const response = await fetch(`${baseUrl}/api/categories`, {
       cache: 'no-store' // Always get fresh data
     })
