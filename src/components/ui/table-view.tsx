@@ -63,7 +63,14 @@ export function TableView<T extends Record<string, unknown>>({
 
     const nextKey = col.key
     if (sortKey === nextKey) {
-      setSortDirection((d) => (d === "asc" ? "desc" : "asc"))
+      // Cycle through: asc -> desc -> no sort
+      if (sortDirection === "asc") {
+        setSortDirection("desc")
+      } else {
+        // Clear sorting
+        setSortKey(null)
+        setSortDirection("asc")
+      }
     } else {
       setSortKey(nextKey)
       setSortDirection("asc")
@@ -133,11 +140,11 @@ export function TableView<T extends Record<string, unknown>>({
   const totalPages = Math.ceil(filteredAndSortedData.length / pageSize)
 
   const SortIcon = ({ active, direction }: { active: boolean; direction: SortDirection }) => {
-    if (!active) return <ChevronsUpDown className="h-3.5 w-3.5 opacity-60" />
+    if (!active) return <ChevronsUpDown className="h-3 w-3 opacity-40" />
     return direction === "asc" ? (
-      <ChevronUp className="h-3.5 w-3.5" />
+      <ChevronUp className="h-3 w-3 text-blue-600" />
     ) : (
-      <ChevronDown className="h-3.5 w-3.5" />
+      <ChevronDown className="h-3 w-3 text-blue-600" />
     )
   }
 
@@ -171,66 +178,69 @@ export function TableView<T extends Record<string, unknown>>({
               return (
                 <TableHead
                   key={String(col.key)}
-                  className={cn("select-none", col.widthClassName, col.sortable && "cursor-pointer")}
+                  className={cn("select-none relative", col.widthClassName, col.sortable && "cursor-pointer hover:bg-gray-50")}
                   onClick={() => onHeaderClick(col)}
                 >
-                  <div className="flex items-center justify-between gap-1">
+                  <div className="flex items-center justify-between">
                     <span className="truncate">{col.header}</span>
-                    <div className="inline-flex items-center gap-1 w-10 justify-end">
-                      {/* Reserve space for sort icon */}
-                      <span className="inline-flex h-3.5 w-3.5 items-center justify-center">
-                        {col.sortable ? <SortIcon active={!!active} direction={sortDirection} /> : null}
-                      </span>
-                      {/* Reserve space for filter icon */}
-                      <span className="inline-flex h-5 w-5 items-center justify-center">
-                        {col.filterType ? (
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <button
-                                type="button"
-                                className="inline-flex h-5 w-5 items-center justify-center rounded hover:bg-gray-100"
-                                onClick={(e) => e.stopPropagation()}
-                                aria-label={`Filter ${col.header}`}
+                    <div className="inline-flex items-center">
+                      {/* Sort icon - always visible for sortable columns */}
+                      {col.sortable && (
+                        <span className="inline-flex h-4 w-4 items-center justify-center">
+                          <SortIcon active={!!active} direction={sortDirection} />
+                        </span>
+                      )}
+                      {/* Filter icon - only when filter is active */}
+                      {col.filterType && (
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button
+                              type="button"
+                              className={cn(
+                                "inline-flex h-4 w-4 items-center justify-center rounded hover:bg-gray-200",
+                                filterValue && "text-blue-600"
+                              )}
+                              onClick={(e) => e.stopPropagation()}
+                              aria-label={`Filter ${col.header}`}
+                            >
+                              <FilterIcon className="h-3 w-3" />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent align="end" className="w-64 p-3" onOpenAutoFocus={(e) => e.preventDefault()}>
+                            {col.filterType === "text" && (
+                              <input
+                                className="w-full border rounded px-2 py-1 text-sm"
+                                placeholder={`Filter ${col.header}`}
+                                value={filterValue}
+                                onChange={(ev) => setFilters((prev) => ({ ...prev, [String(col.key)]: ev.target.value }))}
+                              />
+                            )}
+                            {col.filterType === "select" && (
+                              <select
+                                className="w-full border rounded px-2 py-1 text-sm bg-white"
+                                value={filterValue}
+                                onChange={(ev) => setFilters((prev) => ({ ...prev, [String(col.key)]: ev.target.value }))}
                               >
-                                <FilterIcon className={cn("h-3.5 w-3.5 opacity-70", filterValue ? "text-blue-600" : undefined)} />
-                              </button>
-                            </PopoverTrigger>
-                            <PopoverContent align="end" className="w-64 p-3" onOpenAutoFocus={(e) => e.preventDefault()}>
-                              {col.filterType === "text" && (
-                                <input
-                                  className="w-full border rounded px-2 py-1 text-sm"
-                                  placeholder={`Filter ${col.header}`}
-                                  value={filterValue}
-                                  onChange={(ev) => setFilters((prev) => ({ ...prev, [String(col.key)]: ev.target.value }))}
-                                />
-                              )}
-                              {col.filterType === "select" && (
-                                <select
-                                  className="w-full border rounded px-2 py-1 text-sm bg-white"
-                                  value={filterValue}
-                                  onChange={(ev) => setFilters((prev) => ({ ...prev, [String(col.key)]: ev.target.value }))}
+                                <option value="">All</option>
+                                {(col.filterOptions ?? []).map((opt) => (
+                                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                              </select>
+                            )}
+                            {filterValue !== "" && (
+                              <div className="mt-2 text-right">
+                                <button
+                                  type="button"
+                                  className="text-xs text-gray-600 hover:underline"
+                                  onClick={() => setFilters((prev) => ({ ...prev, [String(col.key)]: "" }))}
                                 >
-                                  <option value="">All</option>
-                                  {(col.filterOptions ?? []).map((opt) => (
-                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                  ))}
-                                </select>
-                              )}
-                              {filterValue !== "" && (
-                                <div className="mt-2 text-right">
-                                  <button
-                                    type="button"
-                                    className="text-xs text-gray-600 hover:underline"
-                                    onClick={() => setFilters((prev) => ({ ...prev, [String(col.key)]: "" }))}
-                                  >
-                                    Clear
-                                  </button>
-                                </div>
-                              )}
+                                  Clear
+                                </button>
+                              </div>
+                            )}
                             </PopoverContent>
                           </Popover>
-                        ) : null}
-                      </span>
+                        )}
                     </div>
                   </div>
                 </TableHead>

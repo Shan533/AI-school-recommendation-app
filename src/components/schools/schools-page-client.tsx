@@ -23,13 +23,34 @@ interface School {
 
 interface SchoolsPageClientProps {
   initialSchools: School[]
+  search?: string
 }
 
-export default function SchoolsPageClient({ initialSchools }: SchoolsPageClientProps) {
+export default function SchoolsPageClient({ initialSchools, search }: SchoolsPageClientProps) {
   // Removed page-level filters in favor of header filters
-  const [searchTerm, setSearchTerm] = React.useState("")
+  const [searchTerm, setSearchTerm] = React.useState(search || "")
+
+  // Update searchTerm when search prop changes (URL parameter changes)
+  React.useEffect(() => {
+    setSearchTerm(search || "")
+  }, [search])
 
   // Removed options for page-level filters
+
+  // Build breadcrumb navigation
+  const breadcrumbs = React.useMemo(() => {
+    const items = []
+
+    // Always start with "All Schools"
+    items.push({ label: "All Schools", href: "/schools" })
+
+    // Add search if present
+    if (search) {
+      items.push({ label: search, href: `/schools?search=${encodeURIComponent(search)}` })
+    }
+
+    return items
+  }, [search])
 
   // Apply search only (column filters handled in table)
   const filteredSchools = React.useMemo(() => {
@@ -48,6 +69,26 @@ export default function SchoolsPageClient({ initialSchools }: SchoolsPageClientP
 
   return (
     <div className="container mx-auto p-6">
+      {/* Breadcrumb Navigation */}
+      {search && (
+        <nav className="flex items-center space-x-2 text-sm mb-6">
+          {breadcrumbs.map((item, index) => (
+            <React.Fragment key={item.href}>
+              {index > 0 && <span className="text-gray-400">›</span>}
+              <Link
+                href={item.href}
+                className={index === breadcrumbs.length - 1
+                  ? "text-gray-900 font-medium"
+                  : "text-gray-500 hover:text-gray-700"
+                }
+              >
+                {item.label}
+              </Link>
+            </React.Fragment>
+          ))}
+        </nav>
+      )}
+
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">
           {searchTerm ? `Search Results (${filteredSchools.length})` : `Schools (${filteredSchools.length})`}

@@ -31,8 +31,15 @@ async function getSchoolsWithRatings() {
   return schools
 }
 
-export default async function SchoolsPage() {
+export default async function SchoolsPage({
+  searchParams
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
+  const params = await searchParams
+  const search = typeof params.search === 'string' ? params.search : undefined
+
   const schools = await getSchoolsWithRatings()
 
-  return <SchoolsPageClient initialSchools={schools} />
+  return <SchoolsPageClient initialSchools={schools} search={search} />
 }
