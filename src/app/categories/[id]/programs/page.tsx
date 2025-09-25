@@ -21,7 +21,8 @@ interface CategoryData {
 
 async function getCategoryPrograms(categoryId: string, page: number = 1): Promise<CategoryData | null> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
     const response = await fetch(
       `${baseUrl}/api/categories/${categoryId}/programs?page=${page}&limit=25`,
       {
