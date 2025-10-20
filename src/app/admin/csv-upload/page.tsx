@@ -95,7 +95,7 @@ export default function CSVUpload() {
           const schools = results.data as CSVRow[]
           let successCount = 0
           let duplicateCount = 0
-          const skippedCount = 0
+          let skippedCount = 0
           const errors: string[] = []
 
           for (const [index, school] of schools.entries()) {
@@ -103,30 +103,35 @@ export default function CSVUpload() {
               // Validate required fields
               if (!school.name?.trim()) {
                 errors.push(`Row ${index + 1}: School name is required`)
+                skippedCount++
                 continue
               }
 
               // Validate school type if provided
-              if (school.type && !VALID_SCHOOL_TYPES.includes(school.type)) {
+              if (school.type && !VALID_SCHOOL_TYPES.includes(school.type.trim())) {
                 errors.push(`Row ${index + 1}: Invalid school type. Must be one of: ${VALID_SCHOOL_TYPES.join(', ')}`)
+                skippedCount++
                 continue
               }
 
               // Validate region if provided
-              if (school.region && !VALID_REGIONS.includes(school.region)) {
+              if (school.region && !VALID_REGIONS.includes(school.region.trim())) {
                 errors.push(`Row ${index + 1}: Invalid region. Must be one of: ${VALID_REGIONS.join(', ')}`)
+                skippedCount++
                 continue
               }
 
               // Validate year_founded if provided
               if (school.year_founded && (isNaN(parseInt(school.year_founded)) || parseInt(school.year_founded) < 1000 || parseInt(school.year_founded) > new Date().getFullYear())) {
                 errors.push(`Row ${index + 1}: Invalid year_founded. Must be a valid year between 1000 and ${new Date().getFullYear()}`)
+                skippedCount++
                 continue
               }
 
               // Validate qs_ranking if provided
               if (school.qs_ranking && (isNaN(parseInt(school.qs_ranking)) || parseInt(school.qs_ranking) < 1)) {
                 errors.push(`Row ${index + 1}: Invalid qs_ranking. Must be a positive integer`)
+                skippedCount++
                 continue
               }
 
@@ -199,7 +204,7 @@ export default function CSVUpload() {
           const programs = results.data as CSVRow[]
           let successCount = 0
           let duplicateCount = 0
-          const skippedCount = 0
+          let skippedCount = 0
           const errors: string[] = []
 
           for (const [index, program] of programs.entries()) {
@@ -207,77 +212,91 @@ export default function CSVUpload() {
               // Validate required fields
               if (!program.name?.trim()) {
                 errors.push(`Row ${index + 1}: Program name is required`)
+                skippedCount++
                 continue
               }
 
               if (!program.school_id?.trim()) {
                 errors.push(`Row ${index + 1}: School ID is required`)
+                skippedCount++
                 continue
               }
 
               if (!program.degree?.trim()) {
                 errors.push(`Row ${index + 1}: Degree is required`)
+                skippedCount++
                 continue
               }
 
               // Validate degree if provided
-              if (program.degree && !VALID_DEGREES.includes(program.degree)) {
+              if (program.degree && !VALID_DEGREES.includes(program.degree.trim())) {
                 errors.push(`Row ${index + 1}: Invalid degree. Must be one of: ${VALID_DEGREES.join(', ')}`)
+                skippedCount++
                 continue
               }
 
               // Validate delivery_method if provided
-              if (program.delivery_method && !VALID_DELIVERY_METHODS.includes(program.delivery_method)) {
+              if (program.delivery_method && !VALID_DELIVERY_METHODS.includes(program.delivery_method.trim())) {
                 errors.push(`Row ${index + 1}: Invalid delivery_method. Must be one of: ${VALID_DELIVERY_METHODS.join(', ')}`)
+                skippedCount++
                 continue
               }
 
               // Validate schedule_type if provided
-              if (program.schedule_type && !VALID_SCHEDULE_TYPES.includes(program.schedule_type)) {
+              if (program.schedule_type && !VALID_SCHEDULE_TYPES.includes(program.schedule_type.trim())) {
                 errors.push(`Row ${index + 1}: Invalid schedule_type. Must be one of: ${VALID_SCHEDULE_TYPES.join(', ')}`)
+                skippedCount++
                 continue
               }
 
               // Validate application_difficulty if provided
-              if (program.application_difficulty && !VALID_APPLICATION_DIFFICULTY.includes(program.application_difficulty)) {
+              if (program.application_difficulty && !VALID_APPLICATION_DIFFICULTY.includes(program.application_difficulty.trim())) {
                 errors.push(`Row ${index + 1}: Invalid application_difficulty. Must be one of: ${VALID_APPLICATION_DIFFICULTY.join(', ')}`)
+                skippedCount++
                 continue
               }
 
               // Validate numeric fields
               if (program.duration_years && (isNaN(parseFloat(program.duration_years)) || parseFloat(program.duration_years) <= 0)) {
                 errors.push(`Row ${index + 1}: Invalid duration_years. Must be a positive number`)
+                skippedCount++
                 continue
               }
 
               if (program.credits && (isNaN(parseInt(program.credits)) || parseInt(program.credits) < 0)) {
                 errors.push(`Row ${index + 1}: Invalid credits. Must be a non-negative integer`)
+                skippedCount++
                 continue
               }
 
               if (program.total_tuition && (isNaN(parseInt(program.total_tuition)) || parseInt(program.total_tuition) < 0)) {
                 errors.push(`Row ${index + 1}: Invalid total_tuition. Must be a non-negative integer`)
+                skippedCount++
                 continue
               }
 
               // Validate test scores
               if (program.ielts_score && (isNaN(parseFloat(program.ielts_score)) || parseFloat(program.ielts_score) < 0 || parseFloat(program.ielts_score) > 9)) {
                 errors.push(`Row ${index + 1}: Invalid ielts_score. Must be between 0 and 9`)
+                skippedCount++
                 continue
               }
 
               if (program.toefl_score && (isNaN(parseFloat(program.toefl_score)) || parseFloat(program.toefl_score) < 0 || parseFloat(program.toefl_score) > 120)) {
                 errors.push(`Row ${index + 1}: Invalid toefl_score. Must be between 0 and 120`)
+                skippedCount++
                 continue
               }
 
               if (program.gre_score && (isNaN(parseInt(program.gre_score)) || parseInt(program.gre_score) < 260 || parseInt(program.gre_score) > 340)) {
                 errors.push(`Row ${index + 1}: Invalid gre_score. Must be between 260 and 340`)
+                skippedCount++
                 continue
               }
 
               if (program.min_gpa && (isNaN(parseFloat(program.min_gpa)) || parseFloat(program.min_gpa) < 0 || parseFloat(program.min_gpa) > 4)) {
                 errors.push(`Row ${index + 1}: Invalid min_gpa. Must be between 0 and 4`)
+                skippedCount++
                 continue
               }
 
@@ -288,6 +307,7 @@ export default function CSVUpload() {
                   addOns = JSON.parse(program.add_ons)
                 } catch {
                   errors.push(`Row ${index + 1}: Invalid add_ons JSON format`)
+                  skippedCount++
                   continue
                 }
               }
@@ -314,7 +334,7 @@ export default function CSVUpload() {
                   duration_years: program.duration_years ? parseFloat(program.duration_years) : null,
                   currency: program.currency?.trim() || null,
                   total_tuition: program.total_tuition ? parseInt(program.total_tuition) : null,
-                  is_stem: program.is_stem === 'true' || program.is_stem === '1' || program.is_stem === 'Y' || program.is_stem === 'y',
+                  is_stem: program.is_stem?.trim() === 'true' || program.is_stem?.trim() === '1' || program.is_stem?.trim() === 'Y' || program.is_stem?.trim() === 'y',
                   description: program.description?.trim() || null,
                   credits: program.credits ? parseInt(program.credits) : null,
                   delivery_method: program.delivery_method?.trim() || null,
@@ -330,9 +350,9 @@ export default function CSVUpload() {
                   gre_score: program.gre_score ? parseInt(program.gre_score) : null,
                   min_gpa: program.min_gpa ? parseFloat(program.min_gpa) : null,
                   other_tests: program.other_tests?.trim() || null,
-                  requires_personal_statement: program.requires_personal_statement === 'true' || program.requires_personal_statement === '1' || program.requires_personal_statement === 'Y' || program.requires_personal_statement === 'y',
-                  requires_portfolio: program.requires_portfolio === 'true' || program.requires_portfolio === '1' || program.requires_portfolio === 'Y' || program.requires_portfolio === 'y',
-                  requires_cv: program.requires_cv === 'true' || program.requires_cv === '1' || program.requires_cv === 'Y' || program.requires_cv === 'y',
+                  requires_personal_statement: program.requires_personal_statement?.trim() === 'true' || program.requires_personal_statement?.trim() === '1' || program.requires_personal_statement?.trim() === 'Y' || program.requires_personal_statement?.trim() === 'y',
+                  requires_portfolio: program.requires_portfolio?.trim() === 'true' || program.requires_portfolio?.trim() === '1' || program.requires_portfolio?.trim() === 'Y' || program.requires_portfolio?.trim() === 'y',
+                  requires_cv: program.requires_cv?.trim() === 'true' || program.requires_cv?.trim() === '1' || program.requires_cv?.trim() === 'Y' || program.requires_cv?.trim() === 'y',
                   letters_of_recommendation: program.letters_of_recommendation ? parseInt(program.letters_of_recommendation) : null,
                   application_fee: program.application_fee ? parseInt(program.application_fee) : null,
                   application_deadline: program.application_deadline?.trim() || null,

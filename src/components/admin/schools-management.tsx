@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { formatDate } from '@/lib/utils'
 
 interface School {
   id: string
@@ -149,13 +150,7 @@ export default function SchoolsManagement({ initialSchools }: SchoolsManagementP
                 </TableCell>
                 <TableCell>{school.qs_ranking || '-'}</TableCell>
                 <TableCell className="text-sm text-gray-600">
-                  {new Date(school.created_at).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
+                  {formatDate(school.created_at)}
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-2">

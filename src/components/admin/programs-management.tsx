@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { formatDate } from '@/lib/utils'
 
 interface School {
   id: string
@@ -245,13 +246,7 @@ export default function ProgramsManagement({ initialPrograms, schools }: Program
                   ) : '-'}
                 </TableCell>
                 <TableCell className="text-sm text-gray-600">
-                  {new Date(program.created_at).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
+                  {formatDate(program.created_at)}
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-2">
