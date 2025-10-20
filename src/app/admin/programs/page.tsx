@@ -485,8 +485,9 @@ export default async function ProgramsManagementPage(props: {
       {/* Programs List */}
       <Card>
         <CardHeader>
-          <CardTitle>
+          <CardTitle className="flex items-center gap-2">
             {search ? `Search Results (${programs.length})` : `All Programs (${programs.length})`}
+            <span className="text-sm font-normal text-gray-500">• Sorted by creation time (newest first)</span>
           </CardTitle>
         </CardHeader>
         <CardContent>

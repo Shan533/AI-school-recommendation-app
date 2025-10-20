@@ -50,6 +50,7 @@ interface Program {
   // New optional fields aligned with schema enhancements
   application_difficulty?: 'SSR' | 'SR' | 'R' | 'N'
   difficulty_description?: string
+  created_at: string
   schools?: School
   requirements?: Requirements
 }
@@ -194,14 +195,15 @@ export default function ProgramsManagement({ initialPrograms, schools }: Program
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[25%]">Program Name</TableHead>
-              <TableHead className="w-[20%]">School</TableHead>
-              <TableHead className="w-[12%]">Degree</TableHead>
-              <TableHead className="w-[10%]">Duration</TableHead>
-              <TableHead className="w-[12%]">Delivery</TableHead>
-              <TableHead className="w-[8%]">STEM</TableHead>
-              <TableHead className="w-[13%]">Requirements</TableHead>
-              <TableHead className="w-[20%]">Actions</TableHead>
+              <TableHead className="w-[20%]">Program Name</TableHead>
+              <TableHead className="w-[15%]">School</TableHead>
+              <TableHead className="w-[10%]">Degree</TableHead>
+              <TableHead className="w-[8%]">Duration</TableHead>
+              <TableHead className="w-[10%]">Delivery</TableHead>
+              <TableHead className="w-[6%]">STEM</TableHead>
+              <TableHead className="w-[10%]">Requirements</TableHead>
+              <TableHead className="w-[12%]">Created At</TableHead>
+              <TableHead className="w-[9%]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -241,6 +243,15 @@ export default function ProgramsManagement({ initialPrograms, schools }: Program
                       {program.requirements.min_gpa && (program.requirements.ielts_score || program.requirements.toefl_score ? ', ' : '') + `GPA: ${program.requirements.min_gpa}`}
                     </div>
                   ) : '-'}
+                </TableCell>
+                <TableCell className="text-sm text-gray-600">
+                  {new Date(program.created_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-2">

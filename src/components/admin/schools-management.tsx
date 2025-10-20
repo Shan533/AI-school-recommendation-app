@@ -17,6 +17,7 @@ interface School {
   year_founded?: number
   qs_ranking?: number
   website_url?: string
+  created_at: string
 }
 
 interface SchoolsManagementProps {
@@ -120,10 +121,11 @@ export default function SchoolsManagement({ initialSchools }: SchoolsManagementP
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[35%]">Name</TableHead>
-              <TableHead className="w-[15%]">Type</TableHead>
-              <TableHead className="w-[25%]">Location</TableHead>
-              <TableHead className="w-[10%]">QS Ranking</TableHead>
+              <TableHead className="w-[30%]">Name</TableHead>
+              <TableHead className="w-[12%]">Type</TableHead>
+              <TableHead className="w-[20%]">Location</TableHead>
+              <TableHead className="w-[8%]">QS Ranking</TableHead>
+              <TableHead className="w-[15%]">Created At</TableHead>
               <TableHead className="w-[15%]">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -146,6 +148,15 @@ export default function SchoolsManagement({ initialSchools }: SchoolsManagementP
                   </div>
                 </TableCell>
                 <TableCell>{school.qs_ranking || '-'}</TableCell>
+                <TableCell className="text-sm text-gray-600">
+                  {new Date(school.created_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </TableCell>
                 <TableCell>
                   <div className="flex gap-2">
                     <Button 

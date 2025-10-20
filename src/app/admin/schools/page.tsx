@@ -186,8 +186,9 @@ export default async function SchoolsManagementPage(props: {
       {/* Schools List */}
       <Card>
         <CardHeader>
-          <CardTitle>
+          <CardTitle className="flex items-center gap-2">
             {search ? `Search Results (${schools.length})` : `All Schools (${schools.length})`}
+            <span className="text-sm font-normal text-gray-500">• Sorted by creation time (newest first)</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
