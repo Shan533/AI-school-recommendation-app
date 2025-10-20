@@ -53,3 +53,5 @@ next-env.d.ts
 /csv
 
 .swc/
+
+.cursor/mcp.json
